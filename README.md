@@ -219,4 +219,5 @@ python tests/test_smartroute.py
 ---
 
 ## 📚 Project Documentation
+- **Academic Research Paper:** [`docs/RESEARCH_PAPER.md`](docs/RESEARCH_PAPER.md)
 - **Date Anomaly & Operational Lead Time Whitepaper:** [`docs/operational_lead_time.md`](docs/operational_lead_time.md)
