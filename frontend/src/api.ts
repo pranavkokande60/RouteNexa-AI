@@ -1,5 +1,5 @@
 /**
- * SmartRoute-AI API Client
+ * RouteNexa-AI API Client
  * Clean, lightweight HTTP client for interacting with the FastAPI backend.
  */
 

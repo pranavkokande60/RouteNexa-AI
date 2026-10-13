@@ -1,5 +1,5 @@
 """
-SmartRoute-AI Database Configuration
+RouteNexa-AI Database Configuration
 ====================================
 Module: backend/app/database.py
 Author: Antigravity AI Engineering Team

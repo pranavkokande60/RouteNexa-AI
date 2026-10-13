@@ -1,4 +1,4 @@
-# SmartRoute AI: A Closed-Loop Supply Chain Intelligence Framework Combining Empirical Cohort Anchoring, Multi-Horizon Predictive Inference, and Continual Model Observability for Confectionery Freight Networks
+# RouteNexa AI: An Intelligent Logistics Analytics, Route Efficiency and Predictive Decision Support System for Factory-to-Customer Shipments
 
 **Pranav Kokande**  
 *Department of Computer Science and Engineering*  
@@ -9,14 +9,14 @@
 ---
 
 ## Abstract
-Enterprise supply chains in perishable and confectionery distribution face severe operational vulnerabilities stemming from multi-tiered transit variance, carrier Service Level Agreement (SLA) breaches, and systematic recording anomalies in historical Enterprise Resource Planning (ERP) logs. This paper introduces **SmartRoute AI**, an end-to-end, closed-loop logistics decision-support and predictive intelligence platform evaluated on 10,194 nationwide freight shipments across 196 distinct shipping corridors and 5 specialized manufacturing plants. 
+Enterprise supply chains in perishable and confectionery distribution face severe operational vulnerabilities stemming from multi-tiered transit variance, carrier Service Level Agreement (SLA) breaches, and systematic recording anomalies in historical Enterprise Resource Planning (ERP) logs. This paper introduces **RouteNexa AI**, an end-to-end, closed-loop logistics decision-support and predictive intelligence platform evaluated on 10,194 nationwide freight shipments across 196 distinct shipping corridors and 5 specialized manufacturing plants. 
 
 Our contributions are threefold: 
 1. **Empirical Cohort Anchoring Formulation:** A non-destructive mathematical transformation that detects and normalizes multi-year artificial date offsets in legacy enterprise databases without manual label manipulation, successfully recovering physically realistic operational lead times ($\mu = 4.29$ days, $\sigma = 1.62$ days).
 2. **Multi-Model Predictive Architecture:** An ensemble framework coupling an SLA delay classifier ($F_1 = 0.88$, $\text{AUC-ROC} = 0.92$), a Gradient Boosted ETA lead-time regressor ($\text{MAE} = 0.62$ days, 94.2% accuracy within $\pm 1$ day), an unsupervised Isolation Forest for multi-dimensional transit anomaly detection, and a 14-day rolling autoregressive volume forecaster with 95% confidence intervals.
 3. **Closed-Loop Continual Model Observability:** A live feedback architecture that captures post-delivery ground truth, tracks real-time model degradation using strict sample quorum rules ($N \ge 5$), executes in-memory zero-mutation prediction simulations, and provides deterministic, natural-language read-only SQL querying. 
 
-Empirical benchmarks demonstrate that SmartRoute AI yields a 28.4% reduction in SLA breach vulnerability and enables proactive route rebalancing for high-variance freight corridors.
+Empirical benchmarks demonstrate that RouteNexa AI yields a 28.4% reduction in SLA breach vulnerability and enables proactive route rebalancing for high-variance freight corridors.
 
 **Keywords:** Supply Chain Analytics, Operational Lead Time, Empirical Cohort Anchoring, ETA Prediction, Random Forest, Isolation Forest, Model Observability, Decision Support Systems, Explainable AI.
 
@@ -41,7 +41,7 @@ flowchart LR
     I --> J["Ground-Truth Feedback & Route Optimization"]
 ```
 
-To address these challenges, we design and implement **SmartRoute AI**, a production-deployed logistics intelligence framework. Evaluated on the historical shipments of **Nassau Candy Distributor**—one of the largest specialty confectionery manufacturers in the United States—SmartRoute AI bridges raw enterprise transactional data with real-time operational decision support.
+To address these challenges, we design and implement **RouteNexa AI**, a production-deployed logistics intelligence framework. Evaluated on the historical shipments of **Nassau Candy Distributor**—one of the largest specialty confectionery manufacturers in the United States—RouteNexa AI bridges raw enterprise transactional data with real-time operational decision support.
 
 ### Key Contributions:
 1. **Mathematical Resolution of Systematic ERP Temporal Distortions:** We formulate and validate the *Empirical Same Day Cohort Anchoring* algorithm, which uncovers rigid cohort shifts (spanning 904 to 1,642 days) in legacy date fields and dynamically recovers true operational shipping lead times.
@@ -156,7 +156,7 @@ In addition to the temporal shift, the automated preprocessing pipeline tags eac
 
 ## 4. Machine Learning & Algorithmic Architecture
 
-SmartRoute AI deploys an ensemble of four specialized models coordinated through a centralized `MLModelManager`.
+RouteNexa AI deploys an ensemble of four specialized models coordinated through a centralized `MLModelManager`.
 
 ```mermaid
 flowchart TD
@@ -233,7 +233,7 @@ Routes are categorized into three performance tiers:
 
 ## 5. Closed-Loop Enterprise Decision Support System
 
-SmartRoute AI integrates predictive models with an interactive enterprise decision-support interface.
+RouteNexa AI integrates predictive models with an interactive enterprise decision-support interface.
 
 ```mermaid
 sequenceDiagram
@@ -280,7 +280,7 @@ $$\text{Alert}(\text{Degradation}) = \begin{cases}
 \end{cases}$$
 
 ### 5.4 Deterministic Read-Only Conversational AI Assistant
-To enable natural language analytics without vulnerability to prompt injection or destructive SQL queries, SmartRoute AI features an **AI Logistics Assistant** (`POST /api/v1/assistant/query`). Queries are parsed through an intent taxonomy and translated into deterministic SQLAlchemy aggregations against production tables, returning verified metrics and explicit data lineage citations.
+To enable natural language analytics without vulnerability to prompt injection or destructive SQL queries, RouteNexa AI features an **AI Logistics Assistant** (`POST /api/v1/assistant/query`). Queries are parsed through an intent taxonomy and translated into deterministic SQLAlchemy aggregations against production tables, returning verified metrics and explicit data lineage citations.
 
 ---
 
@@ -303,11 +303,11 @@ We partition the 10,194 records chronologically into an **80% training set** (8,
 | Ridge Regression (α=1.0) | 1.16      | 1.51       | 0.435 | 69.5%             |
 | Support Vector Machine   | 0.89      | 1.28       | 0.589 | 81.4%             |
 | XGBoost Regressor        | 0.68      | 1.04       | 0.732 | 91.8%             |
-| **SmartRoute AI (GBM)**  | **0.62**  | **0.96**   | **0.781** | **94.2%**     |
+| **RouteNexa AI (GBM)**   | **0.62**  | **0.96**   | **0.781** | **94.2%**     |
 +--------------------------+-----------+------------+-------+-------------------+
 ```
 
-SmartRoute AI achieves an **MAE of 0.62 days** (~14.8 hours) and an **$R^2$ of 0.781**, with **94.2%** of all test predictions falling within $\pm 1$ day of actual delivery dates.
+RouteNexa AI achieves an **MAE of 0.62 days** (~14.8 hours) and an **$R^2$ of 0.781**, with **94.2%** of all test predictions falling within $\pm 1$ day of actual delivery dates.
 
 ```
                    PREDICTED VS. ACTUAL LEAD TIME ERROR DENSITY
@@ -334,7 +334,7 @@ SmartRoute AI achieves an **MAE of 0.62 days** (~14.8 hours) and an **$R^2$ of 0
 | Logistic Regression     | 0.64      | 0.58   | 0.61     | 0.71                |
 | Linear SVM              | 0.68      | 0.62   | 0.65     | 0.74                |
 | Standard Random Forest  | 0.84      | 0.76   | 0.80     | 0.86                |
-| **SmartRoute AI (BRF)** | **0.86**  | **0.90** | **0.88** | **0.92**          |
+| **RouteNexa AI (BRF)**  | **0.86**  | **0.90** | **0.88** | **0.92**          |
 +-------------------------+-----------+--------+----------+---------------------+
 ```
 
@@ -399,7 +399,7 @@ Without cohort anchoring, machine learning models simply memorize the artificial
 
 ## 7. Production Engineering & Cloud Deployment
 
-SmartRoute AI is implemented as a cloud-native platform:
+RouteNexa AI is implemented as a cloud-native platform:
 - **Backend Service:** FastAPI with asynchronous event loops, Pydantic data validation schemas, and SQLAlchemy 2.0 ORM.
 - **Frontend Dashboard:** React 18 single-page application built with TypeScript, Vite, Tailwind CSS, and Leaflet for geospatial visualization.
 - **Real-Time Telemetry:** Full-duplex WebSocket stream (`/ws/live-operations`) broadcasting simulated dispatch events.
@@ -417,9 +417,9 @@ SmartRoute AI is implemented as a cloud-native platform:
 
 ## 9. Conclusion
 
-This paper presented **SmartRoute AI**, an integrated logistics intelligence and decision-support framework. By formulating **Empirical Same Day Cohort Anchoring**, we mathematically rectified multi-year temporal anomalies across 10,194 shipments without synthetic data tampering. 
+This paper presented **RouteNexa AI**, an integrated logistics intelligence and decision-support framework. By formulating **Empirical Same Day Cohort Anchoring**, we mathematically rectified multi-year temporal anomalies across 10,194 shipments without synthetic data tampering. 
 
-Our multi-model architecture delivers high-precision ETA regression ($\text{MAE} = 0.62$ days), proactive delay classification ($F_1 = 0.88$), unsupervised anomaly detection, and 14-day volume projections. Combined with in-memory sandbox simulations, sample-quorum-constrained model observability, and deterministic conversational analytics, SmartRoute AI bridges the gap between historical supply chain analytics and real-time operational execution.
+Our multi-model architecture delivers high-precision ETA regression ($\text{MAE} = 0.62$ days), proactive delay classification ($F_1 = 0.88$), unsupervised anomaly detection, and 14-day volume projections. Combined with in-memory sandbox simulations, sample-quorum-constrained model observability, and deterministic conversational analytics, RouteNexa AI bridges the gap between historical supply chain analytics and real-time operational execution.
 
 Future work will explore multi-stop Vehicle Routing Problem (VRP) optimization with live satellite meteorological feeds and federated multi-carrier SLA learning.
 

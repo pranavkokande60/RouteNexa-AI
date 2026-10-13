@@ -1,10 +1,10 @@
 """
-SmartRoute-AI Machine Learning Module
-=====================================
+RouteNexa AI Machine Learning Module
+====================================
 Module: src/ml_models.py
 Author: Antigravity AI Engineering Team
 
-This module implements the 4 core Machine Learning capabilities for SmartRoute AI:
+This module implements the 4 core Machine Learning capabilities for RouteNexa AI:
 1. DELAY PREDICTION: Classification model (Logistic Regression baseline vs Random Forest)
    predicting whether a shipment will breach its mode-specific SLA lead time.
 2. ETA PREDICTION: Regression model (Random Forest Regressor) predicting operational

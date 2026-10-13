@@ -67,7 +67,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
             <Lock className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white">SmartRoute AI Login</h2>
+            <h2 className="text-base font-bold text-white">RouteNexa AI Login</h2>
             <p className="text-xs text-slate-400">Authenticate with Role-Based Access Control</p>
           </div>
         </div>
@@ -89,7 +89,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@smartroute.ai"
+                placeholder="admin@routenexa.ai"
                 className="w-full bg-slate-950 border border-slate-800 text-sm rounded-lg pl-9 pr-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-sky-500"
               />
             </div>
@@ -128,7 +128,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
-              onClick={() => handleDemoClick('admin@smartroute.ai', 'Admin123!')}
+              onClick={() => handleDemoClick('admin@routenexa.ai', 'Admin123!')}
               className="p-2.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/40 rounded-xl text-left transition-all group"
             >
               <div className="font-semibold text-slate-200 group-hover:text-sky-400 flex items-center justify-between">
@@ -139,7 +139,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
             </button>
 
             <button
-              onClick={() => handleDemoClick('analyst@smartroute.ai', 'Analyst123!')}
+              onClick={() => handleDemoClick('analyst@routenexa.ai', 'Analyst123!')}
               className="p-2.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-left transition-all group"
             >
               <div className="font-semibold text-slate-200 group-hover:text-emerald-400 flex items-center justify-between">
@@ -150,7 +150,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
             </button>
 
             <button
-              onClick={() => handleDemoClick('manager@smartroute.ai', 'Manager123!')}
+              onClick={() => handleDemoClick('manager@routenexa.ai', 'Manager123!')}
               className="p-2.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/40 rounded-xl text-left transition-all group"
             >
               <div className="font-semibold text-slate-200 group-hover:text-amber-400 flex items-center justify-between">
@@ -161,7 +161,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
             </button>
 
             <button
-              onClick={() => handleDemoClick('viewer@smartroute.ai', 'Viewer123!')}
+              onClick={() => handleDemoClick('viewer@routenexa.ai', 'Viewer123!')}
               className="p-2.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/40 rounded-xl text-left transition-all group"
             >
               <div className="font-semibold text-slate-200 group-hover:text-purple-400 flex items-center justify-between">

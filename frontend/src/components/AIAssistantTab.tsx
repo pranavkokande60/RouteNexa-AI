@@ -22,12 +22,12 @@ export const AIAssistantTab: React.FC = () => {
       id: 'welcome',
       sender: 'assistant',
       text: (
-        "Hello! I am your SmartRoute AI Logistics Assistant. " +
+        "Hello! I am your RouteNexa AI Logistics Assistant. " +
         "You can ask me questions about Nassau Candy's actual logistics operations, shipping performance, " +
         "carrier modes, factory corridors, and live customer orders.\n\n" +
         "All my responses are generated using safe, read-only analytics queries directly against the verified database."
       ),
-      sourceMetric: "SmartRoute AI Safe Analytics Engine",
+      sourceMetric: "RouteNexa AI Safe Analytics Engine",
       suggestedFollowups: [
         "What is the average lead time?",
         "Which factory has the highest average lead time?",
@@ -103,7 +103,7 @@ export const AIAssistantTab: React.FC = () => {
         id: 'welcome-reset',
         sender: 'assistant',
         text: "Conversation cleared. How can I assist you with your logistics data?",
-        sourceMetric: "SmartRoute AI Analytics Engine",
+        sourceMetric: "RouteNexa AI Analytics Engine",
         suggestedFollowups: [
           "What is the average lead time?",
           "Which factory has the highest average lead time?",
@@ -277,7 +277,7 @@ export const AIAssistantTab: React.FC = () => {
           type="text"
           value={inputQuery}
           onChange={(e) => setInputQuery(e.target.value)}
-          placeholder="Ask a question about SmartRoute logistics data (e.g., 'What is the average lead time?')..."
+          placeholder="Ask a question about RouteNexa logistics data (e.g., 'What is the average lead time?')..."
           className="flex-1 bg-transparent border-0 text-xs sm:text-sm text-white placeholder-slate-500 px-3 py-2 focus:outline-none focus:ring-0 font-medium"
         />
 

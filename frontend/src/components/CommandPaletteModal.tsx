@@ -189,7 +189,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         >
           {loading && results.length === 0 ? (
             <div className="p-8 text-center text-slate-500 text-xs">
-              Searching SmartRoute AI catalog...
+              Searching RouteNexa AI catalog...
             </div>
           ) : results.length === 0 ? (
             <div className="p-8 text-center text-slate-500 text-xs">
@@ -259,7 +259,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           </div>
 
           <div className="hidden sm:block text-slate-600 font-mono text-[10px]">
-            SmartRoute AI Command Palette
+            RouteNexa AI Command Palette
           </div>
         </div>
       </div>

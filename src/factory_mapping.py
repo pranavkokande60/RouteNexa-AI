@@ -1,6 +1,6 @@
 """
-SmartRoute-AI Factory and Product Mapping Module
-================================================
+RouteNexa AI Factory and Product Mapping Module
+===============================================
 Module: src/factory_mapping.py
 Author: Antigravity AI Engineering Team
 

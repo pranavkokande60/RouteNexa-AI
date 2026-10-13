@@ -102,8 +102,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, activ
       {/* Footer Info */}
       <div className="px-6 pt-4 border-t border-slate-800/80">
         <div className="text-[11px] text-slate-500">
-          <span className="font-semibold text-slate-400">Nassau Candy Logistics</span>
-          <p className="mt-0.5 text-[10px] text-slate-600">Final Year Internship Project</p>
+          <span className="font-semibold text-slate-400">RouteNexa AI Logistics</span>
+          <p className="mt-0.5 text-[10px] text-slate-600">Nassau Candy • Final Year Project</p>
         </div>
       </div>
     </aside>

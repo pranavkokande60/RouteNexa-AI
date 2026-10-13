@@ -1,5 +1,5 @@
 """
-SmartRoute-AI JWT Authentication and Role-Based Access Control
+RouteNexa-AI JWT Authentication and Role-Based Access Control
 ==============================================================
 Module: backend/app/auth.py
 Author: Antigravity AI Engineering Team
@@ -66,6 +66,12 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
 
     user = db.query(User).filter(User.email == email).first()
+    if not user and email:
+        if "@smartroute.ai" in email:
+            user = db.query(User).filter(User.email == email.replace("@smartroute.ai", "@routenexa.ai")).first()
+        elif "@routenexa.ai" in email:
+            user = db.query(User).filter(User.email == email.replace("@routenexa.ai", "@smartroute.ai")).first()
+
     if user is None or not user.is_active:
         raise credentials_exception
     return user

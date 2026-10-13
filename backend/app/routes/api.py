@@ -113,7 +113,15 @@ auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 @auth_router.post("/login", response_model=TokenResponse)
 def login(creds: LoginRequest, db: Session = Depends(get_db)):
     """Authenticate user and issue JWT token."""
-    user = db.query(User).filter(User.email == creds.email).first()
+    target_email = creds.email.strip().lower()
+    user = db.query(User).filter(User.email == target_email).first()
+    if not user and "@smartroute.ai" in target_email:
+        alt_email = target_email.replace("@smartroute.ai", "@routenexa.ai")
+        user = db.query(User).filter(User.email == alt_email).first()
+    elif not user and "@routenexa.ai" in target_email:
+        alt_email = target_email.replace("@routenexa.ai", "@smartroute.ai")
+        user = db.query(User).filter(User.email == alt_email).first()
+
     if not user or not verify_password(creds.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -141,10 +149,10 @@ def get_me(current_user: User = Depends(get_current_user)):
 def get_demo_accounts():
     """Return list of available demo test accounts."""
     return [
-        {"role": "Admin", "email": "admin@smartroute.ai", "password": "Admin123!", "description": "Full access to settings, dataset management, and retraining"},
-        {"role": "Analyst", "email": "analyst@smartroute.ai", "password": "Analyst123!", "description": "Access to analytics, ML models, simulations, and forecasting"},
-        {"role": "Manager", "email": "manager@smartroute.ai", "password": "Manager123!", "description": "Access to operations, factory views, alerts, and reports"},
-        {"role": "Viewer", "email": "viewer@smartroute.ai", "password": "Viewer123!", "description": "Read-only access to dashboard and route explorer"}
+        {"role": "Admin", "email": "admin@routenexa.ai", "password": "Admin123!", "description": "Full access to settings, dataset management, and retraining"},
+        {"role": "Analyst", "email": "analyst@routenexa.ai", "password": "Analyst123!", "description": "Access to analytics, ML models, simulations, and forecasting"},
+        {"role": "Manager", "email": "manager@routenexa.ai", "password": "Manager123!", "description": "Access to operations, factory views, alerts, and reports"},
+        {"role": "Viewer", "email": "viewer@routenexa.ai", "password": "Viewer123!", "description": "Read-only access to dashboard and route explorer"}
     ]
 
 
@@ -251,7 +259,7 @@ def get_ai_summary(db: Session = Depends(get_db)):
     avg_eff = db.query(func.avg(Route.efficiency_score)).scalar() or 0.0
 
     return {
-        "headline": f"SmartRoute AI Logistics Audit: {total_routes} Routes Evaluated across 5 Manufacturing Hubs",
+        "headline": f"RouteNexa AI Logistics Audit: {total_routes} Routes Evaluated across 5 Manufacturing Hubs",
         "bullet_points": [
             f"Network Mean Efficiency: The nationwide network demonstrates an average efficiency score of {avg_eff:.1f}/100.",
             f"Top Performing Corridor: '{top_route.route_id}' achieved a score of {top_route.efficiency_score:.1f} with an operational transit time of {top_route.avg_lead_time:.1f} days.",
@@ -1130,7 +1138,7 @@ def generate_pdf_report(db: Session = Depends(get_db)):
     body_style = ParagraphStyle("BodyStyle", parent=styles["Normal"], fontSize=9, leading=13, textColor=colors.HexColor("#334155"))
 
     # Title Banner
-    story.append(Paragraph("SmartRoute AI — Executive Logistics Report", title_style))
+    story.append(Paragraph("RouteNexa AI — Executive Logistics Report", title_style))
     story.append(Paragraph("Nassau Candy Distributor Factory-to-Customer Supply Chain Intelligence", subtitle_style))
     story.append(Paragraph(f"Generated on {datetime.utcnow().strftime('%B %d, %Y at %H:%M UTC')} | System Status: Active", subtitle_style))
     story.append(Spacer(1, 14))
@@ -1216,7 +1224,7 @@ def generate_pdf_report(db: Session = Depends(get_db)):
     return StreamingResponse(
         buffer,
         media_type="application/pdf",
-        headers={"Content-Disposition": "attachment; filename=SmartRoute_AI_Executive_Report.pdf"}
+        headers={"Content-Disposition": "attachment; filename=RouteNexa_AI_Executive_Report.pdf"}
     )
 
 
@@ -1711,7 +1719,7 @@ def query_logistics_assistant(req: AssistantQueryRequest, db: Session = Depends(
     return {
         "query": raw_query,
         "answer": (
-            "I do not have sufficient verified data in the SmartRoute AI database to answer that specific inquiry. "
+            "I do not have sufficient verified data in the RouteNexa AI database to answer that specific inquiry. "
             "To prevent hallucination, I only provide verified statistics derived from Nassau Candy's 10,194 historical "
             "shipment records, 196 corridor benchmarks, active live order queues, and trained ML models.\n\n"
             "Try asking about:\n"

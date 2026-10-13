@@ -47,18 +47,18 @@ logger = logging.getLogger("SmartRoute.Main")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle manager handling startup initialization and background tasks."""
-    logger.info("Starting up SmartRoute AI backend service...")
+    logger.info("Starting up RouteNexa AI backend service...")
     # Ensure database is initialized
     init_database()
     # Launch background live event simulator
     simulator_task = asyncio.create_task(live_event_simulator_loop())
     yield
-    logger.info("Shutting down SmartRoute AI backend service...")
+    logger.info("Shutting down RouteNexa AI backend service...")
     simulator_task.cancel()
 
 
 app = FastAPI(
-    title="SmartRoute AI — Supply Chain Intelligence & Decision Support API",
+    title="RouteNexa AI: An Intelligent Logistics Analytics, Route Efficiency and Predictive Decision Support System for Factory-to-Customer Shipments",
     description=(
         "Production-grade REST and WebSocket API for factory-to-customer logistics intelligence, "
         "route bottleneck detection, SLA delay prediction, and ETA estimation for Nassau Candy Distributor."
@@ -119,7 +119,7 @@ async def websocket_live_operations(websocket: WebSocket):
 def health_check():
     return {
         "status": "HEALTHY",
-        "service": "SmartRoute AI",
+        "service": "RouteNexa AI",
         "version": "1.0.0",
         "docs": "/docs"
     }

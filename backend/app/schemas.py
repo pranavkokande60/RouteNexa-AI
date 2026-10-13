@@ -1,5 +1,5 @@
 """
-SmartRoute-AI Pydantic Schemas
+RouteNexa-AI Pydantic Schemas
 ==============================
 Module: backend/app/schemas.py
 Author: Antigravity AI Engineering Team

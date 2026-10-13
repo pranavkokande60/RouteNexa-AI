@@ -1,6 +1,6 @@
 """
-SmartRoute-AI Test Suite
-========================
+RouteNexa AI Test Suite
+=======================
 Tests verifying data preprocessing, factory mapping, route analytics,
 lead-time calculations, ML predictions, and API integrity.
 """
@@ -84,7 +84,7 @@ def test_ml_prediction_inference():
 
 
 if __name__ == "__main__":
-    print("Running SmartRoute AI test assertions...")
+    print("Running RouteNexa AI test assertions...")
     test_factory_mapping()
     test_haversine_distance()
     test_efficiency_score_calculation()

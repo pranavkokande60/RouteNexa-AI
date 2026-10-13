@@ -44,10 +44,10 @@ def init_database():
         if db.query(User).count() == 0:
             logger.info("Seeding demo users...")
             demo_users = [
-                User(username="admin", email="admin@smartroute.ai", hashed_password=get_password_hash("Admin123!"), role="Admin"),
-                User(username="analyst", email="analyst@smartroute.ai", hashed_password=get_password_hash("Analyst123!"), role="Analyst"),
-                User(username="manager", email="manager@smartroute.ai", hashed_password=get_password_hash("Manager123!"), role="Manager"),
-                User(username="viewer", email="viewer@smartroute.ai", hashed_password=get_password_hash("Viewer123!"), role="Viewer"),
+                User(username="admin", email="admin@routenexa.ai", hashed_password=get_password_hash("Admin123!"), role="Admin"),
+                User(username="analyst", email="analyst@routenexa.ai", hashed_password=get_password_hash("Analyst123!"), role="Analyst"),
+                User(username="manager", email="manager@routenexa.ai", hashed_password=get_password_hash("Manager123!"), role="Manager"),
+                User(username="viewer", email="viewer@routenexa.ai", hashed_password=get_password_hash("Viewer123!"), role="Viewer"),
             ]
             db.add_all(demo_users)
             db.commit()

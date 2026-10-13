@@ -1,5 +1,5 @@
 """
-SmartRoute-AI Route Intelligence and Efficiency Scoring Module
+RouteNexa AI Route Intelligence and Efficiency Scoring Module
 ==============================================================
 Module: src/route_analytics.py
 Author: Antigravity AI Engineering Team

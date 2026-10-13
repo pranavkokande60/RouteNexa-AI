@@ -32,7 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-base font-bold tracking-tight text-white">SmartRoute AI</h1>
+            <h1 className="text-base font-bold tracking-tight text-white">RouteNexa AI</h1>
             <span className="text-[10px] font-semibold bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded-full border border-sky-500/30">
               v1.0 • Nassau Candy
             </span>

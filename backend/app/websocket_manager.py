@@ -1,5 +1,5 @@
 """
-SmartRoute-AI WebSocket Live Analytics Event Simulator
+RouteNexa-AI WebSocket Live Analytics Event Simulator
 ======================================================
 Module: backend/app/websocket_manager.py
 Author: Antigravity AI Engineering Team
@@ -18,7 +18,7 @@ from typing import List
 from datetime import datetime
 from fastapi import WebSocket, WebSocketDisconnect
 
-logger = logging.getLogger("SmartRoute.WebSocket")
+logger = logging.getLogger("RouteNexa.WebSocket")
 
 SAMPLE_ROUTES = [
     ("Wicked Choccy's", "California", "Wonka Bar - Milk Chocolate", "Standard Class"),

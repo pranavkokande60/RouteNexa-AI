@@ -339,7 +339,7 @@ export const NotificationCenterDrawer: React.FC<NotificationCenterDrawerProps> =
 
           {/* Drawer Footer */}
           <div className="p-3 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-500 text-center">
-            SmartRoute AI Real-Time Alert Engine
+            RouteNexa AI Real-Time Alert Engine
           </div>
         </div>
       </div>

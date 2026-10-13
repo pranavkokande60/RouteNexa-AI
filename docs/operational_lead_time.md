@@ -3,7 +3,7 @@
 ## Executive Summary
 In the [`Nassau Candy Distributor.csv`](../Nassau%20Candy%20Distributor.csv) dataset, raw dates exhibit an artificial multi-year offset where `Ship Date` occurs between **904 and 1,642 days** (~2.5 to 4.5 years) after `Order Date`. 
 
-To prevent downstream machine learning models, logistics algorithms, and analytics dashboards from operating on physically impossible shipping delays, the SmartRoute-AI pipeline calculates an **Operational Shipping Lead Time** through statistically validated empirical cohort anchoring.
+To prevent downstream machine learning models, logistics algorithms, and analytics dashboards from operating on physically impossible shipping delays, the RouteNexa AI pipeline calculates an **Operational Shipping Lead Time** through statistically validated empirical cohort anchoring.
 
 ---
 
@@ -37,7 +37,7 @@ Tracing individual order numbers back to their business origin reveals how this 
 
 ## 3. Empirical Anchoring Methodology (Zero Hard-Coding)
 
-Rather than hard-coding static offsets, the SmartRoute-AI pipeline dynamically infers the exact cohort shift from empirical domain anchors present in the dataset.
+Rather than hard-coding static offsets, the RouteNexa AI pipeline dynamically infers the exact cohort shift from empirical domain anchors present in the dataset.
 
 ### The Anchor Principle:
 By domain definition, **"Same Day"** shipping implies immediate fulfillment on day 0 (operational shipping lead time $\approx 0$ days).

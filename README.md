@@ -1,4 +1,4 @@
-# SmartRoute AI — Intelligent Factory-to-Customer Logistics Analytics & Decision Support System
+# RouteNexa AI: An Intelligent Logistics Analytics, Route Efficiency and Predictive Decision Support System for Factory-to-Customer Shipments
 
 [![Live Demo](https://img.shields.io/badge/Live_Website-Render-2ea44f?style=for-the-badge&logo=render)](https://smartroute-ai-qn26.onrender.com/)
 [![FastAPI](https://img.shields.io/badge/REST_API-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://smartroute-ai-qn26.onrender.com/docs)
@@ -13,7 +13,7 @@
 
 ## 🚀 Project Overview
 
-**SmartRoute AI** is an enterprise-grade logistics analytics, prediction, and decision-support platform designed for **Nassau Candy Distributor**. The system transforms raw historical order records into actionable supply chain intelligence across 5 major manufacturing facilities and 196 factory-to-customer state shipping corridors.
+**RouteNexa AI** is an enterprise-grade logistics analytics, prediction, and decision-support platform designed for **Nassau Candy Distributor**. The system transforms raw historical order records into actionable supply chain intelligence across 5 major manufacturing facilities and 196 factory-to-customer state shipping corridors.
 
 ### Key Capabilities:
 - **Command Center Dashboard:** High-level executive KPI telemetry, delay rates, and network performance.
@@ -83,7 +83,7 @@ flowchart TD
 The source file [`Nassau Candy Distributor.csv`](file:///C:/Users/prana/OneDrive/Desktop/SmartRoute-AI/Nassau%20Candy%20Distributor.csv) contains **10,194 records and 18 columns**.
 
 ### The Date Anomaly & Empirical Cohort Anchoring:
-Raw dates exhibited an artificial multi-year offset (raw lead times of 904 to 1,642 days). SmartRoute AI resolves this without altering the raw CSV through **empirical Same Day cohort anchoring**:
+Raw dates exhibited an artificial multi-year offset (raw lead times of 904 to 1,642 days). RouteNexa AI resolves this without altering the raw CSV through **empirical Same Day cohort anchoring**:
 $$\text{Operational Lead Time} = (\text{Ship Date} - \text{Order Date}) - \min(\text{Same Day Raw Lead Time in Cohort})$$
 This restores real-world shipping durations:
 - **Same Day:** 0–1 days (mean: 0.38d)
@@ -201,10 +201,10 @@ Open your browser at: [http://localhost:5173](http://localhost:5173)
 ### 4. 1-Click Demo Accounts
 | Role | Email | Password | Permissions |
 |---|---|---|---|
-| **Admin** | `admin@smartroute.ai` | `Admin123!` | Full governance, data management |
-| **Analyst** | `analyst@smartroute.ai` | `Analyst123!` | ML models, simulations, forecasting |
-| **Manager** | `manager@smartroute.ai` | `Manager123!` | Operations, factory metrics, alerts |
-| **Viewer** | `viewer@smartroute.ai` | `Viewer123!` | Read-only analytics & route explorer |
+| **Admin** | `admin@routenexa.ai` | `Admin123!` | Full governance, data management |
+| **Analyst** | `analyst@routenexa.ai` | `Analyst123!` | ML models, simulations, forecasting |
+| **Manager** | `manager@routenexa.ai` | `Manager123!` | Operations, factory metrics, alerts |
+| **Viewer** | `viewer@routenexa.ai` | `Viewer123!` | Read-only analytics & route explorer |
 
 ---
 
@@ -219,5 +219,6 @@ python tests/test_smartroute.py
 ---
 
 ## 📚 Project Documentation
-- **Academic Research Paper:** [`docs/RESEARCH_PAPER.md`](docs/RESEARCH_PAPER.md)
+- **Academic Research Paper (Markdown):** [`docs/RESEARCH_PAPER.md`](docs/RESEARCH_PAPER.md)
+- **Official Research Paper (Word Document):** [`docs/RouteNexa_AI_Research_Paper.docx`](docs/RouteNexa_AI_Research_Paper.docx)
 - **Date Anomaly & Operational Lead Time Whitepaper:** [`docs/operational_lead_time.md`](docs/operational_lead_time.md)

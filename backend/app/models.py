@@ -1,5 +1,5 @@
 """
-SmartRoute-AI SQLAlchemy Models
+RouteNexa-AI SQLAlchemy Models
 ===============================
 Module: backend/app/models.py
 Author: Antigravity AI Engineering Team
