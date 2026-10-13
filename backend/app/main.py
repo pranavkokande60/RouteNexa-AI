@@ -41,7 +41,7 @@ from backend.app.database import engine, Base
 from src.init_db import init_database
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-logger = logging.getLogger("SmartRoute.Main")
+logger = logging.getLogger("RouteNexa.Main")
 
 
 @asynccontextmanager

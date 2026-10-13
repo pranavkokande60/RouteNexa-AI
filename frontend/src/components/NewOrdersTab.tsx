@@ -907,7 +907,7 @@ export const NewOrdersTab: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Database Source:</span>
-                  <span className="text-slate-400 font-mono text-[10px]">smartroute.db (new_orders)</span>
+                  <span className="text-slate-400 font-mono text-[10px]">routenexa.db (new_orders)</span>
                 </div>
               </div>
             </div>

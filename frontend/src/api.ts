@@ -6,25 +6,27 @@
 const API_BASE = '/api/v1';
 
 export function getAuthToken(): string | null {
-  return localStorage.getItem('smartroute_token');
+  return localStorage.getItem('routenexa_token') || localStorage.getItem('smartroute_token');
 }
 
 export function setAuthToken(token: string) {
-  localStorage.setItem('smartroute_token', token);
+  localStorage.setItem('routenexa_token', token);
 }
 
 export function clearAuthToken() {
+  localStorage.removeItem('routenexa_token');
+  localStorage.removeItem('routenexa_user');
   localStorage.removeItem('smartroute_token');
   localStorage.removeItem('smartroute_user');
 }
 
 export function getCurrentUser() {
-  const u = localStorage.getItem('smartroute_user');
+  const u = localStorage.getItem('routenexa_user') || localStorage.getItem('smartroute_user');
   return u ? JSON.parse(u) : null;
 }
 
 export function setCurrentUser(user: any) {
-  localStorage.setItem('smartroute_user', JSON.stringify(user));
+  localStorage.setItem('routenexa_user', JSON.stringify(user));
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

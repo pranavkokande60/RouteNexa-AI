@@ -18,7 +18,11 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 DATA_DIR = os.path.join(ROOT_DIR, "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 
-DEFAULT_SQLITE_PATH = os.path.join(DATA_DIR, "smartroute.db")
+# Database filename: routenexa.db (with legacy smartroute.db fallback)
+DEFAULT_SQLITE_PATH = os.path.join(DATA_DIR, "routenexa.db")
+if not os.path.exists(DEFAULT_SQLITE_PATH) and os.path.exists(os.path.join(DATA_DIR, "smartroute.db")):
+    DEFAULT_SQLITE_PATH = os.path.join(DATA_DIR, "smartroute.db")
+
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_SQLITE_PATH}")
 
 # SQLite requires check_same_thread=False for FastAPI concurrency

@@ -171,7 +171,7 @@ This restores real-world shipping durations:
 ### 2. Backend Setup
 ```bash
 # Navigate to project root
-cd SmartRoute-AI
+cd RouteNexa-AI
 
 # Install Python dependencies
 pip install fastapi uvicorn sqlalchemy pydantic passlib python-jose[cryptography] websockets python-multipart reportlab scikit-learn pandas numpy
@@ -212,7 +212,7 @@ Open your browser at: [http://localhost:5173](http://localhost:5173)
 
 Run the automated test suite:
 ```bash
-python tests/test_smartroute.py
+python tests/test_routenexa.py
 ```
 *Output: `ALL TESTS PASSED SUCCESSFULLY! (5/5)`*
 

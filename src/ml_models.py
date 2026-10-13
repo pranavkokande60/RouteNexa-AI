@@ -45,14 +45,14 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-logger = logging.getLogger("SmartRoute.ML")
+logger = logging.getLogger("RouteNexa.ML")
 MODEL_DIR = os.path.join(ROOT_DIR, "data", "models")
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 
 class MLManager:
     """
-    Manages training, evaluation, saving, and inference for SmartRoute AI ML models.
+    Manages training, evaluation, saving, and inference for RouteNexa AI ML models.
     """
 
     CATEGORICAL_FEATURES = ["factory_name", "State/Province", "Region", "Ship Mode", "Division", "Product Name"]
@@ -383,7 +383,7 @@ class MLManager:
             },
             "explainability": {
                 "top_factors": explanations,
-                "model_used": "SmartRoute Ensembled Random Forest"
+                "model_used": "RouteNexa Ensembled Random Forest"
             }
         }
 

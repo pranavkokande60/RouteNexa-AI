@@ -1,6 +1,6 @@
 """
-SmartRoute-AI Database Seeder and Initialization
-================================================
+RouteNexa AI Database Seeder and Initialization
+===============================================
 Module: src/init_db.py
 Author: Antigravity AI Engineering Team
 
@@ -24,7 +24,7 @@ from backend.app.models import User, Route, Shipment, Alert, AuditLog
 from src.route_analytics import analyze_routes, detect_bottlenecks
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-logger = logging.getLogger("SmartRoute.InitDB")
+logger = logging.getLogger("RouteNexa.InitDB")
 
 pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
 
