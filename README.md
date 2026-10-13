@@ -6,7 +6,7 @@
 
 > 🌐 **Live Website Application:** [https://routenexa-ai.onrender.com/](https://routenexa-ai.onrender.com/)  
 > 📖 **Interactive Swagger API Docs:** [https://routenexa-ai.onrender.com/docs](https://routenexa-ai.onrender.com/docs)  
-> 🎓 **Project for Nassau Candy Distributor**  
+> 🏢 **Enterprise Supply Chain Intelligence for Nassau Candy Distributor**  
 > Built with **React**, **FastAPI**, **SQLite / PostgreSQL**, **Scikit-Learn**, **Tailwind CSS**, and **Leaflet**.
 
 ---
