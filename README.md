@@ -1,11 +1,11 @@
 # RouteNexa AI: An Intelligent Logistics Analytics, Route Efficiency and Predictive Decision Support System for Factory-to-Customer Shipments
 
-[![Live Demo](https://img.shields.io/badge/Live_Website-Render-2ea44f?style=for-the-badge&logo=render)](https://smartroute-ai-qn26.onrender.com/)
-[![FastAPI](https://img.shields.io/badge/REST_API-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://smartroute-ai-qn26.onrender.com/docs)
-[![React](https://img.shields.io/badge/Frontend-React_18-61DAFB?style=for-the-badge&logo=react)](https://smartroute-ai-qn26.onrender.com/)
+[![Live Demo](https://img.shields.io/badge/Live_Website-Render-2ea44f?style=for-the-badge&logo=render)](https://routenexa-ai.onrender.com/)
+[![FastAPI](https://img.shields.io/badge/REST_API-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://routenexa-ai.onrender.com/docs)
+[![React](https://img.shields.io/badge/Frontend-React_18-61DAFB?style=for-the-badge&logo=react)](https://routenexa-ai.onrender.com/)
 
-> 🌐 **Live Website Application:** [https://smartroute-ai-qn26.onrender.com/](https://smartroute-ai-qn26.onrender.com/)  
-> 📖 **Interactive Swagger API Docs:** [https://smartroute-ai-qn26.onrender.com/docs](https://smartroute-ai-qn26.onrender.com/docs)  
+> 🌐 **Live Website Application:** [https://routenexa-ai.onrender.com/](https://routenexa-ai.onrender.com/)  
+> 📖 **Interactive Swagger API Docs:** [https://routenexa-ai.onrender.com/docs](https://routenexa-ai.onrender.com/docs)  
 > 🎓 **Project for Nassau Candy Distributor**  
 > Built with **React**, **FastAPI**, **SQLite / PostgreSQL**, **Scikit-Learn**, **Tailwind CSS**, and **Leaflet**.
 
