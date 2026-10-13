@@ -3,7 +3,7 @@
 **Pranav Kokande**  
 *Department of Computer Science and Engineering*  
 *Nassau Candy Logistics Analytics Initiative*  
-*Repository:* [https://github.com/pranavkokande60/SmartRoute-AI](https://github.com/pranavkokande60/SmartRoute-AI)  
+*Repository:* [https://github.com/pranavkokande60/RouteNexa-AI](https://github.com/pranavkokande60/RouteNexa-AI)  
 *Live Deployment:* [https://smartroute-ai-qn26.onrender.com/](https://smartroute-ai-qn26.onrender.com/)
 
 ---
