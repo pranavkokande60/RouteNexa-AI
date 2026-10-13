@@ -160,6 +160,23 @@ This restores real-world shipping durations:
 - **Multi-Entity Indexing:** Unified instant search covering modules, new orders, routes, factories, states, and products.
 - **Keyboard Navigation:** Full arrow key (`↑`/`↓`) selection, `Enter` to jump, and `ESC` to close.
 
+### 9. 📈 Data Comparison & Performance Visualizer (`/api/v1/visualizer`)
+- **12 Interactive Analytical Visualizations:**
+  1. *Route Performance Comparison:* Top 10 and bottom 10 routes by operational lead time, volume, and SLA delay frequency.
+  2. *Ship Mode Comparison:* Same Day, First, Second, and Standard Class mean, median, standard deviation ($\sigma$), and volume throughput.
+  3. *Shipment Trends:* Dual-axis monthly volume and operational lead-time tracking.
+  4. *Factory Performance:* Cross-facility comparison across all 5 candy production facilities.
+  5. *Regional Comparison:* Comparative analysis across Pacific, Atlantic, Interior, and Gulf corridors.
+  6. *Lead-Time Distribution Histogram:* 5-tier fulfillment duration buckets (Express to Extended/Bottlenecks).
+  7. *Route Volume vs Efficiency Scatter Plot:* Quadrant mapping highlighting high-volume bottleneck corridors.
+  8. *ETA Prediction vs Actual Delivery Outcomes:* Strictly evaluates completed orders with verified receipts.
+  9. *ML Model Benchmark & Comparison:* Delay classification (Precision, Recall, F1, ROC-AUC) and ETA regression (MAE, RMSE, $R^2$).
+  10. *Logistics Anomaly Trends:* Monthly time-series tracking of detected outliers and anomaly rates.
+  11. *Historical Actuals vs 14-Day Forecast:* 30-day baseline actuals with 14-day projection and 95% confidence intervals.
+  12. *Sales, Gross Profit, and Product Cost Analysis:* Financial margins with explicit disclaimer distinguishing manufacturing wholesale cost from freight expenses.
+- **Multi-Dimensional Filter Console:** Instant cross-filtering across Date Range, Factory, Region, State, Product Line, Ship Mode, and Operational Lead Time Threshold.
+- **Export & Audit Tools:** One-click filtered CSV dataset downloads (`/api/v1/visualizer/export-csv`) and print-ready PDF reporting.
+
 ---
 
 ## ⚡ Quick Start & Setup Instructions

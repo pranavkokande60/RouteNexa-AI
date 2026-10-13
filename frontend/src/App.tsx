@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar';
 import { Sidebar, TabKey } from './components/Sidebar';
 import { LoginModal } from './components/LoginModal';
 import { DashboardTab } from './components/DashboardTab';
+import { DataComparisonTab } from './components/DataComparisonTab';
 import { RoutesTab } from './components/RoutesTab';
 import { RouteComparisonTab } from './components/RouteComparisonTab';
 import { MapTab } from './components/MapTab';
@@ -100,6 +101,7 @@ export const App: React.FC = () => {
                 onNavigate={setCurrentTab}
               />
             )}
+            {currentTab === 'data-comparison' && <DataComparisonTab />}
             {currentTab === 'new-orders' && <NewOrdersTab />}
             {currentTab === 'routes' && <RoutesTab routes={routes} />}
             {currentTab === 'route-comparison' && <RouteComparisonTab />}

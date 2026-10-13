@@ -1232,6 +1232,7 @@ search_router = APIRouter(prefix="/search", tags=["Global Search & Command Palet
 
 APP_MODULES = [
     {"id": "mod-dashboard", "title": "Command Center Dashboard", "category": "MODULE", "subtitle": "Executive logistics KPIs, volume analytics, and core metrics", "target_tab": "dashboard", "badge": "Core"},
+    {"id": "mod-data-comparison", "title": "Data Comparison & Performance Visualizer", "category": "MODULE", "subtitle": "12 interactive comparison charts, operational distributions, and forecast models", "target_tab": "data-comparison", "badge": "Visualizer"},
     {"id": "mod-new-orders", "title": "New Order Management", "category": "MODULE", "subtitle": "Live order queue, dispatch status, and delivery tracking", "target_tab": "new-orders", "badge": "Orders"},
     {"id": "mod-routes", "title": "Route Explorer", "category": "MODULE", "subtitle": "196 corridors, lead times, and efficiency scores", "target_tab": "routes", "badge": "Analytics"},
     {"id": "mod-route-comparison", "title": "Route Comparison Engine", "category": "MODULE", "subtitle": "Side-by-side corridor speed, reliability, and variance comparison", "target_tab": "route-comparison", "badge": "Analytics"},

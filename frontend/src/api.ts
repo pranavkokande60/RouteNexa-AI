@@ -202,5 +202,51 @@ export const api = {
 
   // AI Logistics Assistant
   askAssistant: (query: string) =>
-    request<any>('/assistant/query', { method: 'POST', body: JSON.stringify({ query }) })
+    request<any>('/assistant/query', { method: 'POST', body: JSON.stringify({ query }) }),
+
+  // Data Comparison & Visualization
+  getVisualizerMetadata: () =>
+    request<any>('/visualizer/metadata'),
+  getVisualizerData: (params?: {
+    start_date?: string;
+    end_date?: string;
+    factory?: string;
+    region?: string;
+    state?: string;
+    product?: string;
+    ship_mode?: string;
+    max_lead_time?: number;
+  }) => {
+    const q = new URLSearchParams();
+    if (params?.start_date) q.append('start_date', params.start_date);
+    if (params?.end_date) q.append('end_date', params.end_date);
+    if (params?.factory && params.factory !== 'ALL') q.append('factory', params.factory);
+    if (params?.region && params.region !== 'ALL') q.append('region', params.region);
+    if (params?.state && params.state !== 'ALL') q.append('state', params.state);
+    if (params?.product && params.product !== 'ALL') q.append('product', params.product);
+    if (params?.ship_mode && params.ship_mode !== 'ALL') q.append('ship_mode', params.ship_mode);
+    if (params?.max_lead_time !== undefined && params.max_lead_time > 0) q.append('max_lead_time', params.max_lead_time.toString());
+    return request<any>(`/visualizer/data?${q.toString()}`);
+  },
+  exportVisualizerCsvUrl: (params?: {
+    start_date?: string;
+    end_date?: string;
+    factory?: string;
+    region?: string;
+    state?: string;
+    product?: string;
+    ship_mode?: string;
+    max_lead_time?: number;
+  }) => {
+    const q = new URLSearchParams();
+    if (params?.start_date) q.append('start_date', params.start_date);
+    if (params?.end_date) q.append('end_date', params.end_date);
+    if (params?.factory && params.factory !== 'ALL') q.append('factory', params.factory);
+    if (params?.region && params.region !== 'ALL') q.append('region', params.region);
+    if (params?.state && params.state !== 'ALL') q.append('state', params.state);
+    if (params?.product && params.product !== 'ALL') q.append('product', params.product);
+    if (params?.ship_mode && params.ship_mode !== 'ALL') q.append('ship_mode', params.ship_mode);
+    if (params?.max_lead_time !== undefined && params.max_lead_time > 0) q.append('max_lead_time', params.max_lead_time.toString());
+    return `${API_BASE}/visualizer/export-csv?${q.toString()}`;
+  }
 };

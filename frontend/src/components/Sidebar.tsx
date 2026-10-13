@@ -20,6 +20,7 @@ import {
 
 export type TabKey =
   | 'dashboard'
+  | 'data-comparison'
   | 'new-orders'
   | 'routes'
   | 'route-comparison'
@@ -45,6 +46,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, activeAlertsCount }) => {
   const navItems = [
     { key: 'dashboard', label: 'Command Center', icon: LayoutDashboard, category: 'Core Analytics' },
+    { key: 'data-comparison', label: '📈 Data Visualizer & Comparison', icon: BarChart3, category: 'Core Analytics' },
     { key: 'new-orders', label: '🆕 New Order Management', icon: PackagePlus, category: 'Order Management' },
     { key: 'routes', label: 'Route Explorer', icon: GitFork, category: 'Core Analytics' },
     { key: 'route-comparison', label: '⚖️ Route Comparison', icon: GitCompare, category: 'Core Analytics' },

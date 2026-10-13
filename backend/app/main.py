@@ -36,6 +36,7 @@ from backend.app.routes.api import (
 )
 from backend.app.routes.new_orders import new_orders_router
 from backend.app.routes.predictions import predictions_router
+from backend.app.routes.analytics_visualizer import visualizer_router
 from backend.app.websocket_manager import manager, live_event_simulator_loop
 from backend.app.database import engine, Base
 from src.init_db import init_database
@@ -99,6 +100,7 @@ app.include_router(models_router, prefix=API_PREFIX)
 app.include_router(notification_router, prefix=API_PREFIX)
 app.include_router(search_router, prefix=API_PREFIX)
 app.include_router(assistant_router, prefix=API_PREFIX)
+app.include_router(visualizer_router, prefix=API_PREFIX)
 
 
 # WebSocket Endpoint for Live Operations Simulator
