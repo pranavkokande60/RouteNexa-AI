@@ -97,6 +97,7 @@ export const MapTab: React.FC<MapTabProps> = ({ mapData: initialMapData }) => {
   const mapWrapperRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
+  const overlayLayerRef = useRef<L.TileLayer | null>(null);
 
   const [mapData, setMapData] = useState<any>(initialMapData);
   const [selectedState, setSelectedState] = useState<string | null>(null);
@@ -108,7 +109,7 @@ export const MapTab: React.FC<MapTabProps> = ({ mapData: initialMapData }) => {
 
   // Layer & Visual Controls
   const [mapMode, setMapMode] = useState<'risk' | 'volume' | 'lead_time'>('risk');
-  const [basemap, setBasemap] = useState<'dark' | 'voyager' | 'osm'>('dark');
+  const [basemap, setBasemap] = useState<'satellite' | 'google_streets' | 'topo' | 'dark' | 'osm'>('satellite');
   const [showCorridors, setShowCorridors] = useState(true);
   const [showCurvedArcs, setShowCurvedArcs] = useState(true);
   const [showThermalRisk, setShowThermalRisk] = useState(false);
@@ -125,17 +126,30 @@ export const MapTab: React.FC<MapTabProps> = ({ mapData: initialMapData }) => {
   const particleMarkersRef = useRef<L.CircleMarker[]>([]);
   const animFrameRef = useRef<number | null>(null);
 
-  // Basemap tile definitions
+  // Real-world and Google Maps style basemap tile definitions
   const BASEMAPS = {
+    satellite: {
+      name: 'Real World Satellite',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri &mdash; Earthstar Geographics'
+    },
+    google_streets: {
+      name: 'Google Streets',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri &mdash; StreetMap contributors'
+    },
+    topo: {
+      name: 'Physical Terrain',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri &mdash; USGS, NOAA'
+    },
     dark: {
+      name: 'Cyber Dark',
       url: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
       attribution: '&copy; CartoDB & OpenStreetMap contributors'
     },
-    voyager: {
-      url: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-      attribution: '&copy; CartoDB & OpenStreetMap contributors'
-    },
     osm: {
+      name: 'OpenStreetMap',
       url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; OpenStreetMap contributors'
     }
@@ -213,6 +227,13 @@ export const MapTab: React.FC<MapTabProps> = ({ mapData: initialMapData }) => {
     }).addTo(map);
     tileLayerRef.current = initialTiles;
 
+    if (basemap === 'satellite') {
+      const overlayTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19
+      }).addTo(map);
+      overlayLayerRef.current = overlayTiles;
+    }
+
     map.fitBounds([
       [24.5, -124.8],
       [49.4, -66.9]
@@ -242,12 +263,26 @@ export const MapTab: React.FC<MapTabProps> = ({ mapData: initialMapData }) => {
 
     if (tileLayerRef.current) {
       map.removeLayer(tileLayerRef.current);
+      tileLayerRef.current = null;
     }
+    if (overlayLayerRef.current) {
+      map.removeLayer(overlayLayerRef.current);
+      overlayLayerRef.current = null;
+    }
+
     const newTiles = L.tileLayer(BASEMAPS[basemap].url, {
       attribution: BASEMAPS[basemap].attribution,
       maxZoom: 19
     }).addTo(map);
     tileLayerRef.current = newTiles;
+
+    // For satellite mode, add transparent highway and boundary labels overlay (Google Maps Satellite Hybrid style)
+    if (basemap === 'satellite') {
+      const overlayTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19
+      }).addTo(map);
+      overlayLayerRef.current = overlayTiles;
+    }
   }, [basemap]);
 
   // Render Core Layers: Corridors, Factories, States, Thermal Risk, Isochrones
@@ -788,28 +823,46 @@ export const MapTab: React.FC<MapTabProps> = ({ mapData: initialMapData }) => {
         {/* Row 2: Advanced Visualization Filters, Modes, and Toggles */}
         <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2.5 border-t border-slate-800 text-xs">
           {/* Basemap Style */}
+          {/* Basemap Style */}
           <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
             <span className="text-[10px] font-semibold text-slate-400 px-1.5 flex items-center gap-1">
               <Eye className="w-3 h-3 text-slate-500" />
-              Theme:
+              Map View:
             </span>
             <button
-              onClick={() => setBasemap('dark')}
-              className={`px-2 py-0.5 rounded font-medium text-[11px] transition-all ${basemap === 'dark' ? 'bg-sky-500 text-white' : 'text-slate-400 hover:text-white'}`}
+              onClick={() => setBasemap('satellite')}
+              className={`px-2 py-0.5 rounded font-medium text-[11px] transition-all flex items-center gap-1 ${basemap === 'satellite' ? 'bg-emerald-600 text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+              title="Real-World High-Resolution Satellite & Aerial Earth View"
             >
-              Cyber Dark
+              <span>🛰️ Satellite</span>
             </button>
             <button
-              onClick={() => setBasemap('voyager')}
-              className={`px-2 py-0.5 rounded font-medium text-[11px] transition-all ${basemap === 'voyager' ? 'bg-sky-500 text-white' : 'text-slate-400 hover:text-white'}`}
+              onClick={() => setBasemap('google_streets')}
+              className={`px-2 py-0.5 rounded font-medium text-[11px] transition-all flex items-center gap-1 ${basemap === 'google_streets' ? 'bg-sky-500 text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+              title="Google Maps-Style Real World Highway, Cities & Street Navigation"
             >
-              Atlas
+              <span>🗺️ Google Streets</span>
+            </button>
+            <button
+              onClick={() => setBasemap('topo')}
+              className={`px-2 py-0.5 rounded font-medium text-[11px] transition-all flex items-center gap-1 ${basemap === 'topo' ? 'bg-amber-600 text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+              title="Physical Mountain & Geographic Relief Terrain Map"
+            >
+              <span>🏔️ Terrain</span>
+            </button>
+            <button
+              onClick={() => setBasemap('dark')}
+              className={`px-2 py-0.5 rounded font-medium text-[11px] transition-all flex items-center gap-1 ${basemap === 'dark' ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+              title="Cyber Dark Night-Mode Telemetry Map"
+            >
+              <span>🌌 Cyber Dark</span>
             </button>
             <button
               onClick={() => setBasemap('osm')}
-              className={`px-2 py-0.5 rounded font-medium text-[11px] transition-all ${basemap === 'osm' ? 'bg-sky-500 text-white' : 'text-slate-400 hover:text-white'}`}
+              className={`px-2 py-0.5 rounded font-medium text-[11px] transition-all flex items-center gap-1 ${basemap === 'osm' ? 'bg-slate-700 text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+              title="Standard OpenStreetMap"
             >
-              OSM
+              <span>🌐 OpenStreet</span>
             </button>
           </div>
 
