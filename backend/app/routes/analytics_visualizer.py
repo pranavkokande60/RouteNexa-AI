@@ -169,6 +169,7 @@ def get_visualizer_data(
         del_rate = round((rg["delays"] / v) * 100, 1) if v else 0.0
         computed_routes.append({
             "route_id": rid,
+            "route_label": f"{rg['factory']} -> {rg['state']}",
             "factory": rg["factory"],
             "state": rg["state"],
             "region": rg["region"],
@@ -215,10 +216,13 @@ def get_visualizer_data(
 
         ship_mode_comparison.append({
             "ship_mode": m,
+            "mode": m,
             "volume": v,
             "avg_lead_time": avg_lt,
+            "mean_lead_time": avg_lt,
             "median_lead_time": med_lt,
             "std_lead_time": std_lt,
+            "std_dev_lead_time": std_lt,
             "delay_rate_pct": del_rate
         })
 
@@ -301,7 +305,9 @@ def get_visualizer_data(
             "id": fmeta["id"],
             "city": fmeta["city"],
             "state": fmeta["state"],
+            "location": f"{fmeta['city']}, {fmeta['state']}",
             "specialization": fmeta["specialization"],
+            "products_count": len(fmeta.get("products", [])) or 16,
             "volume": v,
             "units": fg["units"],
             "sales": round(fg["sales"], 2),
@@ -355,11 +361,11 @@ def get_visualizer_data(
     # CHART 6: LEAD-TIME DISTRIBUTION HISTOGRAM
     # -------------------------------------------------------------------------
     bins = [
-        {"bin": "0–1d (Express)", "min": 0, "max": 1, "count": 0},
-        {"bin": "2–3d (Fast)", "min": 2, "max": 3, "count": 0},
-        {"bin": "4–5d (Standard)", "min": 4, "max": 5, "count": 0},
-        {"bin": "6–7d (Extended)", "min": 6, "max": 7, "count": 0},
-        {"bin": "8+d (High Delay)", "min": 8, "max": 999, "count": 0},
+        {"bin": "0-1d (Express)", "min": 0, "max": 1, "count": 0},
+        {"bin": "2-3d (Fast)", "min": 2, "max": 3, "count": 0},
+        {"bin": "4-5d (Standard)", "min": 4, "max": 5, "count": 0},
+        {"bin": "6-7d (Extended)", "min": 6, "max": 7, "count": 0},
+        {"bin": "8+d (Outlier)", "min": 8, "max": 999, "count": 0},
     ]
     for lt in lead_times:
         if lt <= 1:
@@ -377,6 +383,7 @@ def get_visualizer_data(
     lead_time_distribution = [
         {
             "bin": b["bin"],
+            "range": b["bin"],
             "count": b["count"],
             "percentage": round((b["count"] / total_lt_cnt * 100), 1) if total_lt_cnt else 0.0
         }
@@ -504,11 +511,14 @@ def get_visualizer_data(
 
     historical_vs_forecast = []
     # 1. Historical Actuals (is_forecast: false)
-    for h in recent_history:
+    for i, h in enumerate(recent_history):
+        d_val = h.get("order_date_iso") or h.get("date")
+        s_val = h.get("shipment_count") if h.get("shipment_count") is not None else h.get("shipments")
+        is_last = (i == len(recent_history) - 1)
         historical_vs_forecast.append({
-            "date": h.get("date"),
-            "actual_shipments": h.get("shipments"),
-            "projected_shipments": None,
+            "date": d_val,
+            "actual_shipments": s_val,
+            "projected_shipments": s_val if is_last else None,
             "confidence_lower": None,
             "confidence_upper": None,
             "is_forecast": False

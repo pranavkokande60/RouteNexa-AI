@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area, ScatterChart, Scatter,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, ReferenceLine
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, ReferenceLine,
+  ComposedChart
 } from 'recharts';
 import {
   Filter, Download, Printer, RefreshCw, BarChart2, TrendingUp,
@@ -1063,7 +1064,7 @@ export const DataComparisonTab: React.FC = () => {
 
               <div className="h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data.historical_vs_forecast} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+                  <ComposedChart data={data.historical_vs_forecast} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
                     <defs>
                       <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
@@ -1075,6 +1076,14 @@ export const DataComparisonTab: React.FC = () => {
                     <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} />
                     <Tooltip content={renderCustomTooltip} />
                     <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
+                    <Area
+                      type="monotone"
+                      dataKey="confidence_upper"
+                      name="Confidence Upper (95%)"
+                      stroke="transparent"
+                      fill="#10b981"
+                      fillOpacity={0.12}
+                    />
                     <Line
                       type="monotone"
                       dataKey="actual_shipments"
@@ -1082,6 +1091,7 @@ export const DataComparisonTab: React.FC = () => {
                       stroke="#38bdf8"
                       strokeWidth={2}
                       dot={{ r: 2 }}
+                      connectNulls
                     />
                     <Line
                       type="monotone"
@@ -1091,16 +1101,9 @@ export const DataComparisonTab: React.FC = () => {
                       strokeDasharray="4 4"
                       strokeWidth={2}
                       dot={{ r: 3 }}
+                      connectNulls
                     />
-                    <Area
-                      type="monotone"
-                      dataKey="confidence_upper"
-                      name="Confidence Upper (95%)"
-                      stroke="transparent"
-                      fill="#10b981"
-                      fillOpacity={0.12}
-                    />
-                  </AreaChart>
+                  </ComposedChart>
                 </ResponsiveContainer>
               </div>
             </div>
