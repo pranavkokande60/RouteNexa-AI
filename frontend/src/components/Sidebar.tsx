@@ -105,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, activ
       <div className="px-6 pt-4 border-t border-slate-800/80">
         <div className="text-[11px] text-slate-500">
           <span className="font-semibold text-slate-400">RouteNexa AI Logistics</span>
-          <p className="mt-0.5 text-[10px] text-slate-600">Nassau Candy • Final Year Project</p>
+          <p className="mt-0.5 text-[10px] text-slate-600">Nassau Candy Distributor</p>
         </div>
       </div>
     </aside>
