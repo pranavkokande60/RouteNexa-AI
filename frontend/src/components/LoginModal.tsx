@@ -119,58 +119,29 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
           </button>
         </form>
 
-        {/* 1-Click Demo Accounts */}
+        {/* 1-Click Admin Demo Login */}
         <div className="border-t border-slate-800 pt-4">
           <div className="text-[11px] font-semibold text-slate-400 mb-2.5 flex items-center justify-between">
-            <span>Instant Demo Accounts</span>
-            <span className="text-[10px] text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">1-Click Login</span>
+            <span>Quick Access</span>
+            <span className="text-[10px] text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded font-medium">1-Click Admin Sign In</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              onClick={() => handleDemoClick('admin@routenexa.ai', 'Admin123!')}
-              className="p-2.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/40 rounded-xl text-left transition-all group"
-            >
-              <div className="font-semibold text-slate-200 group-hover:text-sky-400 flex items-center justify-between">
-                <span>Admin</span>
-                <Shield className="w-3 h-3 text-sky-400" />
+          <button
+            type="button"
+            onClick={() => handleDemoClick('admin@routenexa.ai', 'Admin123!')}
+            className="w-full p-3 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 rounded-xl text-left transition-all group flex items-center justify-between shadow-sm"
+          >
+            <div>
+              <div className="font-bold text-slate-200 group-hover:text-sky-400 flex items-center gap-2 text-xs">
+                <span>System Administrator</span>
+                <span className="text-[10px] font-mono text-slate-400">(admin@routenexa.ai)</span>
               </div>
-              <p className="text-[10px] text-slate-500 mt-0.5">Full governance</p>
-            </button>
-
-            <button
-              onClick={() => handleDemoClick('analyst@routenexa.ai', 'Analyst123!')}
-              className="p-2.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-left transition-all group"
-            >
-              <div className="font-semibold text-slate-200 group-hover:text-emerald-400 flex items-center justify-between">
-                <span>Analyst</span>
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-              </div>
-              <p className="text-[10px] text-slate-500 mt-0.5">ML & Models</p>
-            </button>
-
-            <button
-              onClick={() => handleDemoClick('manager@routenexa.ai', 'Manager123!')}
-              className="p-2.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/40 rounded-xl text-left transition-all group"
-            >
-              <div className="font-semibold text-slate-200 group-hover:text-amber-400 flex items-center justify-between">
-                <span>Manager</span>
-                <Shield className="w-3 h-3 text-amber-400" />
-              </div>
-              <p className="text-[10px] text-slate-500 mt-0.5">SLA & Alerts</p>
-            </button>
-
-            <button
-              onClick={() => handleDemoClick('viewer@routenexa.ai', 'Viewer123!')}
-              className="p-2.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/40 rounded-xl text-left transition-all group"
-            >
-              <div className="font-semibold text-slate-200 group-hover:text-purple-400 flex items-center justify-between">
-                <span>Viewer</span>
-                <Shield className="w-3 h-3 text-purple-400" />
-              </div>
-              <p className="text-[10px] text-slate-500 mt-0.5">Read-only view</p>
-            </button>
-          </div>
+              <p className="text-[10px] text-slate-500 mt-0.5">Full administrative governance & logistics command</p>
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center shrink-0">
+              <Shield className="w-4 h-4" />
+            </div>
+          </button>
         </div>
       </div>
     </div>

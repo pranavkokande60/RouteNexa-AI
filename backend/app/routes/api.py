@@ -149,10 +149,7 @@ def get_me(current_user: User = Depends(get_current_user)):
 def get_demo_accounts():
     """Return list of available demo test accounts."""
     return [
-        {"role": "Admin", "email": "admin@routenexa.ai", "password": "Admin123!", "description": "Full access to settings, dataset management, and retraining"},
-        {"role": "Analyst", "email": "analyst@routenexa.ai", "password": "Analyst123!", "description": "Access to analytics, ML models, simulations, and forecasting"},
-        {"role": "Manager", "email": "manager@routenexa.ai", "password": "Manager123!", "description": "Access to operations, factory views, alerts, and reports"},
-        {"role": "Viewer", "email": "viewer@routenexa.ai", "password": "Viewer123!", "description": "Read-only access to dashboard and route explorer"}
+        {"role": "Admin", "email": "admin@routenexa.ai", "password": "Admin123!", "description": "Full access to settings, operations, dataset governance, ML models, and retraining"}
     ]
 
 

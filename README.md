@@ -198,13 +198,10 @@ npm run dev
 ```
 Open your browser at: [http://localhost:5173](http://localhost:5173)
 
-### 4. 1-Click Demo Accounts
+### 4. Admin Access Account
 | Role | Email | Password | Permissions |
 |---|---|---|---|
-| **Admin** | `admin@routenexa.ai` | `Admin123!` | Full governance, data management |
-| **Analyst** | `analyst@routenexa.ai` | `Analyst123!` | ML models, simulations, forecasting |
-| **Manager** | `manager@routenexa.ai` | `Manager123!` | Operations, factory metrics, alerts |
-| **Viewer** | `viewer@routenexa.ai` | `Viewer123!` | Read-only analytics & route explorer |
+| **Admin** | `admin@routenexa.ai` | `Admin123!` | Full administrative governance & logistics command |
 
 ---
 
