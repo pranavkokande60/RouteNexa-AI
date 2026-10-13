@@ -46,7 +46,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, activeAlertsCount }) => {
   const navItems = [
     { key: 'dashboard', label: 'Command Center', icon: LayoutDashboard, category: 'Core Analytics' },
-    { key: 'data-comparison', label: '📈 Data Visualizer & Comparison', icon: BarChart3, category: 'Core Analytics' },
+    { key: 'data-comparison', label: 'Data Visualizer', icon: BarChart3, category: 'Core Analytics' },
     { key: 'new-orders', label: '🆕 New Order Management', icon: PackagePlus, category: 'Order Management' },
     { key: 'routes', label: 'Route Explorer', icon: GitFork, category: 'Core Analytics' },
     { key: 'route-comparison', label: '⚖️ Route Comparison', icon: GitCompare, category: 'Core Analytics' },
@@ -85,9 +85,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, activ
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-sky-400' : 'text-slate-500'}`} />
-                    <span>{item.label}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-sky-400' : 'text-slate-500'}`} />
+                    <span className="whitespace-nowrap truncate">{item.label}</span>
                   </div>
                   {item.badge !== undefined && item.badge > 0 && (
                     <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
