@@ -32,3 +32,55 @@
 .leaflet-popup-tip {
   background: #0f172a !important;
 }
+
+/* RouteNexa Extraordinary Map Visual Effects */
+@keyframes flowDashForward {
+  from {
+    stroke-dashoffset: 48;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes radarPing {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.leaflet-flow-active {
+  stroke-dasharray: 8, 14;
+  animation: flowDashForward 1.4s linear infinite;
+}
+
+.leaflet-flow-fast {
+  stroke-dasharray: 6, 10;
+  animation: flowDashForward 0.9s linear infinite;
+}
+
+.leaflet-flow-bottleneck {
+  stroke-dasharray: 6, 8;
+  animation: flowDashForward 0.75s linear infinite;
+  filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.8));
+}
+
+.leaflet-flow-highlighted {
+  stroke-dasharray: 10, 10;
+  animation: flowDashForward 1s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.95));
+}
+
+.radar-ping-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  animation: radarPing 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
