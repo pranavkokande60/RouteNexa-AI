@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: smartroute-ai
+    name: routenexa-ai
     runtime: python
     plan: free
     buildCommand: chmod +x build.sh && ./build.sh
