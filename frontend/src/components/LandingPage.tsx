@@ -170,7 +170,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       location: "Thief River Falls, Minnesota",
       lat: 48.119,
       lon: -96.181,
-      leadTime: "4.8 days",
+      leadTime: "3.6 days",
       dailyCapacity: "35,000 units/day",
       specialty: "Sugar Candies & Specialty Beverages",
       efficiency: "85.2%",

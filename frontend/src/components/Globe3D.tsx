@@ -282,10 +282,12 @@ const RouteArc: React.FC<RouteArcProps> = ({
     if (isSelected) {
       color = risk === 'HIGH' ? '#ef4444' : (risk === 'ELEVATED' ? '#f59e0b' : '#00f0ff');
     } else if (isPrimary) {
-      color = risk === 'HIGH' ? '#ef4444' : (risk === 'ELEVATED' ? '#f59e0b' : '#38bdf8');
+      color = risk === 'HIGH' ? '#f43f5e' : (risk === 'ELEVATED' ? '#f59e0b' : '#00f0ff');
+    } else {
+      color = risk === 'HIGH' ? '#dc2626' : (risk === 'ELEVATED' ? '#d97706' : '#0ea5e9');
     }
 
-    const op = isSelected ? 0.95 : (isPrimary ? 0.85 : 0.32);
+    const op = isSelected ? 0.98 : (isPrimary ? 0.88 : 0.42);
 
     return { tubeGeometry: tube, hitboxGeometry: hitbox, routeColor: color, opacity: op };
   }, [curve, isPrimary, isSelected, risk]);
@@ -754,8 +756,8 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
       fragmentShader: `
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.4);
-          gl_FragColor = vec4(0.18, 0.65, 1.0, 1.0) * intensity;
+          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
+          gl_FragColor = vec4(0.0, 0.82, 1.0, 1.0) * intensity * 1.6;
         }
       `,
     };
@@ -811,20 +813,19 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
   });
 
   return (
-    <group ref={earthGroupRef} rotation={[0.24, 0.04, 0]}>
-      {/* 1. PHOTOREALISTIC EARTH CORE SURFACE */}
+    <group ref={earthGroupRef} rotation={[0.22, 0.05, 0]}>
+      {/* 1. PHOTOREALISTIC EARTH CORE SURFACE (Calibrated for Vivid Sunlight) */}
       <mesh>
         <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
         <meshStandardMaterial
           map={dayMap}
           normalMap={normalMap}
           normalScale={new THREE.Vector2(0.85, 0.85)}
-          roughnessMap={specMap}
-          roughness={0.65}
-          metalness={0.05}
+          roughness={0.42}
+          metalness={0.06}
           emissiveMap={lightsMap}
           emissive="#ffeedd"
-          emissiveIntensity={0.35}
+          emissiveIntensity={0.05}
         />
       </mesh>
 
@@ -834,7 +835,7 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
         <meshStandardMaterial
           map={cloudsMap}
           transparent
-          opacity={0.42}
+          opacity={0.46}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           roughness={1}
@@ -854,7 +855,7 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
         />
       </mesh>
 
-      {/* 4. RESTRAINED GEODESIC LOGISTICS ARCS */}
+      {/* 4. RESTRAINED GEODESIC LOGISTICS ARCS (Full Thriving Network) */}
       {showRoutes &&
         Array.from(corridorCurves.entries()).map(([id, { curve, corridor }]) => {
           const fac = factoryVectors.find((f) => f.id === corridor.factoryId);
@@ -868,8 +869,8 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
           const matchesRisk = riskFilter === 'ALL' || corridor.risk === riskFilter;
 
           const isSelected = selectedRoute === id || (matchesFactory && matchesDest);
-          const isPrimaryActive = matchesFactory && !selectedDestination && corridor.isPrimary;
-          const isVisible = matchesMode && matchesRisk && matchesFactory;
+          const isPrimaryActive = matchesFactory;
+          const isVisible = matchesMode && matchesRisk;
 
           return (
             <RouteArc
@@ -895,9 +896,9 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
           const matchesMode = shipModeFilter === 'ALL' || truck.mode === shipModeFilter;
           const matchesRisk = riskFilter === 'ALL' || truck.riskLevel === riskFilter;
 
-          if (!matchesFactory || !matchesDest || !matchesMode || !matchesRisk) return null;
+          if (!matchesMode || !matchesRisk) return null;
 
-          const isTruckSelected = selectedTruck === truck.id;
+          const isTruckSelected = selectedTruck === truck.id || matchesFactory;
 
           return (
             <FreightTruck
@@ -1068,9 +1069,9 @@ export const Globe3D: React.FC<Globe3DProps> = ({
           className="w-full h-full cursor-grab active:cursor-grabbing"
         >
           {/* Natural Sunlight Illuminating North America in Full Daylight */}
-          <directionalLight position={[3.5, 4.5, 6]} intensity={3.0} color="#fffdf6" />
-          <directionalLight position={[-6, -2, -3]} intensity={0.4} color="#0c2044" />
-          <ambientLight intensity={0.7} />
+          <directionalLight position={[-1.5, 4.0, 5.5]} intensity={3.6} color="#ffffff" />
+          <directionalLight position={[4.0, 1.5, 4.0]} intensity={1.8} color="#e0f2fe" />
+          <ambientLight intensity={1.2} />
 
           {/* Deep Space Background Stars */}
           <Stars radius={30} depth={20} count={650} factor={3.5} saturation={0} fade speed={0.4} />
