@@ -73,6 +73,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [twinViewMode, setTwinViewMode] = useState<'factories' | 'corridors' | 'shipments'>('factories');
   const [intelligenceTab, setIntelligenceTab] = useState<'models' | 'regional' | 'anomalies' | 'forecast'>('models');
+  const [resetKey, setResetKey] = useState<number>(0);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -343,6 +344,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     setShowRoutes(true);
     setShowTrucks(true);
     setIsPaused(false);
+    setResetKey(prev => prev + 1);
   };
 
   return (
@@ -732,6 +734,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     showRoutes={showRoutes}
                     showTrucks={showTrucks}
                     isPaused={isPaused}
+                    resetKey={resetKey}
                   />
                 </Suspense>
               </div>

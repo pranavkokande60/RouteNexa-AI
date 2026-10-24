@@ -3,7 +3,6 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { GlobeFallback } from './GlobeFallback';
-
 import {
   FactoryNodeData,
   FACTORY_NODES,
@@ -16,7 +15,6 @@ import {
 
 export type { FactoryNodeData, SelectedEntity, RiskLevel };
 export { FACTORY_NODES, DESTINATION_HUBS, LOGISTICS_CORRIDORS, ACTIVE_TRUCKS };
-
 
 const GLOBE_RADIUS = 2.05;
 
@@ -44,6 +42,9 @@ export function createGreatCircleCurve(
   const angle = Math.max(0.001, vStart.angleTo(vEnd));
   const sinAngle = Math.sin(angle);
 
+  // Surface clearance: ensure arc stays strictly above the cloud layer (clouds = GLOBE_RADIUS * 1.012 = 2.0746)
+  const surfaceClearance = 0.025;
+
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     let vInterp: THREE.Vector3;
@@ -57,15 +58,15 @@ export function createGreatCircleCurve(
         .addScaledVector(vEnd, w2)
         .normalize();
     }
-    // Parabolic arc elevation hovering just above the clouds
+    // Parabolic arc elevation hovering safely above the clouds
     const arcHeight = Math.sin(t * Math.PI) * maxArcHeight;
-    points.push(vInterp.multiplyScalar(radius + arcHeight));
+    points.push(vInterp.multiplyScalar(radius + surfaceClearance + arcHeight));
   }
 
   return new THREE.CatmullRomCurve3(points);
 }
 
-// 5. LIGHTWEIGHT PROCEDURAL 3D FREIGHT TRUCK
+// 1. LIGHTWEIGHT PROCEDURAL 3D FREIGHT TRUCK
 interface FreightTruckProps {
   curve: THREE.CatmullRomCurve3;
   speed: number;
@@ -103,7 +104,10 @@ const FreightTruck: React.FC<FreightTruckProps> = ({
 
     // Orient forward along tangent (Three.js group forward is -Z)
     const rotMatrix = new THREE.Matrix4().makeBasis(right, up, tangent.clone().negate());
-    groupRef.current.position.copy(pos);
+    
+    // Elevate truck slightly so wheels ride right on top of the route tube:
+    const wheelOffset = up.clone().multiplyScalar(0.005);
+    groupRef.current.position.copy(pos.clone().add(wheelOffset));
     groupRef.current.quaternion.setFromRotationMatrix(rotMatrix);
   });
 
@@ -129,6 +133,12 @@ const FreightTruck: React.FC<FreightTruckProps> = ({
         document.body.style.cursor = 'auto';
       }}
     >
+      {/* Invisible Clickable Hitbox Collider for responsive clicks */}
+      <mesh position={[0, 0.015, 0]}>
+        <boxGeometry args={[0.045, 0.045, 0.085]} />
+        <meshBasicMaterial visible={false} />
+      </mesh>
+
       {/* Selection Halo Ring when this truck is clicked */}
       {isSelected && (
         <mesh position={[0, -0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -228,7 +238,7 @@ const FreightTruck: React.FC<FreightTruckProps> = ({
   );
 };
 
-// 6. 3D CURVED ROUTE TUBE
+// 2. 3D CURVED ROUTE TUBE WITH INVISIBLE HITBOX COLLIDER
 interface RouteArcProps {
   curve: THREE.CatmullRomCurve3;
   isPrimary: boolean;
@@ -246,9 +256,10 @@ const RouteArc: React.FC<RouteArcProps> = ({
   risk,
   onSelectRoute
 }) => {
-  const { tubeGeometry, routeColor, opacity } = useMemo(() => {
+  const { tubeGeometry, hitboxGeometry, routeColor, opacity } = useMemo(() => {
     const radius = isSelected ? 0.0075 : (isPrimary ? 0.0055 : 0.0032);
     const tube = new THREE.TubeGeometry(curve, 36, radius, 8, false);
+    const hitbox = new THREE.TubeGeometry(curve, 24, 0.018, 6, false);
 
     // Color by risk: Cyan (Low), Amber (Elevated), Red (High)
     let color = '#0284c7';
@@ -258,19 +269,82 @@ const RouteArc: React.FC<RouteArcProps> = ({
       color = risk === 'HIGH' ? '#ef4444' : (risk === 'ELEVATED' ? '#f59e0b' : '#38bdf8');
     }
 
-    const op = isSelected ? 0.95 : (isPrimary ? 0.85 : 0.28);
+    const op = isSelected ? 0.95 : (isPrimary ? 0.85 : 0.32);
 
-    return { tubeGeometry: tube, routeColor: color, opacity: op };
+    return { tubeGeometry: tube, hitboxGeometry: hitbox, routeColor: color, opacity: op };
   }, [curve, isPrimary, isSelected, risk]);
 
   if (!isVisible) return null;
 
   return (
-    <mesh
-      geometry={tubeGeometry}
+    <group>
+      {/* Visible Route Arc */}
+      <mesh geometry={tubeGeometry}>
+        <meshBasicMaterial
+          color={routeColor}
+          transparent
+          opacity={opacity}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* Invisible wider hitbox tube for reliable clicks */}
+      <mesh
+        geometry={hitboxGeometry}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelectRoute();
+        }}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'auto';
+        }}
+      >
+        <meshBasicMaterial visible={false} />
+      </mesh>
+    </group>
+  );
+};
+
+// 3. FIVE PROFESSIONAL 3D FACTORY MODELS AT GEOGRAPHIC COORDINATES
+interface FactoryModel3DProps {
+  factory: (typeof FACTORY_NODES)[0] & { pos: THREE.Vector3 };
+  isSelected: boolean;
+  onSelect: () => void;
+}
+
+const FactoryModel3D: React.FC<FactoryModel3DProps> = ({
+  factory,
+  isSelected,
+  onSelect
+}) => {
+  const normal = useMemo(() => factory.pos.clone().normalize(), [factory.pos]);
+  const quaternion = useMemo(() => {
+    const q = new THREE.Quaternion();
+    // Align local Y (up) with the Earth normal vector at factory coordinates
+    q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+    return q;
+  }, [normal]);
+
+  const beaconRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (beaconRef.current) {
+      const scale = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.18;
+      beaconRef.current.scale.set(scale, scale, scale);
+    }
+  });
+
+  return (
+    <group
+      position={factory.pos}
+      quaternion={quaternion}
       onClick={(e) => {
         e.stopPropagation();
-        onSelectRoute();
+        onSelect();
       }}
       onPointerOver={(e) => {
         e.stopPropagation();
@@ -280,58 +354,191 @@ const RouteArc: React.FC<RouteArcProps> = ({
         document.body.style.cursor = 'auto';
       }}
     >
-      <meshBasicMaterial
-        color={routeColor}
-        transparent
-        opacity={opacity}
-        depthWrite={false}
-      />
-    </mesh>
+      {/* 1. Foundation Base Slab (Ground Platform flush with Earth) */}
+      <mesh position={[0, 0.002, 0]}>
+        <cylinderGeometry args={[0.026, 0.028, 0.004, 16]} />
+        <meshStandardMaterial
+          color={isSelected ? '#1e293b' : '#0f172a'}
+          roughness={0.7}
+          metalness={0.3}
+        />
+      </mesh>
+
+      {/* Perimeter Ground Glow Ring when Selected */}
+      {isSelected && (
+        <mesh position={[0, 0.0045, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.028, 0.042, 24]} />
+          <meshBasicMaterial color={factory.accentHex} transparent opacity={0.75} side={THREE.DoubleSide} />
+        </mesh>
+      )}
+
+      {/* 2. Main Manufacturing Warehouse Building */}
+      <mesh position={[-0.004, 0.012, 0]}>
+        <boxGeometry args={[0.022, 0.016, 0.022]} />
+        <meshStandardMaterial
+          color={isSelected ? '#334155' : '#1e293b'}
+          roughness={0.4}
+          metalness={0.6}
+        />
+      </mesh>
+
+      {/* Pitched Roof Section */}
+      <mesh position={[-0.004, 0.022, 0]}>
+        <boxGeometry args={[0.020, 0.004, 0.020]} />
+        <meshStandardMaterial
+          color={factory.accentHex}
+          roughness={0.3}
+          metalness={0.7}
+          emissive={factory.accentHex}
+          emissiveIntensity={isSelected ? 0.45 : 0.2}
+        />
+      </mesh>
+
+      {/* Loading Bay Extension */}
+      <mesh position={[0.010, 0.008, 0]}>
+        <boxGeometry args={[0.010, 0.010, 0.014]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.5} metalness={0.5} />
+      </mesh>
+
+      {/* Loading Dock Bay Door */}
+      <mesh position={[0.0152, 0.007, 0]}>
+        <boxGeometry args={[0.001, 0.007, 0.008]} />
+        <meshBasicMaterial color={factory.accentHex} />
+      </mesh>
+
+      {/* 3. Industrial Processing Silos / Smokestacks */}
+      {/* Primary Silo */}
+      <mesh position={[-0.013, 0.018, 0.009]}>
+        <cylinderGeometry args={[0.004, 0.0045, 0.026, 12]} />
+        <meshStandardMaterial color="#475569" roughness={0.3} metalness={0.8} />
+      </mesh>
+      {/* Silo Glowing Accent Rim */}
+      <mesh position={[-0.013, 0.0315, 0.009]}>
+        <cylinderGeometry args={[0.0042, 0.0042, 0.002, 12]} />
+        <meshBasicMaterial color={factory.accentHex} />
+      </mesh>
+
+      {/* Secondary Smokestack */}
+      <mesh position={[-0.013, 0.022, -0.007]}>
+        <cylinderGeometry args={[0.003, 0.0035, 0.032, 10]} />
+        <meshStandardMaterial color="#64748b" roughness={0.3} metalness={0.8} />
+      </mesh>
+      {/* Smokestack Glowing Warning Rim */}
+      <mesh position={[-0.013, 0.0385, -0.007]}>
+        <cylinderGeometry args={[0.0032, 0.0032, 0.002, 10]} />
+        <meshBasicMaterial color={factory.accentHex} />
+      </mesh>
+
+      {/* 4. Floating Holographic Diamond Beacon above Factory */}
+      <mesh ref={beaconRef} position={[0, 0.048, 0]}>
+        <octahedronGeometry args={[0.006, 0]} />
+        <meshBasicMaterial color={factory.accentHex} />
+      </mesh>
+
+      {/* Vertical Laser Telemetry Line connecting Roof to Beacon */}
+      <mesh position={[0, 0.035, 0]}>
+        <cylinderGeometry args={[0.0006, 0.0006, 0.022, 6]} />
+        <meshBasicMaterial color={factory.accentHex} transparent opacity={0.65} />
+      </mesh>
+
+      {/* 5. Invisible Hitbox Collider for effortless clicks */}
+      <mesh position={[0, 0.025, 0]}>
+        <boxGeometry args={[0.05, 0.05, 0.05]} />
+        <meshBasicMaterial visible={false} />
+      </mesh>
+    </group>
   );
 };
 
-// 7. PULSING CONCENTRIC RADAR WAVE
-interface PulseRingProps {
-  position: THREE.Vector3;
-  color: string;
-  isHighlighted: boolean;
+// 4. INTERACTIVE DESTINATION LOGISTICS TERMINALS
+interface DestinationHubMarkerProps {
+  dest: (typeof DESTINATION_HUBS)[0] & { pos: THREE.Vector3 };
+  isSelected: boolean;
+  onSelect: () => void;
 }
 
-const PulseRing: React.FC<PulseRingProps> = ({ position, color, isHighlighted }) => {
-  const ringRef = useRef<THREE.Mesh>(null);
-  const matRef = useRef<THREE.MeshBasicMaterial>(null);
-  const scaleRef = useRef<number>(1);
-
-  useFrame((_, delta) => {
-    scaleRef.current += delta * (isHighlighted ? 1.4 : 0.9);
-    if (scaleRef.current > (isHighlighted ? 1.8 : 1.5)) {
-      scaleRef.current = 1.0;
-    }
-    if (ringRef.current) {
-      ringRef.current.scale.set(scaleRef.current, scaleRef.current, scaleRef.current);
-    }
-    if (matRef.current) {
-      const alpha = 1.0 - (scaleRef.current - 1.0) / (isHighlighted ? 0.8 : 0.5);
-      matRef.current.opacity = Math.max(0, alpha * (isHighlighted ? 0.7 : 0.35));
-    }
-  });
-
-  const normal = useMemo(() => position.clone().normalize(), [position]);
+const DestinationHubMarker: React.FC<DestinationHubMarkerProps> = ({
+  dest,
+  isSelected,
+  onSelect
+}) => {
+  const normal = useMemo(() => dest.pos.clone().normalize(), [dest.pos]);
   const quaternion = useMemo(() => {
     const q = new THREE.Quaternion();
-    q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+    q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
     return q;
   }, [normal]);
 
+  const tipRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (tipRef.current) {
+      const s = 1 + Math.sin(state.clock.elapsedTime * 2.5) * 0.15;
+      tipRef.current.scale.set(s, s, s);
+    }
+  });
+
   return (
-    <mesh ref={ringRef} position={position} quaternion={quaternion}>
-      <ringGeometry args={[0.016, 0.028, 24]} />
-      <meshBasicMaterial ref={matRef} color={color} transparent opacity={0.5} side={THREE.DoubleSide} />
-    </mesh>
+    <group
+      position={dest.pos}
+      quaternion={quaternion}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect();
+      }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      {/* 1. Terminal Base Ring */}
+      <mesh position={[0, 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.012, 0.020, 16]} />
+        <meshBasicMaterial
+          color={isSelected ? '#00f0ff' : '#94a3b8'}
+          transparent
+          opacity={isSelected ? 0.85 : 0.4}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* 2. Hub Terminal Dome */}
+      <mesh position={[0, 0.006, 0]}>
+        <sphereGeometry args={[isSelected ? 0.018 : 0.013, 14, 14, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial
+          color={isSelected ? '#00f0ff' : '#cbd5e1'}
+          emissive={isSelected ? '#00f0ff' : '#38bdf8'}
+          emissiveIntensity={isSelected ? 0.6 : 0.2}
+          roughness={0.2}
+          metalness={0.8}
+        />
+      </mesh>
+
+      {/* 3. Terminal Communication Spire */}
+      <mesh position={[0, 0.018, 0]}>
+        <cylinderGeometry args={[0.0008, 0.0008, 0.014, 6]} />
+        <meshBasicMaterial color={isSelected ? '#00f0ff' : '#38bdf8'} />
+      </mesh>
+
+      {/* Pulsing Spire Beacon Tip */}
+      <mesh ref={tipRef} position={[0, 0.026, 0]}>
+        <sphereGeometry args={[0.0028, 8, 8]} />
+        <meshBasicMaterial color={isSelected ? '#00f0ff' : '#38bdf8'} />
+      </mesh>
+
+      {/* 4. Clickable Hitbox */}
+      <mesh position={[0, 0.015, 0]}>
+        <sphereGeometry args={[0.035, 10, 10]} />
+        <meshBasicMaterial visible={false} />
+      </mesh>
+    </group>
   );
 };
 
-// 8. PHOTOREALISTIC EARTH & DIGITAL TWIN GRAPH
+// 5. PHOTOREALISTIC EARTH & DIGITAL TWIN GRAPH
 interface PhotorealisticGlobeProps {
   selectedFactory: string | null;
   onSelectFactory: (name: string) => void;
@@ -346,6 +553,7 @@ interface PhotorealisticGlobeProps {
   showRoutes: boolean;
   showTrucks: boolean;
   isPaused: boolean;
+  resetKey?: number;
 }
 
 const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
@@ -361,7 +569,8 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
   riskFilter,
   showRoutes,
   showTrucks,
-  isPaused
+  isPaused,
+  resetKey
 }) => {
   const earthGroupRef = useRef<THREE.Group>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
@@ -434,6 +643,13 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
 
     return map;
   }, [factoryVectors, destinationVectors]);
+
+  // Handle resetKey to instantly restore daylight orientation
+  useEffect(() => {
+    if (resetKey !== undefined && resetKey > 0 && earthGroupRef.current) {
+      earthGroupRef.current.rotation.set(0.24, 0.04, 0);
+    }
+  }, [resetKey]);
 
   // Smooth orbital sway: keeps North American logistics network centered in daylight
   useFrame((state, delta) => {
@@ -554,56 +770,52 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
       {destinationVectors.map((dest) => {
         const isSelected = selectedDestination === dest.name;
         return (
-          <group key={dest.id} position={dest.pos}>
-            <mesh
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelectDestination(isSelected ? null : dest.name);
-              }}
-              onPointerOver={(e) => {
-                e.stopPropagation();
-                document.body.style.cursor = 'pointer';
-              }}
-              onPointerOut={() => {
-                document.body.style.cursor = 'auto';
-              }}
-            >
-              <sphereGeometry args={[isSelected ? 0.024 : 0.015, 14, 14]} />
-              <meshBasicMaterial color={isSelected ? '#00f0ff' : '#cbd5e1'} />
-            </mesh>
-          </group>
+          <DestinationHubMarker
+            key={dest.id}
+            dest={dest}
+            isSelected={isSelected}
+            onSelect={() => onSelectDestination(isSelected ? null : dest.name)}
+          />
         );
       })}
 
-      {/* 7. 5 PRIMARY MANUFACTURING HUB BEACONS */}
+      {/* 7. FIVE PROFESSIONAL 3D FACTORY MODELS AT GEOGRAPHIC COORDINATES */}
       {factoryVectors.map((fac) => {
         const isSelected = selectedFactory === fac.name;
 
         return (
-          <group key={fac.id}>
-            <PulseRing position={fac.pos} color={fac.accentHex} isHighlighted={isSelected} />
-
-            <mesh
-              position={fac.pos}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelectFactory(fac.name);
-              }}
-              onPointerOver={(e) => {
-                e.stopPropagation();
-                document.body.style.cursor = 'pointer';
-              }}
-              onPointerOut={() => {
-                document.body.style.cursor = 'auto';
-              }}
-            >
-              <sphereGeometry args={[isSelected ? 0.034 : 0.024, 16, 16]} />
-              <meshBasicMaterial color={fac.accentHex} />
-            </mesh>
-          </group>
+          <FactoryModel3D
+            key={fac.id}
+            factory={fac}
+            isSelected={isSelected}
+            onSelect={() => onSelectFactory(fac.name)}
+          />
         );
       })}
     </group>
+  );
+};
+
+// 6. CAMERA CONTROLLER THAT SUPPORTS ORBIT AND RESET VIEW
+const CameraController: React.FC<{ resetKey?: number }> = ({ resetKey }) => {
+  const controlsRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (resetKey !== undefined && resetKey > 0) {
+      controlsRef.current?.reset();
+    }
+  }, [resetKey]);
+
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      enableZoom={false}
+      enablePan={false}
+      autoRotate={false}
+      rotateSpeed={0.55}
+      minPolarAngle={Math.PI * 0.28}
+      maxPolarAngle={Math.PI * 0.72}
+    />
   );
 };
 
@@ -634,6 +846,7 @@ export interface Globe3DProps {
   showRoutes?: boolean;
   showTrucks?: boolean;
   isPaused?: boolean;
+  resetKey?: number;
 }
 
 export const Globe3D: React.FC<Globe3DProps> = ({
@@ -649,7 +862,8 @@ export const Globe3D: React.FC<Globe3DProps> = ({
   riskFilter = 'ALL',
   showRoutes = true,
   showTrucks = true,
-  isPaused = false
+  isPaused = false,
+  resetKey = 0
 }) => {
   const [hasWebGL, setHasWebGL] = useState<boolean>(true);
 
@@ -712,17 +926,11 @@ export const Globe3D: React.FC<Globe3DProps> = ({
             showRoutes={showRoutes}
             showTrucks={showTrucks}
             isPaused={isPaused}
+            resetKey={resetKey}
           />
 
-          {/* Smooth OrbitControls for Manual Exploration */}
-          <OrbitControls
-            enableZoom={false}
-            enablePan={false}
-            autoRotate={false}
-            rotateSpeed={0.55}
-            minPolarAngle={Math.PI * 0.28}
-            maxPolarAngle={Math.PI * 0.72}
-          />
+          {/* Smooth OrbitControls for Manual Exploration with Reset Hook */}
+          <CameraController resetKey={resetKey} />
         </Canvas>
       </Suspense>
     </div>
