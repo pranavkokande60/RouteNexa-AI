@@ -17,17 +17,23 @@ import {
   Database,
   BarChart3,
   MapPin,
-  ExternalLink,
   Lock,
   Zap,
   Globe2,
-  RefreshCw,
+  Radio,
+  Clock,
+  ThermometerSun,
+  ShieldAlert,
   Compass,
-  Radio
+  FileText,
+  Filter,
+  Eye,
+  SlidersHorizontal,
+  ChevronDown
 } from 'lucide-react';
 import { GlobeFallback } from './GlobeFallback';
 
-// Lazy load 3D Globe to optimize initial bundle delivery and maintain smooth FPS
+// Lazy load 3D Globe for fast initial bundle delivery and responsive FPS
 const Globe3D = lazy(() => import('./Globe3D'));
 
 interface LandingPageProps {
@@ -44,7 +50,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   currentUser
 }) => {
   const [selectedFactory, setSelectedFactory] = useState<string | null>("Wicked Choccy's");
-  const [activeTab, setActiveTab] = useState<'network' | 'ml' | 'simulator'>('network');
+  const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
+  const [shipModeFilter, setShipModeFilter] = useState<string>('ALL');
+  const [twinViewMode, setTwinViewMode] = useState<'factories' | 'corridors' | 'shipments'>('factories');
+  const [intelligenceTab, setIntelligenceTab] = useState<'models' | 'regional' | 'anomalies' | 'forecast'>('models');
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -61,8 +70,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     }
   };
 
+  // Factory Directory with Empirical Nassau Candy Attributes
   const FACTORIES = [
     {
+      id: "FAC-WCK-02",
       name: "Wicked Choccy's",
       location: "Savannah, Georgia",
       lat: 32.076,
@@ -71,24 +82,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       dailyCapacity: "75,000 units/day",
       specialty: "Premium Milk & Caramel Chocolate",
       efficiency: "92.4%",
-      color: "from-amber-500/20 to-orange-500/20",
-      borderColor: "border-amber-500/40",
-      badgeColor: "text-amber-400 bg-amber-500/10 border-amber-500/30",
+      accentHex: "#f59e0b",
+      badgeClass: "text-amber-400 bg-amber-500/10 border-amber-500/30",
+      topRoute: "Savannah → California (2,184 mi)",
+      thermalRisk: "Moderate (91°F Summer Ambient)"
     },
     {
+      id: "FAC-LON-01",
       name: "Lot's O' Nuts",
       location: "Casa Grande, Arizona",
       lat: 32.882,
       lon: -111.768,
       leadTime: "3.9 days",
       dailyCapacity: "50,000 units/day",
-      specialty: "Nut & Marshmallow Confections",
+      specialty: "Nut & Marshmallow Chocolate Bars",
       efficiency: "94.8%",
-      color: "from-sky-500/20 to-blue-500/20",
-      borderColor: "border-sky-500/40",
-      badgeColor: "text-sky-400 bg-sky-500/10 border-sky-500/30",
+      accentHex: "#00f0ff",
+      badgeClass: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30",
+      topRoute: "Casa Grande → Texas (842 mi)",
+      thermalRisk: "Critical (104°F Summer Heat - Mandatory Reefer)"
     },
     {
+      id: "FAC-OTH-05",
       name: "The Other Factory",
       location: "Memphis, Tennessee",
       lat: 35.118,
@@ -97,11 +112,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       dailyCapacity: "40,000 units/day",
       specialty: "Chewy Candies & Specialty Toffee",
       efficiency: "88.6%",
-      color: "from-indigo-500/20 to-purple-500/20",
-      borderColor: "border-indigo-500/40",
-      badgeColor: "text-indigo-400 bg-indigo-500/10 border-indigo-500/30",
+      accentHex: "#a855f7",
+      badgeClass: "text-purple-400 bg-purple-500/10 border-purple-500/30",
+      topRoute: "Memphis → New York (956 mi)",
+      thermalRisk: "Moderate (88°F Summer Ambient)"
     },
     {
+      id: "FAC-SSK-03",
       name: "Sugar Shack",
       location: "Thief River Falls, Minnesota",
       lat: 48.119,
@@ -110,11 +127,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       dailyCapacity: "35,000 units/day",
       specialty: "Sugar Candies & Specialty Beverages",
       efficiency: "85.2%",
-      color: "from-emerald-500/20 to-teal-500/20",
-      borderColor: "border-emerald-500/40",
-      badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+      accentHex: "#10b981",
+      badgeClass: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+      topRoute: "Thief River Falls → Illinois (580 mi)",
+      thermalRisk: "Low (Sub-Zero Winter Freezing Risk)"
     },
     {
+      id: "FAC-SEC-04",
       name: "Secret Factory",
       location: "Rock Island, Illinois",
       lat: 41.446,
@@ -123,80 +142,46 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       dailyCapacity: "25,000 units/day",
       specialty: "Experimental Confections & Novelties",
       efficiency: "87.1%",
-      color: "from-rose-500/20 to-pink-500/20",
-      borderColor: "border-rose-500/40",
-      badgeColor: "text-rose-400 bg-rose-500/10 border-rose-500/30",
+      accentHex: "#f43f5e",
+      badgeClass: "text-rose-400 bg-rose-500/10 border-rose-500/30",
+      topRoute: "Rock Island → Florida (1,040 mi)",
+      thermalRisk: "Low (Standard Climate-Controlled)"
     },
   ];
 
-  const CAPABILITY_CARDS = [
-    {
-      icon: Cpu,
-      title: "Dual-Engine ML ETA Prediction",
-      tag: "GBM & Random Forest",
-      description:
-        "High-precision estimated transit time engine trained on operational lead times, predicting delivery dates with confidence intervals and early/late classification.",
-      stat: "94.2% Prediction Accuracy",
-      accent: "border-cyan-500/30 hover:border-cyan-400/60 shadow-cyan-500/10",
-      iconColor: "text-cyan-400 bg-cyan-500/10",
-    },
-    {
-      icon: Globe2,
-      title: "196-Corridor Route Intelligence",
-      tag: "Geodesic Arcs & Optimization",
-      description:
-        "Dynamic nationwide corridor performance evaluation, automatic lead-time outlier detection, and factory-to-destination load reallocation recommendations.",
-      stat: "196 Active Freight Corridors",
-      accent: "border-blue-500/30 hover:border-blue-400/60 shadow-blue-500/10",
-      iconColor: "text-blue-400 bg-blue-500/10",
-    },
-    {
-      icon: AlertTriangle,
-      title: "Isolation Forest Anomaly Sentry",
-      tag: "Automated Quarantine",
-      description:
-        "Unsupervised anomaly detection scanning 10,000+ shipment vectors, isolating lead-time discrepancies, carrier bottlenecks, and thermal risk corridors.",
-      stat: "148 Operational Anomalies Isolated",
-      accent: "border-amber-500/30 hover:border-amber-400/60 shadow-amber-500/10",
-      iconColor: "text-amber-400 bg-amber-500/10",
-    },
-    {
-      icon: TrendingUp,
-      title: "Holt-Winters Demand Forecasting",
-      tag: "Triple Exponential Smoothing",
-      description:
-        "Time-series freight volume prediction capturing seasonality, manufacturing ramp-ups, and regional retail demand across all 5 production facilities.",
-      stat: "12-Month Proactive Horizons",
-      accent: "border-emerald-500/30 hover:border-emerald-400/60 shadow-emerald-500/10",
-      iconColor: "text-emerald-400 bg-emerald-500/10",
-    },
-    {
-      icon: Sliders,
-      title: "Multi-Scenario What-If Simulator",
-      tag: "Dynamic Stress Testing",
-      description:
-        "Simulate fuel surcharge spikes, carrier strikes, severe weather deviations, and factory capacity reallocations to quantify lead-time impact before dispatch.",
-      stat: "Sub-Second Simulation Run",
-      accent: "border-indigo-500/30 hover:border-indigo-400/60 shadow-indigo-500/10",
-      iconColor: "text-indigo-400 bg-indigo-500/10",
-    },
-    {
-      icon: Bot,
-      title: "Autonomous AI Logistics Copilot",
-      tag: "Natural Language Analytics",
-      description:
-        "Direct natural-language logistics reasoning. Ask 'Which routes from Savannah to California face delays?' and receive actionable prescriptive solutions.",
-      stat: "Zero-Latency Natural Language",
-      accent: "border-purple-500/30 hover:border-purple-400/60 shadow-purple-500/10",
-      iconColor: "text-purple-400 bg-purple-500/10",
-    },
+  // Active Selected Factory object
+  const currentFactoryObj = FACTORIES.find(f => f.name === selectedFactory) || FACTORIES[0];
+
+  // Key Verified Logistics Corridors
+  const CORRIDORS = [
+    { id: "SAV-LAX", origin: "Wicked Choccy's", dest: "Los Angeles Terminal", state: "California", mode: "Second Class", dist: 2184, leadTime: 4.6, delayRisk: "14.2%", efficiency: 91.2, tier: "High Volume" },
+    { id: "CG-DFW", origin: "Lot's O' Nuts", dest: "Dallas Cross-Dock", state: "Texas", mode: "Same Day", dist: 842, leadTime: 0.8, delayRisk: "4.1%", efficiency: 96.5, tier: "Optimal" },
+    { id: "MEM-NYC", origin: "The Other Factory", dest: "Metro New York DC", state: "New York", mode: "First Class", dist: 956, leadTime: 2.7, delayRisk: "9.5%", efficiency: 89.4, tier: "Standard" },
+    { id: "TRF-CHI", origin: "Sugar Shack", dest: "Chicago Central Depot", state: "Illinois", mode: "Standard Class", dist: 580, leadTime: 5.1, delayRisk: "18.4%", efficiency: 82.0, tier: "Bottleneck" },
+    { id: "RI-MIA", origin: "Secret Factory", dest: "Miami Gateway", state: "Florida", mode: "Second Class", dist: 1240, leadTime: 4.2, delayRisk: "12.0%", efficiency: 88.0, tier: "Standard" },
+    { id: "SAV-SEA", origin: "Wicked Choccy's", dest: "Seattle Regional Hub", state: "Washington", mode: "Standard Class", dist: 2590, leadTime: 5.8, delayRisk: "21.6%", efficiency: 79.5, tier: "Bottleneck" },
   ];
+
+  // Simulated Live Dispatches (Demonstration Feed)
+  const LIVE_DISPATCHES = [
+    { trackingId: "NC-89412", sku: "Wonka Bar - Milk Chocolate", origin: "Savannah, GA", destination: "Los Angeles, CA", eta: "1.2 days remaining", status: "IN_TRANSIT", temp: "58°F (Reefer OK)", progress: 72 },
+    { trackingId: "NC-89413", sku: "Laffy Taffy - Strawberry", origin: "Thief River Falls, MN", destination: "Chicago, IL", eta: "0.4 days remaining", status: "OUT_FOR_DELIVERY", temp: "62°F (Optimal)", progress: 91 },
+    { trackingId: "NC-89414", sku: "Wonka Bar - Nutty Crunch", origin: "Casa Grande, AZ", destination: "Dallas, TX", eta: "Delivered on-time", status: "DELIVERED", temp: "60°F (Verified)", progress: 100 },
+    { trackingId: "NC-89415", sku: "Kazookles Chewy Toffee", origin: "Memphis, TN", destination: "Atlanta, GA", eta: "0.8 days remaining", status: "IN_TRANSIT", temp: "64°F (Optimal)", progress: 54 },
+  ];
+
+  // Filter corridors based on selected factory and ship mode
+  const filteredCorridors = CORRIDORS.filter(c => {
+    const matchFactory = !selectedFactory || c.origin === selectedFactory;
+    const matchMode = shipModeFilter === 'ALL' || c.mode === shipModeFilter;
+    return matchFactory && matchMode;
+  });
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden">
       {/* Dynamic Background Glows */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[140px]" />
+        <div className="absolute top-0 left-1/4 w-[550px] h-[550px] bg-cyan-600/10 rounded-full blur-[140px]" />
         <div className="absolute top-1/3 right-10 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[160px]" />
         <div className="absolute bottom-10 left-1/3 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[150px]" />
       </div>
@@ -211,38 +196,39 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="flex items-center gap-2">
               <span className="text-lg font-black tracking-tight text-white">RouteNexa<span className="text-cyan-400"> AI</span></span>
               <span className="text-[10px] font-bold bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30">
-                Enterprise OS
+                Logistics Intelligence OS
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 hidden sm:block">Intelligent Logistics Analytics & ML Routing</p>
+            <p className="text-[11px] text-slate-400 hidden sm:block">Empirical Supply Chain Analytics • Nassau Candy</p>
           </div>
         </div>
 
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-300">
           <button
-            onClick={() => scrollToSection('network')}
-            className="hover:text-cyan-400 transition-colors flex items-center gap-1.5"
+            onClick={() => scrollToSection('hero')}
+            className="hover:text-cyan-400 transition-colors"
           >
-            <span>3D Network</span>
+            Overview
           </button>
           <button
-            onClick={() => scrollToSection('capabilities')}
+            onClick={() => scrollToSection('digital-twin')}
             className="hover:text-cyan-400 transition-colors flex items-center gap-1.5"
           >
-            <span>Capabilities</span>
+            <span>Digital Twin</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
           </button>
           <button
-            onClick={() => scrollToSection('metrics')}
-            className="hover:text-cyan-400 transition-colors flex items-center gap-1.5"
+            onClick={() => scrollToSection('intelligence')}
+            className="hover:text-cyan-400 transition-colors"
           >
-            <span>Telemetry</span>
+            Predictive AI
           </button>
           <button
             onClick={() => scrollToSection('architecture')}
-            className="hover:text-cyan-400 transition-colors flex items-center gap-1.5"
+            className="hover:text-cyan-400 transition-colors"
           >
-            <span>Architecture</span>
+            Architecture
           </button>
         </nav>
 
@@ -250,43 +236,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full text-xs text-emerald-400 font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Telemetry Live</span>
+            <span>10,194 Audited Records</span>
           </div>
 
-          {isAuthenticated ? (
-            <button
-              onClick={onEnterDashboard}
-              className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <span>Enter Command Center</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          ) : (
-            <button
-              onClick={onOpenLogin}
-              className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Sign In / Launch App</span>
-            </button>
-          )}
+          <button
+            onClick={onOpenLogin}
+            className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 via-sky-500 to-indigo-600 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-extrabold text-xs px-4.5 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span>Sign In / Launch App</span>
+          </button>
         </div>
       </header>
 
-      {/* 2. 3D HERO SECTION */}
-      <section className="relative z-10 pt-10 pb-20 px-6 lg:px-12 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      {/* 2. SECTION A: 3D HERO EXPERIENCE WITH FLOATING INFORMATION PANELS */}
+      <section id="hero" className="relative z-10 pt-8 pb-16 px-6 lg:px-12 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Hero Content */}
           <div className="lg:col-span-6 space-y-6 text-left">
-            {/* Top Pill */}
             <div className="inline-flex items-center gap-2.5 bg-slate-900/90 border border-cyan-500/30 rounded-full px-3.5 py-1.5 shadow-lg shadow-cyan-500/5">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
               <span className="text-xs font-semibold text-cyan-300 tracking-wide uppercase">
-                RouteNexa AI • Autonomous Logistics Intelligence
+                RouteNexa AI • Enterprise 3D Logistics Intelligence
               </span>
             </div>
 
-            {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black tracking-tight leading-[1.12] text-white">
               Intelligence That Moves{' '}
               <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
@@ -294,34 +268,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </span>
             </h1>
 
-            {/* Description */}
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
-              Transform shipment data into smarter routes, more accurate delivery predictions, and actionable logistics intelligence across 196 nationwide freight corridors.
+              Turn shipment data into predictive insights, smarter routes, and measurable logistics intelligence across 196 factory-to-customer freight corridors.
             </p>
 
-            {/* CTAs */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <button
                 onClick={handlePrimaryCTA}
-                className="flex items-center gap-2.5 bg-gradient-to-r from-cyan-400 to-sky-500 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-extrabold text-sm px-7 py-3.5 rounded-xl shadow-xl shadow-cyan-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] group"
+                className="flex items-center gap-2.5 bg-gradient-to-r from-cyan-400 to-sky-500 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-black text-sm px-7 py-3.5 rounded-xl shadow-xl shadow-cyan-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] group"
               >
                 <span>Explore Platform</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
 
               <button
-                onClick={() => scrollToSection('capabilities')}
+                onClick={() => scrollToSection('digital-twin')}
                 className="flex items-center gap-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/40 text-slate-200 font-bold text-sm px-6 py-3.5 rounded-xl transition-all"
               >
-                <span>Discover Capabilities</span>
+                <span>Explore the Intelligence</span>
                 <ChevronRight className="w-4 h-4 text-cyan-400" />
               </button>
             </div>
 
-            {/* Key Trust & Architecture Highlights */}
+            {/* Quick Proof Highlights */}
             <div className="pt-6 border-t border-slate-800/80 grid grid-cols-3 gap-4">
               <div>
-                <div className="text-xl sm:text-2xl font-black text-cyan-400 font-mono">10,194+</div>
+                <div className="text-xl sm:text-2xl font-black text-cyan-400 font-mono">10,194</div>
                 <div className="text-xs text-slate-400 mt-0.5">Audited Shipments</div>
               </div>
               <div>
@@ -330,307 +302,657 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
               <div>
                 <div className="text-xl sm:text-2xl font-black text-indigo-400 font-mono">5 Hubs</div>
-                <div className="text-xs text-slate-400 mt-0.5">Factory Production</div>
+                <div className="text-xs text-slate-400 mt-0.5">Connected Factories</div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: 3D Interactive Hero Globe */}
+          {/* Right Column: 3D Interactive Hero Globe with 4 Floating Information Panels */}
           <div className="lg:col-span-6 relative flex flex-col items-center justify-center">
-            {/* 3D Canvas Box */}
-            <div className="w-full relative rounded-3xl bg-slate-900/40 border border-slate-800/80 p-3 sm:p-5 backdrop-blur-xl shadow-2xl shadow-cyan-950/30 overflow-hidden">
-              {/* Globe Header Bar */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 text-xs px-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                  </div>
-                  <span className="text-slate-400 font-mono text-[11px] ml-1">geodesic_earth_mesh.glb</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-cyan-400 font-mono text-[11px]">
-                  <Activity className="w-3.5 h-3.5 animate-pulse" />
-                  <span>Interactive 3D WebGL</span>
-                </div>
+            {/* Floating Information Panel 1: Shipment Activity (Top Left) */}
+            <div className="hidden sm:block absolute -top-4 -left-4 z-20 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left w-52 pointer-events-none transition-transform hover:scale-105">
+              <div className="flex items-center gap-1.5 text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
+                <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
+                <span>Shipment Activity</span>
               </div>
+              <div className="text-sm font-black text-white font-mono">10,194 Dispatches</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">48 orders/hr fleet dispatch rate</div>
+              <div className="mt-1.5 text-[9px] text-cyan-300 font-mono bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-800/50 inline-block">
+                HISTORICAL OBSERVATION
+              </div>
+            </div>
 
-              {/* 3D Globe with Suspense & Dynamic Fallback */}
-              <div className="relative min-h-[420px] sm:min-h-[480px] flex items-center justify-center">
-                <Suspense
-                  fallback={
-                    <GlobeFallback
-                      selectedFactory={selectedFactory}
-                      onSelectFactory={(f) => setSelectedFactory(f)}
-                    />
-                  }
-                >
-                  <Globe3D
+            {/* Floating Information Panel 2: Predicted Delivery Time (Top Right) */}
+            <div className="hidden sm:block absolute -top-4 -right-4 z-20 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left w-52 pointer-events-none transition-transform hover:scale-105">
+              <div className="flex items-center gap-1.5 text-sky-400 text-[10px] font-mono font-bold uppercase mb-1">
+                <Clock className="w-3.5 h-3.5 text-sky-400" />
+                <span>Predicted Delivery (ETA)</span>
+              </div>
+              <div className="text-sm font-black text-white font-mono">4.12 Days (GBM)</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">95% CI: ±0.35d • 94.2% accuracy</div>
+              <div className="mt-1.5 text-[9px] text-sky-300 font-mono bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-800/50 inline-block">
+                ML PREDICTION ENGINE
+              </div>
+            </div>
+
+            {/* 3D Scene Viewport */}
+            <div className="w-full relative">
+              <Suspense
+                fallback={
+                  <GlobeFallback
                     selectedFactory={selectedFactory}
                     onSelectFactory={(f) => setSelectedFactory(f)}
+                    selectedDestination={selectedDestination}
+                    onSelectDestination={setSelectedDestination}
+                    shipModeFilter={shipModeFilter}
                   />
-                </Suspense>
-              </div>
-
-              {/* Quick Factory Switcher Tabs below 3D Earth */}
-              <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-1 overflow-x-auto">
-                {FACTORIES.map((f) => {
-                  const isSel = selectedFactory === f.name;
-                  return (
-                    <button
-                      key={f.name}
-                      onClick={() => setSelectedFactory(f.name)}
-                      className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                        isSel
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                      }`}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${isSel ? 'bg-cyan-400 animate-pulse' : 'bg-slate-500'}`} />
-                      <span>{f.name.split(" ")[0]}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. SECTION 1: ANIMATED KEY METRICS STRIP */}
-      <section id="metrics" className="relative z-10 border-y border-slate-800/90 bg-slate-900/50 backdrop-blur py-12 px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-left">
-              <div className="text-2xl lg:text-3xl font-black text-cyan-400 font-mono">10,194</div>
-              <div className="text-xs font-semibold text-slate-300 mt-1">Total Shipments</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">Audited Historical Records</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-left">
-              <div className="text-2xl lg:text-3xl font-black text-sky-400 font-mono">196</div>
-              <div className="text-xs font-semibold text-slate-300 mt-1">Freight Corridors</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">Nationwide Connected Lanes</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-left">
-              <div className="text-2xl lg:text-3xl font-black text-emerald-400 font-mono">94.2%</div>
-              <div className="text-xs font-semibold text-slate-300 mt-1">ETA Accuracy</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">Gradient Boosting Classifier</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-left">
-              <div className="text-2xl lg:text-3xl font-black text-indigo-400 font-mono">87.4%</div>
-              <div className="text-xs font-semibold text-slate-300 mt-1">Efficiency Score</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">Corridor Route Benchmark</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-left">
-              <div className="text-2xl lg:text-3xl font-black text-purple-400 font-mono">4.38 d</div>
-              <div className="text-xs font-semibold text-slate-300 mt-1">Avg Lead Time</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">Operational Dispatch Speed</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-left">
-              <div className="text-2xl lg:text-3xl font-black text-amber-400 font-mono">$1.2M+</div>
-              <div className="text-xs font-semibold text-slate-300 mt-1">Freight Savings</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">Mode & Route Optimization</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. SECTION 2: CORE CAPABILITIES & ENTERPRISE MODULES */}
-      <section id="capabilities" className="relative z-10 py-24 px-6 lg:px-12 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-3.5 py-1 text-xs font-semibold text-cyan-400">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>End-to-End Decision Architecture</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-            Six Intelligent Modules. One Unified Command Center.
-          </h2>
-          <p className="text-sm sm:text-base text-slate-400">
-            Engineered specifically to solve high-friction confectionery supply chain challenges: shelf-life sensitivity, thermal risk in transit, and multi-facility balancing.
-          </p>
-        </div>
-
-        {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {CAPABILITY_CARDS.map((card, idx) => {
-            const Icon = card.icon;
-            return (
-              <div
-                key={idx}
-                className={`p-7 rounded-3xl bg-slate-900/60 border transition-all duration-300 hover:-translate-y-1 text-left flex flex-col justify-between ${card.accent}`}
+                }
               >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${card.iconColor}`}>
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                      {card.tag}
-                    </span>
-                  </div>
+                <Globe3D
+                  selectedFactory={selectedFactory}
+                  onSelectFactory={(f) => setSelectedFactory(f)}
+                  selectedDestination={selectedDestination}
+                  onSelectDestination={setSelectedDestination}
+                  shipModeFilter={shipModeFilter}
+                />
+              </Suspense>
+            </div>
 
-                  <h3 className="text-lg font-bold text-white mb-2">{card.title}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-6">{card.description}</p>
-                </div>
-
-                <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                  <span className="font-mono text-cyan-300 font-semibold">{card.stat}</span>
-                  <button
-                    onClick={handlePrimaryCTA}
-                    className="text-slate-400 hover:text-white flex items-center gap-1 font-medium group text-[11px]"
-                  >
-                    <span>Launch</span>
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </div>
+            {/* Floating Information Panel 3: Route Efficiency (Bottom Left) */}
+            <div className="hidden sm:block absolute -bottom-4 -left-4 z-20 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left w-52 pointer-events-none transition-transform hover:scale-105">
+              <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-mono font-bold uppercase mb-1">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Route Efficiency</span>
               </div>
-            );
-          })}
+              <div className="text-sm font-black text-emerald-300 font-mono">87.4% Efficiency Score</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">Top: Casa Grande → TX (94.8%)</div>
+              <div className="mt-1.5 text-[9px] text-emerald-300 font-mono bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50 inline-block">
+                CORRIDOR BENCHMARK
+              </div>
+            </div>
+
+            {/* Floating Information Panel 4: Delay & Thermal Risk (Bottom Right) */}
+            <div className="hidden sm:block absolute -bottom-4 -right-4 z-20 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left w-52 pointer-events-none transition-transform hover:scale-105">
+              <div className="flex items-center gap-1.5 text-amber-400 text-[10px] font-mono font-bold uppercase mb-1">
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                <span>SLA Delay & Thermal Risk</span>
+              </div>
+              <div className="text-sm font-black text-amber-300 font-mono">11.8% Network Delay</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">Reefer mandate: AZ/TX ambient &gt;78°F</div>
+              <div className="mt-1.5 text-[9px] text-amber-300 font-mono bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/50 inline-block">
+                COLD-CHAIN SENTRY
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 5. SECTION 3: FACTORY-TO-CUSTOMER NETWORK */}
-      <section id="network" className="relative z-10 py-20 px-6 lg:px-12 border-t border-slate-800/90 bg-slate-950/60">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <div className="text-left space-y-2">
-              <div className="inline-flex items-center gap-2 bg-sky-500/10 border border-sky-500/30 rounded-full px-3 py-1 text-xs font-semibold text-sky-400">
-                <Factory className="w-3.5 h-3.5" />
-                <span>Geospatial Manufacturing Footprint</span>
+      {/* 3. SECTION B: INTERACTIVE DIGITAL TWIN (FACTORY-TO-CUSTOMER LOGISTICS SCENE) */}
+      <section id="digital-twin" className="relative z-10 py-20 px-6 lg:px-12 border-t border-slate-800/90 bg-slate-950/80">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header & Controls */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 text-left">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-3 py-1 text-xs font-semibold text-cyan-400 mb-2">
+                <Globe2 className="w-3.5 h-3.5" />
+                <span>Interactive Digital Twin Scene</span>
               </div>
               <h2 className="text-3xl font-black text-white tracking-tight">
-                5 Dedicated Confectionery Hubs
+                Factory-to-Customer Network Twin
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
-                Real-time capacity, product lines, and operational lead times calibrated against Nassau Candy's nationwide production grid.
+              <p className="text-xs sm:text-sm text-slate-400 max-w-xl mt-1">
+                Select manufacturing facilities, highlight connected corridors, inspect route telemetry, and filter dispatches by shipping mode.
               </p>
             </div>
 
-            <button
-              onClick={handlePrimaryCTA}
-              className="self-start md:self-auto flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-4 py-2 rounded-xl transition-all"
-            >
-              <span>Explore Real-World US Map</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            {/* View Mode Toggle */}
+            <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1 text-xs font-medium self-start md:self-auto">
+              <button
+                onClick={() => setTwinViewMode('factories')}
+                className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                  twinViewMode === 'factories'
+                    ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Factory className="w-3.5 h-3.5" />
+                <span>Factories View</span>
+              </button>
+              <button
+                onClick={() => setTwinViewMode('corridors')}
+                className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                  twinViewMode === 'corridors'
+                    ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Compass className="w-3.5 h-3.5" />
+                <span>Corridors View</span>
+              </button>
+              <button
+                onClick={() => setTwinViewMode('shipments')}
+                className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                  twinViewMode === 'shipments'
+                    ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Activity className="w-3.5 h-3.5" />
+                <span>Live Feed View</span>
+              </button>
+            </div>
           </div>
 
-          {/* Factories Interactive Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {FACTORIES.map((fac) => {
-              const isSelected = selectedFactory === fac.name;
-              return (
-                <div
-                  key={fac.name}
-                  onClick={() => setSelectedFactory(fac.name)}
-                  className={`p-5 rounded-2xl cursor-pointer transition-all border text-left flex flex-col justify-between ${
-                    isSelected
-                      ? `bg-slate-900 ${fac.borderColor} shadow-xl shadow-cyan-950/30 scale-[1.02]`
-                      : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/80'
+          {/* Ship Mode Filter Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+              <Filter className="w-4 h-4 text-cyan-400" />
+              <span>Ship Mode Filter:</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {[
+                { key: 'ALL', label: 'All Modes (10,194)' },
+                { key: 'Same Day', label: 'Same Day (0.38d avg)' },
+                { key: 'First Class', label: 'First Class (2.55d)' },
+                { key: 'Second Class', label: 'Second Class (3.57d)' },
+                { key: 'Standard Class', label: 'Standard Class (5.32d)' },
+              ].map(m => (
+                <button
+                  key={m.key}
+                  onClick={() => setShipModeFilter(m.key)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    shipModeFilter === m.key
+                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm'
+                      : 'bg-slate-950/60 text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-white'
                   }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${fac.badgeColor}`}>
-                        {fac.efficiency} Eff.
-                      </span>
-                      <MapPin className="w-4 h-4 text-slate-500" />
-                    </div>
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                    <h4 className="text-sm font-bold text-white mb-0.5">{fac.name}</h4>
-                    <p className="text-[11px] text-slate-400 font-medium mb-3">{fac.location}</p>
+          {/* Interactive Digital Twin Content Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left 7 Columns: Dynamic View (Factory Cards or Corridor Table or Live Feed) */}
+            <div className="lg:col-span-7 space-y-4">
+              {twinViewMode === 'factories' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left">
+                  {FACTORIES.map(fac => {
+                    const isSelected = selectedFactory === fac.name;
+                    return (
+                      <div
+                        key={fac.id}
+                        onClick={() => setSelectedFactory(isSelected ? null : fac.name)}
+                        className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                          isSelected
+                            ? 'bg-slate-900 border-cyan-400 shadow-xl shadow-cyan-950/30 ring-1 ring-cyan-400/50'
+                            : 'bg-slate-900/60 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${fac.badgeClass}`}>
+                            {fac.efficiency} Efficiency
+                          </span>
+                          <span
+                            className="w-2.5 h-2.5 rounded-full"
+                            style={{ backgroundColor: fac.accentHex }}
+                          />
+                        </div>
+                        <h4 className="font-bold text-sm text-white">{fac.name}</h4>
+                        <div className="text-[11px] text-slate-400 mt-0.5">{fac.location}</div>
+                        <div className="text-[10px] text-slate-300 mt-2 bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
+                          <span className="text-slate-500 block text-[9px] uppercase font-semibold">Specialization</span>
+                          <span className="font-medium text-slate-200">{fac.specialty}</span>
+                        </div>
+                        <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono">
+                          <span className="text-slate-500">Lead: {fac.leadTime}</span>
+                          <span className="text-cyan-300 font-bold">{fac.dailyCapacity}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
-                    <div className="text-[11px] text-slate-300 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 mb-3">
-                      <div className="text-slate-400 text-[10px] uppercase font-semibold">Specialization</div>
-                      <div className="font-medium text-slate-200 mt-0.5">{fac.specialty}</div>
-                    </div>
+              {twinViewMode === 'corridors' && (
+                <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-left overflow-x-auto">
+                  <div className="text-xs font-bold text-white mb-3 flex items-center justify-between">
+                    <span>Active Freight Corridors ({filteredCorridors.length} lanes)</span>
+                    <span className="text-[10px] text-cyan-400 font-mono">Real Operational Distance</span>
                   </div>
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-slate-500 border-b border-slate-800 text-[11px]">
+                        <th className="pb-2 text-left font-semibold">Lane</th>
+                        <th className="pb-2 text-left font-semibold">Ship Mode</th>
+                        <th className="pb-2 text-right font-semibold">Distance</th>
+                        <th className="pb-2 text-right font-semibold">Avg Lead</th>
+                        <th className="pb-2 text-right font-semibold">Delay</th>
+                        <th className="pb-2 text-right font-semibold">Tier</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                      {filteredCorridors.map(c => (
+                        <tr
+                          key={c.id}
+                          onClick={() => {
+                            setSelectedFactory(c.origin);
+                            setSelectedDestination(c.dest);
+                          }}
+                          className="hover:bg-slate-800/50 cursor-pointer transition-colors"
+                        >
+                          <td className="py-2.5 text-white font-sans font-medium">
+                            <div>{c.origin}</div>
+                            <div className="text-[10px] text-cyan-400">→ {c.dest}</div>
+                          </td>
+                          <td className="py-2.5 text-slate-300 font-sans">{c.mode}</td>
+                          <td className="py-2.5 text-right text-slate-300">{c.dist} mi</td>
+                          <td className="py-2.5 text-right text-cyan-300 font-bold">{c.leadTime}d</td>
+                          <td className="py-2.5 text-right text-amber-400">{c.delayRisk}</td>
+                          <td className="py-2.5 text-right">
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                              c.tier === 'Optimal' ? 'bg-emerald-500/20 text-emerald-300' :
+                              c.tier === 'Bottleneck' ? 'bg-rose-500/20 text-rose-300' :
+                              'bg-sky-500/20 text-sky-300'
+                            }`}>
+                              {c.tier}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
-                  <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono">
-                    <span className="text-slate-400">Lead Time</span>
-                    <span className="text-cyan-300 font-bold">{fac.leadTime}</span>
+              {twinViewMode === 'shipments' && (
+                <div className="space-y-3 text-left">
+                  <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+                    <span>Live Telemetry Event Feed (WebSocket Simulation)</span>
+                    <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      SIMULATOR LIVE
+                    </span>
+                  </div>
+                  {LIVE_DISPATCHES.map(item => (
+                    <div
+                      key={item.trackingId}
+                      className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-mono text-cyan-300 font-bold">{item.trackingId}</span>
+                          <span className="text-[10px] text-slate-400">• {item.sku}</span>
+                        </div>
+                        <div className="text-[11px] text-slate-300">
+                          {item.origin} <span className="text-slate-500">→</span> {item.destination}
+                        </div>
+                        <div className="text-[10px] text-emerald-400 mt-1 font-mono">{item.temp}</div>
+                      </div>
+                      <div className="text-right sm:min-w-[140px]">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                          item.status === 'DELIVERED' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                          item.status === 'OUT_FOR_DELIVERY' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
+                          'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                        }`}>
+                          {item.status}
+                        </span>
+                        <div className="text-[10px] text-slate-400 mt-1 font-mono">{item.eta}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Right 5 Columns: Compact Object Inspector HUD */}
+            <div className="lg:col-span-5 bg-slate-900/80 border border-cyan-500/30 rounded-3xl p-5 shadow-2xl backdrop-blur-xl text-left space-y-4 sticky top-24">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-3 h-3 rounded-full animate-pulse"
+                    style={{ backgroundColor: currentFactoryObj.accentHex }}
+                  />
+                  <h3 className="font-black text-sm text-white">{currentFactoryObj.name}</h3>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                  {currentFactoryObj.id}
+                </span>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-semibold block">Geographic Centroid</span>
+                  <span className="font-medium text-slate-200">{currentFactoryObj.location} ({currentFactoryObj.lat.toFixed(3)}°N, {Math.abs(currentFactoryObj.lon).toFixed(3)}°W)</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 p-3 bg-slate-950/70 rounded-xl border border-slate-800">
+                  <div>
+                    <span className="text-[9px] text-slate-500 uppercase block font-mono">Daily Capacity</span>
+                    <span className="text-cyan-300 font-bold font-mono">{currentFactoryObj.dailyCapacity}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-500 uppercase block font-mono">Operational Lead</span>
+                    <span className="text-emerald-400 font-bold font-mono">{currentFactoryObj.leadTime}</span>
                   </div>
                 </div>
-              );
-            })}
+
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-semibold block">Allocated Product Lines</span>
+                  <p className="text-[11px] text-slate-300 mt-0.5 leading-snug">{currentFactoryObj.specialty}</p>
+                </div>
+
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-semibold block">Thermal Degradation Sentry</span>
+                  <div className="text-[11px] text-amber-300 flex items-center gap-1.5 mt-0.5">
+                    <ThermometerSun className="w-3.5 h-3.5 shrink-0" />
+                    <span>{currentFactoryObj.thermalRisk}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-semibold block">Primary Outbound Arterial</span>
+                  <span className="text-[11px] text-slate-200 font-mono mt-0.5 block">{currentFactoryObj.topRoute}</span>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-800/80">
+                <button
+                  onClick={handlePrimaryCTA}
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md"
+                >
+                  <span>Open Full Network Telemetry</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 6. SECTION 4: ENTERPRISE ARCHITECTURE & GOVERNANCE */}
-      <section id="architecture" className="relative z-10 py-24 px-6 lg:px-12 max-w-7xl mx-auto border-t border-slate-800/80">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-6 space-y-6 text-left">
+      {/* 4. SECTION C: DATA-DRIVEN INTELLIGENCE & RESEARCH PLATFORM */}
+      <section id="intelligence" className="relative z-10 py-24 px-6 lg:px-12 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 rounded-full px-3.5 py-1 text-xs font-semibold text-indigo-400">
+            <Cpu className="w-3.5 h-3.5" />
+            <span>Machine Learning & Empirical Research</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+            Scientific Machine Learning Calibration
+          </h2>
+          <p className="text-sm sm:text-base text-slate-400">
+            Trained on 10,194 verified dispatches with empirical cohort anchoring. Validated against actual operational outcomes without synthetic extrapolation.
+          </p>
+        </div>
+
+        {/* Intelligence Category Tabs */}
+        <div className="flex justify-center mb-8">
+          <div className="flex flex-wrap items-center bg-slate-900 border border-slate-800 rounded-2xl p-1 gap-1 text-xs">
+            <button
+              onClick={() => setIntelligenceTab('models')}
+              className={`px-4 py-2 rounded-xl font-bold transition-all ${
+                intelligenceTab === 'models'
+                  ? 'bg-cyan-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              ML Models & Metrics
+            </button>
+            <button
+              onClick={() => setIntelligenceTab('regional')}
+              className={`px-4 py-2 rounded-xl font-bold transition-all ${
+                intelligenceTab === 'regional'
+                  ? 'bg-cyan-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Regional & Factory Analytics
+            </button>
+            <button
+              onClick={() => setIntelligenceTab('anomalies')}
+              className={`px-4 py-2 rounded-xl font-bold transition-all ${
+                intelligenceTab === 'anomalies'
+                  ? 'bg-cyan-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Anomaly Detection
+            </button>
+            <button
+              onClick={() => setIntelligenceTab('forecast')}
+              className={`px-4 py-2 rounded-xl font-bold transition-all ${
+                intelligenceTab === 'forecast'
+                  ? 'bg-cyan-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Volume Forecasting
+            </button>
+          </div>
+        </div>
+
+        {/* Tab 1: ML Models & Evaluation Metrics */}
+        {intelligenceTab === 'models' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+            <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div>
+                  <h4 className="font-bold text-white text-base">Delay Classification Engine</h4>
+                  <p className="text-xs text-slate-400">Random Forest & Gradient Boosting Classifier</p>
+                </div>
+                <span className="text-[10px] font-mono text-cyan-300 bg-cyan-950/80 px-2 py-1 rounded border border-cyan-800">
+                  AUC: 0.962
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono">
+                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                  <div className="text-slate-500 text-[10px]">ACCURACY</div>
+                  <div className="text-base font-bold text-emerald-400 mt-0.5">94.2%</div>
+                </div>
+                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                  <div className="text-slate-500 text-[10px]">PRECISION</div>
+                  <div className="text-base font-bold text-cyan-400 mt-0.5">91.8%</div>
+                </div>
+                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                  <div className="text-slate-500 text-[10px]">RECALL</div>
+                  <div className="text-base font-bold text-indigo-400 mt-0.5">88.5%</div>
+                </div>
+                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                  <div className="text-slate-500 text-[10px]">F1-SCORE</div>
+                  <div className="text-base font-bold text-purple-400 mt-0.5">90.1%</div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Predicts whether a shipment will experience delivery delays based on origin plant load, destination distance, ship mode SLA, and ambient temperatures.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div>
+                  <h4 className="font-bold text-white text-base">ETA Regression Engine</h4>
+                  <p className="text-xs text-slate-400">Gradient Boosting Regressor (Days to Delivery)</p>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-300 bg-emerald-950/80 px-2 py-1 rounded border border-emerald-800">
+                  R²: 0.884
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-center font-mono">
+                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                  <div className="text-slate-500 text-[10px]">MAE (ERROR)</div>
+                  <div className="text-base font-bold text-cyan-400 mt-0.5">0.41 d</div>
+                </div>
+                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                  <div className="text-slate-500 text-[10px]">RMSE</div>
+                  <div className="text-base font-bold text-indigo-400 mt-0.5">0.62 d</div>
+                </div>
+                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                  <div className="text-slate-500 text-[10px]">TOLERANCE ±1D</div>
+                  <div className="text-base font-bold text-emerald-400 mt-0.5">96.8%</div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Computes exact fractional operational lead times for pending orders with 95% parametric confidence intervals, protecting against customer SLA breaches.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: Regional & Factory Analytics */}
+        {intelligenceTab === 'regional' && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-left">
+            {[
+              { region: 'Atlantic Region', lead: '3.94 days', delay: '8.4%', volume: '3,240 orders', desc: 'Fastest regional delivery due to Savannah hub proximity.' },
+              { region: 'Interior Region', lead: '4.18 days', delay: '10.2%', volume: '2,890 orders', desc: 'Central cross-dock corridors via Memphis and Rock Island.' },
+              { region: 'Gulf Region', lead: '4.31 days', delay: '12.6%', volume: '1,980 orders', desc: 'Elevated summer thermal alerts requiring climate linehaul.' },
+              { region: 'Pacific Region', lead: '4.82 days', delay: '17.8%', volume: '2,084 orders', desc: 'Transcontinental cross-country freight with highest mileage.' },
+            ].map(r => (
+              <div key={r.region} className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex flex-col justify-between">
+                <div>
+                  <h4 className="font-bold text-white text-sm mb-1">{r.region}</h4>
+                  <p className="text-[11px] text-slate-400 leading-relaxed mb-4">{r.desc}</p>
+                </div>
+                <div className="pt-3 border-t border-slate-800 space-y-1 font-mono text-[11px]">
+                  <div className="flex justify-between text-slate-400">
+                    <span>Operational Lead:</span>
+                    <span className="text-cyan-300 font-bold">{r.lead}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Delay Rate:</span>
+                    <span className="text-amber-400">{r.delay}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Tab 3: Anomaly Detection */}
+        {intelligenceTab === 'anomalies' && (
+          <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 text-left space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
+              <div>
+                <h4 className="font-bold text-white text-base">Unsupervised Multi-Feature Isolation Forest</h4>
+                <p className="text-xs text-slate-400">148 statistical lead-time and volume anomalies isolated from 10,194 records</p>
+              </div>
+              <span className="text-[10px] font-mono text-rose-400 bg-rose-950/80 px-2.5 py-1 rounded border border-rose-800 self-start sm:self-auto">
+                1.45% Outlier Contamination
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                <span className="font-mono text-cyan-300 font-bold block mb-1">Lead-Time Deviations</span>
+                <p className="text-slate-400 text-[11px]">Outliers with operational lead time &gt; 9 days (3.4 standard deviations above mode baseline).</p>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                <span className="font-mono text-amber-300 font-bold block mb-1">Thermal Risk Excursions</span>
+                <p className="text-slate-400 text-[11px]">Chocolate product lanes in AZ, TX, and NV experiencing summer ambient heat &gt; 100°F.</p>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                <span className="font-mono text-emerald-300 font-bold block mb-1">Automated Audit Flags</span>
+                <p className="text-slate-400 text-[11px]">Non-destructive isolation of truncated zip codes and product division mismatches.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Volume Forecasting */}
+        {intelligenceTab === 'forecast' && (
+          <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 text-left space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
+              <div>
+                <h4 className="font-bold text-white text-base">Holt-Winters Triple Exponential Smoothing</h4>
+                <p className="text-xs text-slate-400">12-Month seasonal demand forecasting with 95% confidence bounds</p>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded border border-emerald-800 self-start sm:self-auto">
+                Seasonality Period: 12 Mos
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+              <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                <span className="text-slate-500 text-[10px] block">PEAK DEMAND QUARTER</span>
+                <span className="text-base font-bold text-cyan-400 mt-1 block">Q4 (Oct - Dec)</span>
+                <span className="text-slate-400 text-[10px] font-sans">Holiday confectionery surge (+38% volume)</span>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                <span className="text-slate-500 text-[10px] block">FORECAST CONFIDENCE</span>
+                <span className="text-base font-bold text-emerald-400 mt-1 block">95% Parametric CI</span>
+                <span className="text-slate-400 text-[10px] font-sans">Additive seasonal trend model</span>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                <span className="text-slate-500 text-[10px] block">PROJECTED 12-MO UNITS</span>
+                <span className="text-base font-bold text-purple-400 mt-1 block">14,200 Orders</span>
+                <span className="text-slate-400 text-[10px] font-sans">Across 5 production facilities</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* 5. SECTION D: FULL-STACK ENTERPRISE ARCHITECTURE */}
+      <section id="architecture" className="relative z-10 py-20 px-6 lg:px-12 border-t border-slate-800/80 bg-slate-950/60">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-left">
+          <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 rounded-full px-3 py-1 text-xs font-semibold text-indigo-400">
               <Shield className="w-3.5 h-3.5" />
               <span>Full-Stack Enterprise Architecture</span>
             </div>
-
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Built for Scale, Security, and Sub-10ms Latency.
+              Production-Grade Scale, Zero Third-Party Lock-in.
             </h2>
-
             <p className="text-sm text-slate-300 leading-relaxed">
-              RouteNexa AI delivers enterprise-grade performance without external telemetry dependencies, proprietary cloud lock-in, or costly per-seat API subscriptions.
+              RouteNexa AI is constructed entirely with free, high-performance open-source libraries. No recurring per-seat fees, no proprietary cloud locks, and zero external runtime 3D asset downloads.
             </p>
-
-            <div className="space-y-3.5 pt-2">
+            <div className="space-y-3 pt-2 text-xs">
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">Role-Based Access Control (RBAC)</h4>
-                  <p className="text-[11px] text-slate-400">Granular permissions for Administrators, Logistics Planners, and Executive Analysts.</p>
+                  <h4 className="font-bold text-white">Non-Destructive Empirical Cohort Correction</h4>
+                  <p className="text-slate-400 text-[11px]">Corrects multi-year raw date anomalies without modifying raw CSV records.</p>
                 </div>
               </div>
-
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">FastAPI Async Telemetry Engine</h4>
-                  <p className="text-[11px] text-slate-400">Asynchronous Python backend with SQLite/PostgreSQL persistence processing 10,000+ records in milliseconds.</p>
+                  <h4 className="font-bold text-white">Sub-10ms FastAPI Async Telemetry</h4>
+                  <p className="text-slate-400 text-[11px]">Asynchronous Python REST API supporting 10,000+ orders with SQLite/PostgreSQL schema parity.</p>
                 </div>
               </div>
-
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 mt-0.5">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">100% Free & Open-Source Stack</h4>
-                  <p className="text-[11px] text-slate-400">Procedural 3D Three.js, React Three Fiber, Leaflet Geographic GIS, and Tailwind CSS.</p>
+                  <h4 className="font-bold text-white">Enterprise Role-Based Access Control (RBAC)</h4>
+                  <p className="text-slate-400 text-[11px]">Protected JWT tokens for Administrators, Logistics Planners, and Executive Analysts.</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-6 bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-2xl text-left">
+          <div className="lg:col-span-6 bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
+                <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
                 <span className="text-xs font-bold text-white font-mono">System Integrity Verification</span>
               </div>
               <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                 100% HEALTHY
               </span>
             </div>
-
             <div className="divide-y divide-slate-800/80 text-xs">
               <div className="py-3 flex justify-between items-center">
-                <span className="text-slate-400 font-medium">Database Layer</span>
-                <span className="font-mono text-slate-200">SQLite / PostgreSQL (10,194 records)</span>
+                <span className="text-slate-400 font-medium">Dataset Layer</span>
+                <span className="font-mono text-slate-200">Nassau Candy (10,194 records, 18 columns)</span>
               </div>
               <div className="py-3 flex justify-between items-center">
-                <span className="text-slate-400 font-medium">API Server</span>
-                <span className="font-mono text-slate-200">FastAPI 0.115+ (Async Python)</span>
+                <span className="text-slate-400 font-medium">Backend Engine</span>
+                <span className="font-mono text-slate-200">FastAPI 0.115+ (Async Python 3.9+)</span>
               </div>
               <div className="py-3 flex justify-between items-center">
                 <span className="text-slate-400 font-medium">Machine Learning</span>
@@ -638,7 +960,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
               <div className="py-3 flex justify-between items-center">
                 <span className="text-slate-400 font-medium">Geospatial Mapping</span>
-                <span className="font-mono text-slate-200">Leaflet 1.9 + Esri World Satellite Tiles</span>
+                <span className="font-mono text-slate-200">Leaflet 1.9 + Real-World Satellite GIS</span>
               </div>
               <div className="py-3 flex justify-between items-center">
                 <span className="text-slate-400 font-medium">3D Hero Graphics</span>
@@ -646,32 +968,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
               <div className="py-3 flex justify-between items-center">
                 <span className="text-slate-400 font-medium">Authentication</span>
-                <span className="font-mono text-slate-200">JWT Bearer Auth + Demo Auto-Login</span>
+                <span className="font-mono text-slate-200">JWT Bearer Auth + 1-Click Demo Login</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 7. SECTION 5: FINAL HIGH-CONVERTING CTA */}
+      {/* 6. SECTION E: FINAL CALL TO ACTION LEADING TO LOGIN */}
       <section className="relative z-10 py-24 px-6 lg:px-12 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-t border-slate-800">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-sky-600 flex items-center justify-center shadow-xl shadow-cyan-500/25 mx-auto text-slate-950">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-400 to-indigo-600 flex items-center justify-center shadow-xl shadow-cyan-500/25 mx-auto text-slate-950">
             <Zap className="w-7 h-7" />
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-            Ready to Accelerate Your Logistics Intelligence?
+            Deploy Intelligent Logistics in Your Browser.
           </h2>
 
           <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Experience real-time route optimization, predictive machine learning ETAs, and autonomous bottleneck detection right inside your browser.
+            Gain immediate access to all 17 RouteNexa AI modules: real-time corridor benchmarking, predictive machine learning ETAs, automated order intake, and autonomous anomaly isolation.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <button
               onClick={handlePrimaryCTA}
-              className="flex items-center gap-3 bg-gradient-to-r from-cyan-400 to-sky-500 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-black text-sm px-8 py-4 rounded-xl shadow-2xl shadow-cyan-500/30 transition-all hover:scale-[1.03] active:scale-[0.98]"
+              className="flex items-center gap-3 bg-gradient-to-r from-cyan-400 via-sky-500 to-indigo-600 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-black text-sm px-8 py-4 rounded-xl shadow-2xl shadow-cyan-500/30 transition-all hover:scale-[1.03] active:scale-[0.98]"
             >
               <span>Launch RouteNexa Platform</span>
               <ArrowRight className="w-4 h-4" />
@@ -680,27 +1002,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           <p className="text-xs text-slate-400 pt-2 flex items-center justify-center gap-2">
             <Shield className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Includes 1-Click System Administrator Access • Zero Subscription Fees</span>
+            <span>Includes Instant 1-Click Administrator Access • Zero Subscription Fees</span>
           </p>
         </div>
       </section>
 
-      {/* 8. FOOTER */}
+      {/* 7. FOOTER */}
       <footer className="border-t border-slate-800/80 bg-slate-950 py-12 px-6 lg:px-12 text-slate-400 text-xs">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-cyan-600 flex items-center justify-center text-white font-bold">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-bold">
               <Truck className="w-4 h-4" />
             </div>
             <div className="text-left">
               <span className="font-bold text-white text-sm">RouteNexa AI</span>
-              <p className="text-[11px] text-slate-500">Autonomous Supply Chain & Logistics Intelligence</p>
+              <p className="text-[11px] text-slate-500">Autonomous Supply Chain Intelligence System</p>
             </div>
           </div>
 
           <div className="flex items-center gap-6 font-medium">
-            <button onClick={() => scrollToSection('network')} className="hover:text-slate-200">Network</button>
-            <button onClick={() => scrollToSection('capabilities')} className="hover:text-slate-200">Capabilities</button>
+            <button onClick={() => scrollToSection('hero')} className="hover:text-slate-200">Hero</button>
+            <button onClick={() => scrollToSection('digital-twin')} className="hover:text-slate-200">Digital Twin</button>
+            <button onClick={() => scrollToSection('intelligence')} className="hover:text-slate-200">Predictive AI</button>
             <button onClick={() => scrollToSection('architecture')} className="hover:text-slate-200">Architecture</button>
             <button onClick={handlePrimaryCTA} className="text-cyan-400 hover:text-cyan-300 font-semibold">Sign In</button>
           </div>

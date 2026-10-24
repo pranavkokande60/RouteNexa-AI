@@ -4,6 +4,9 @@ import { Factory, ShieldCheck, Radio, Sparkles } from 'lucide-react';
 interface GlobeFallbackProps {
   onSelectFactory?: (name: string) => void;
   selectedFactory?: string | null;
+  selectedDestination?: string | null;
+  onSelectDestination?: (name: string | null) => void;
+  shipModeFilter?: string;
 }
 
 const FACTORY_NODES = [

@@ -1,9 +1,8 @@
 import React, { useRef, useMemo, useState, useEffect, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { GlobeFallback } from './GlobeFallback';
-import { Factory, Activity, Zap, Compass } from 'lucide-react';
 
 export interface FactoryNodeData {
   id: string;
@@ -16,6 +15,8 @@ export interface FactoryNodeData {
   capacity: string;
   leadTime: string;
   efficiency: string;
+  color: string;
+  accentHex: string;
 }
 
 export const FACTORY_NODES: FactoryNodeData[] = [
@@ -29,7 +30,9 @@ export const FACTORY_NODES: FactoryNodeData[] = [
     specialization: 'Premium Milk & Caramel Chocolate',
     capacity: '75,000 units/day',
     leadTime: '4.1 days',
-    efficiency: '92.4%'
+    efficiency: '92.4%',
+    color: 'amber',
+    accentHex: '#f59e0b'
   },
   {
     id: 'FAC-LON-01',
@@ -41,7 +44,9 @@ export const FACTORY_NODES: FactoryNodeData[] = [
     specialization: 'Nut & Marshmallow Chocolate Bars',
     capacity: '50,000 units/day',
     leadTime: '3.9 days',
-    efficiency: '94.8%'
+    efficiency: '94.8%',
+    color: 'cyan',
+    accentHex: '#00f0ff'
   },
   {
     id: 'FAC-OTH-05',
@@ -53,7 +58,9 @@ export const FACTORY_NODES: FactoryNodeData[] = [
     specialization: 'Chewy Candies & Specialty Toffee',
     capacity: '40,000 units/day',
     leadTime: '4.3 days',
-    efficiency: '88.6%'
+    efficiency: '88.6%',
+    color: 'violet',
+    accentHex: '#a855f7'
   },
   {
     id: 'FAC-SSK-03',
@@ -65,7 +72,9 @@ export const FACTORY_NODES: FactoryNodeData[] = [
     specialization: 'Sugar Candies & Specialty Beverages',
     capacity: '35,000 units/day',
     leadTime: '4.8 days',
-    efficiency: '85.2%'
+    efficiency: '85.2%',
+    color: 'emerald',
+    accentHex: '#10b981'
   },
   {
     id: 'FAC-SEC-04',
@@ -77,18 +86,21 @@ export const FACTORY_NODES: FactoryNodeData[] = [
     specialization: 'Experimental Confections & Novelties',
     capacity: '25,000 units/day',
     leadTime: '4.4 days',
-    efficiency: '87.1%'
+    efficiency: '87.1%',
+    color: 'rose',
+    accentHex: '#f43f5e'
   },
 ];
 
 export const DESTINATION_HUBS = [
-  { name: 'Los Angeles Terminal', lat: 34.052, lon: -118.244, city: 'Los Angeles, CA' },
-  { name: 'Seattle Regional Hub', lat: 47.606, lon: -122.332, city: 'Seattle, WA' },
-  { name: 'Dallas Cross-Dock', lat: 32.777, lon: -96.797, city: 'Dallas, TX' },
-  { name: 'Metro New York DC', lat: 40.713, lon: -74.006, city: 'New York, NY' },
-  { name: 'Miami Gateway', lat: 25.762, lon: -80.192, city: 'Miami, FL' },
-  { name: 'Denver Intermodal', lat: 39.739, lon: -104.990, city: 'Denver, CO' },
-  { name: 'Chicago Central Depot', lat: 41.878, lon: -87.630, city: 'Chicago, IL' },
+  { id: 'HUB-LAX', name: 'Los Angeles Terminal', lat: 34.052, lon: -118.244, city: 'Los Angeles, CA', region: 'Pacific' },
+  { id: 'HUB-SEA', name: 'Seattle Regional Hub', lat: 47.606, lon: -122.332, city: 'Seattle, WA', region: 'Pacific' },
+  { id: 'HUB-DFW', name: 'Dallas Cross-Dock', lat: 32.777, lon: -96.797, city: 'Dallas, TX', region: 'Gulf' },
+  { id: 'HUB-NYC', name: 'Metro New York DC', lat: 40.713, lon: -74.006, city: 'New York, NY', region: 'Atlantic' },
+  { id: 'HUB-MIA', name: 'Miami Gateway', lat: 25.762, lon: -80.192, city: 'Miami, FL', region: 'Atlantic' },
+  { id: 'HUB-DEN', name: 'Denver Intermodal', lat: 39.739, lon: -104.990, city: 'Denver, CO', region: 'Interior' },
+  { id: 'HUB-CHI', name: 'Chicago Central Depot', lat: 41.878, lon: -87.630, city: 'Chicago, IL', region: 'Interior' },
+  { id: 'HUB-ATL', name: 'Atlanta Distribution', lat: 33.749, lon: -84.388, city: 'Atlanta, GA', region: 'Atlantic' },
 ];
 
 const GLOBE_RADIUS = 1.95;
@@ -120,9 +132,9 @@ function createProceduralEarthTexture(): THREE.CanvasTexture {
 
   // Subtle ocean wave gradients
   const oceanGrad = ctx.createLinearGradient(0, 0, 0, height);
-  oceanGrad.addColorStop(0, 'rgba(2, 6, 23, 0.95)');
-  oceanGrad.addColorStop(0.5, 'rgba(8, 25, 55, 0.6)');
-  oceanGrad.addColorStop(1, 'rgba(2, 6, 23, 0.95)');
+  oceanGrad.addColorStop(0, 'rgba(2, 6, 23, 0.98)');
+  oceanGrad.addColorStop(0.5, 'rgba(8, 25, 55, 0.65)');
+  oceanGrad.addColorStop(1, 'rgba(2, 6, 23, 0.98)');
   ctx.fillStyle = oceanGrad;
   ctx.fillRect(0, 0, width, height);
 
@@ -204,19 +216,12 @@ function createProceduralEarthTexture(): THREE.CanvasTexture {
   ctx.fillStyle = '#38bdf8';
   for (let lat = -65; lat <= 65; lat += 2.5) {
     for (let lon = -175; lon <= 175; lon += 2.5) {
-      // Check if coordinate is approximately over land
       let isLand = false;
-      // North America
       if (lat >= 15 && lat <= 70 && lon >= -160 && lon <= -55) isLand = true;
-      // South America
       else if (lat >= -55 && lat <= 12 && lon >= -80 && lon <= -35) isLand = true;
-      // Europe
       else if (lat >= 36 && lat <= 70 && lon >= -10 && lon <= 45) isLand = true;
-      // Africa
       else if (lat >= -35 && lat <= 36 && lon >= -18 && lon <= 50) isLand = true;
-      // Asia
       else if (lat >= 10 && lat <= 72 && lon >= 50 && lon <= 150) isLand = true;
-      // Australia
       else if (lat >= -40 && lat <= -12 && lon >= 114 && lon <= 152) isLand = true;
 
       if (isLand) {
@@ -261,15 +266,26 @@ function createProceduralEarthTexture(): THREE.CanvasTexture {
   return texture;
 }
 
-// 3D Curved Great-Circle Arc with Neon Tube Geometry & Traveling Pulse
+// 3D Curved Great-Circle Arc with Volumetric Neon Tube & Traveling Packet
 interface RouteArcProps {
   startPos: THREE.Vector3;
   endPos: THREE.Vector3;
   speed: number;
   phaseOffset: number;
+  colorHex: string;
+  isHighlighted: boolean;
+  isVisible: boolean;
 }
 
-const RouteArc: React.FC<RouteArcProps> = ({ startPos, endPos, speed, phaseOffset }) => {
+const RouteArc: React.FC<RouteArcProps> = ({
+  startPos,
+  endPos,
+  speed,
+  phaseOffset,
+  colorHex,
+  isHighlighted,
+  isVisible
+}) => {
   const particleRef = useRef<THREE.Mesh>(null);
   const pulseRef = useRef<number>(phaseOffset);
 
@@ -277,38 +293,46 @@ const RouteArc: React.FC<RouteArcProps> = ({ startPos, endPos, speed, phaseOffse
   const { curve, tubeGeometry } = useMemo(() => {
     const distance = startPos.distanceTo(endPos);
     const mid = new THREE.Vector3().addVectors(startPos, endPos).multiplyScalar(0.5);
-    // Dynamic arch height proportional to route distance
     const elevation = 1 + distance * 0.16;
     const controlPoint = mid.clone().normalize().multiplyScalar(GLOBE_RADIUS * elevation);
 
     const quadCurve = new THREE.QuadraticBezierCurve3(startPos, controlPoint, endPos);
-    // Smooth 3D neon tube geometry for visible glowing depth from all camera angles
-    const tube = new THREE.TubeGeometry(quadCurve, 32, 0.014, 8, false);
+    const tube = new THREE.TubeGeometry(quadCurve, 32, isHighlighted ? 0.016 : 0.011, 8, false);
 
     return { curve: quadCurve, tubeGeometry: tube };
-  }, [startPos, endPos]);
+  }, [startPos, endPos, isHighlighted]);
 
   // Traveling shipment packet
   useFrame((_, delta) => {
-    pulseRef.current = (pulseRef.current + speed * delta) % 1;
+    if (!isVisible) return;
+    const activeSpeed = isHighlighted ? speed * 1.25 : speed;
+    pulseRef.current = (pulseRef.current + activeSpeed * delta) % 1;
     if (particleRef.current) {
       const pos = curve.getPoint(pulseRef.current);
       particleRef.current.position.copy(pos);
     }
   });
 
+  if (!isVisible) return null;
+
   return (
     <group>
       {/* 3D Glowing Arc Tube */}
       <mesh geometry={tubeGeometry}>
-        <meshBasicMaterial color="#00f0ff" transparent opacity={0.65} />
+        <meshBasicMaterial
+          color={colorHex}
+          transparent
+          opacity={isHighlighted ? 0.85 : 0.18}
+        />
       </mesh>
 
       {/* Traveling Shipment Pulse */}
-      <mesh ref={particleRef}>
-        <sphereGeometry args={[0.042, 12, 12]} />
-        <meshBasicMaterial color="#ffffff" />
-      </mesh>
+      {isHighlighted && (
+        <mesh ref={particleRef}>
+          <sphereGeometry args={[0.044, 12, 12]} />
+          <meshBasicMaterial color="#ffffff" />
+        </mesh>
+      )}
     </group>
   );
 };
@@ -317,24 +341,25 @@ const RouteArc: React.FC<RouteArcProps> = ({ startPos, endPos, speed, phaseOffse
 interface PulseRingProps {
   position: THREE.Vector3;
   color: string;
+  isHighlighted: boolean;
 }
 
-const PulseRing: React.FC<PulseRingProps> = ({ position, color }) => {
+const PulseRing: React.FC<PulseRingProps> = ({ position, color, isHighlighted }) => {
   const ringRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
   const scaleRef = useRef<number>(1);
 
   useFrame((_, delta) => {
-    scaleRef.current += delta * 1.6;
-    if (scaleRef.current > 3.2) {
+    scaleRef.current += delta * (isHighlighted ? 1.8 : 1.2);
+    if (scaleRef.current > (isHighlighted ? 3.6 : 2.8)) {
       scaleRef.current = 1.0;
     }
     if (ringRef.current) {
       ringRef.current.scale.set(scaleRef.current, scaleRef.current, scaleRef.current);
     }
     if (matRef.current) {
-      const alpha = 1.0 - (scaleRef.current - 1.0) / 2.2;
-      matRef.current.opacity = Math.max(0, alpha * 0.7);
+      const alpha = 1.0 - (scaleRef.current - 1.0) / (isHighlighted ? 2.6 : 1.8);
+      matRef.current.opacity = Math.max(0, alpha * (isHighlighted ? 0.85 : 0.45));
     }
   });
 
@@ -347,19 +372,28 @@ const PulseRing: React.FC<PulseRingProps> = ({ position, color }) => {
 
   return (
     <mesh ref={ringRef} position={position} quaternion={quaternion}>
-      <ringGeometry args={[0.035, 0.065, 24]} />
+      <ringGeometry args={[0.035, 0.07, 24]} />
       <meshBasicMaterial ref={matRef} color={color} transparent opacity={0.6} side={THREE.DoubleSide} />
     </mesh>
   );
 };
 
-// 3D Scene Container
+// Interactive 3D Scene Container
 interface GlobeSceneProps {
   selectedFactory: string | null;
   onSelectFactory: (name: string) => void;
+  selectedDestination: string | null;
+  onSelectDestination: (name: string | null) => void;
+  shipModeFilter: string;
 }
 
-const GlobeScene: React.FC<GlobeSceneProps> = ({ selectedFactory, onSelectFactory }) => {
+const GlobeScene: React.FC<GlobeSceneProps> = ({
+  selectedFactory,
+  onSelectFactory,
+  selectedDestination,
+  onSelectDestination,
+  shipModeFilter
+}) => {
   const globeGroupRef = useRef<THREE.Group>(null);
   const earthTexture = useMemo(() => createProceduralEarthTexture(), []);
 
@@ -380,23 +414,34 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({ selectedFactory, onSelectFactor
 
   // Shipping routes connecting factories to destination hubs
   const shippingRoutes = useMemo(() => {
+    const MODES = ['Same Day', 'First Class', 'Second Class', 'Standard Class'];
     const routes: Array<{
       start: THREE.Vector3;
       end: THREE.Vector3;
+      factoryName: string;
+      destName: string;
+      shipMode: string;
       speed: number;
       phase: number;
       id: string;
+      colorHex: string;
     }> = [];
 
     factoryVectors.forEach((fac, facIdx) => {
       destinationVectors.forEach((dest, destIdx) => {
+        // Connect each factory to specific hubs
         if ((facIdx + destIdx) % 2 === 0 || (facIdx * 2 + destIdx) % 3 === 0) {
+          const mode = MODES[(facIdx + destIdx) % MODES.length];
           routes.push({
             start: fac.pos,
             end: dest.pos,
-            speed: 0.32 + (facIdx * 0.05),
+            factoryName: fac.name,
+            destName: dest.name,
+            shipMode: mode,
+            speed: 0.32 + (facIdx * 0.04),
             phase: (facIdx * 0.22 + destIdx * 0.17) % 1,
-            id: `${fac.id}-${dest.name}`,
+            id: `${fac.id}-${dest.id}`,
+            colorHex: fac.accentHex
           });
         }
       });
@@ -408,19 +453,18 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({ selectedFactory, onSelectFactor
   // Gentle auto-rotation
   useFrame((_, delta) => {
     if (globeGroupRef.current) {
-      globeGroupRef.current.rotation.y += delta * 0.045;
+      globeGroupRef.current.rotation.y += delta * 0.04;
     }
   });
 
   return (
-    // Rotated initially to show North America and the 5 factory nodes prominently
     <group ref={globeGroupRef} rotation={[0.35, -Math.PI * 0.42, 0]}>
       {/* 1. Base Earth Core Sphere */}
       <mesh>
         <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
         <meshStandardMaterial
           map={earthTexture}
-          roughness={0.5}
+          roughness={0.45}
           metalness={0.15}
           color="#ffffff"
           emissive="#061226"
@@ -441,35 +485,60 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({ selectedFactory, onSelectFactor
       </mesh>
 
       {/* 3. Shipping Route 3D Arcs */}
-      {shippingRoutes.map((route) => (
-        <RouteArc
-          key={route.id}
-          startPos={route.start}
-          endPos={route.end}
-          speed={route.speed}
-          phaseOffset={route.phase}
-        />
-      ))}
+      {shippingRoutes.map((route) => {
+        const matchesFactory = !selectedFactory || route.factoryName === selectedFactory;
+        const matchesDest = !selectedDestination || route.destName === selectedDestination;
+        const matchesMode = shipModeFilter === 'ALL' || route.shipMode === shipModeFilter;
+        const isHighlighted = matchesFactory && matchesDest;
+        const isVisible = matchesMode && (!selectedFactory || matchesFactory);
+
+        return (
+          <RouteArc
+            key={route.id}
+            startPos={route.start}
+            endPos={route.end}
+            speed={route.speed}
+            phaseOffset={route.phase}
+            colorHex={route.colorHex}
+            isHighlighted={isHighlighted}
+            isVisible={isVisible}
+          />
+        );
+      })}
 
       {/* 4. Customer Destination Hub Markers */}
-      {destinationVectors.map((dest) => (
-        <mesh key={dest.name} position={dest.pos}>
-          <sphereGeometry args={[0.025, 12, 12]} />
-          <meshBasicMaterial color="#94a3b8" />
-        </mesh>
-      ))}
+      {destinationVectors.map((dest) => {
+        const isSelected = selectedDestination === dest.name;
+        return (
+          <group key={dest.id} position={dest.pos}>
+            <mesh
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectDestination(isSelected ? null : dest.name);
+              }}
+              onPointerOver={(e) => {
+                e.stopPropagation();
+                document.body.style.cursor = 'pointer';
+              }}
+              onPointerOut={() => {
+                document.body.style.cursor = 'auto';
+              }}
+            >
+              <sphereGeometry args={[isSelected ? 0.045 : 0.026, 12, 12]} />
+              <meshBasicMaterial color={isSelected ? '#38bdf8' : '#94a3b8'} />
+            </mesh>
+          </group>
+        );
+      })}
 
       {/* 5. 5 Primary Manufacturing Hub Nodes */}
       {factoryVectors.map((fac) => {
         const isSelected = selectedFactory === fac.name;
-        const nodeColor = isSelected ? '#ff3366' : '#00f0ff';
 
         return (
           <group key={fac.id}>
-            {/* Concentric Radar Ring */}
-            <PulseRing position={fac.pos} color={nodeColor} />
+            <PulseRing position={fac.pos} color={fac.accentHex} isHighlighted={isSelected} />
 
-            {/* Glowing Factory Beacon */}
             <mesh
               position={fac.pos}
               onClick={(e) => {
@@ -484,8 +553,8 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({ selectedFactory, onSelectFactor
                 document.body.style.cursor = 'auto';
               }}
             >
-              <sphereGeometry args={[isSelected ? 0.065 : 0.05, 16, 16]} />
-              <meshBasicMaterial color={nodeColor} />
+              <sphereGeometry args={[isSelected ? 0.07 : 0.05, 16, 16]} />
+              <meshBasicMaterial color={fac.accentHex} />
             </mesh>
           </group>
         );
@@ -510,9 +579,18 @@ function isWebGLAvailable(): boolean {
 interface Globe3DProps {
   selectedFactory: string | null;
   onSelectFactory: (name: string) => void;
+  selectedDestination?: string | null;
+  onSelectDestination?: (name: string | null) => void;
+  shipModeFilter?: string;
 }
 
-export const Globe3D: React.FC<Globe3DProps> = ({ selectedFactory, onSelectFactory }) => {
+export const Globe3D: React.FC<Globe3DProps> = ({
+  selectedFactory,
+  onSelectFactory,
+  selectedDestination = null,
+  onSelectDestination = () => {},
+  shipModeFilter = 'ALL'
+}) => {
   const [hasWebGL, setHasWebGL] = useState<boolean>(true);
 
   useEffect(() => {
@@ -522,26 +600,33 @@ export const Globe3D: React.FC<Globe3DProps> = ({ selectedFactory, onSelectFacto
     }
   }, []);
 
-  // Find the currently active factory for the floating 2D Telemetry HUD Card
   const activeFactory = useMemo(() => {
     return FACTORY_NODES.find((f) => f.name === selectedFactory) || FACTORY_NODES[0];
   }, [selectedFactory]);
 
   if (!hasWebGL) {
-    return <GlobeFallback selectedFactory={selectedFactory} onSelectFactory={onSelectFactory} />;
+    return (
+      <GlobeFallback
+        selectedFactory={selectedFactory}
+        onSelectFactory={onSelectFactory}
+      />
+    );
   }
 
   return (
-    <div className="relative w-full aspect-square max-w-[560px] mx-auto select-none overflow-hidden rounded-2xl">
+    <div className="relative w-full aspect-square max-w-[560px] mx-auto select-none overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-900/40 backdrop-blur-xl shadow-2xl shadow-cyan-950/20">
       {/* Background Radial Glow */}
       <div className="absolute inset-0 bg-radial from-cyan-500/10 via-slate-950/60 to-slate-950 blur-2xl -z-10 pointer-events-none" />
 
       {/* Floating 2D Telemetry HUD Card (Clean, perfectly positioned, never clipped) */}
       {activeFactory && (
-        <div className="absolute top-3 left-3 z-20 max-w-[260px] bg-slate-900/90 border border-cyan-500/40 rounded-xl p-3 shadow-2xl backdrop-blur-md pointer-events-none text-left transition-all">
+        <div className="absolute top-3 left-3 z-20 max-w-[270px] bg-slate-900/95 border border-cyan-500/40 rounded-xl p-3 shadow-2xl backdrop-blur-md pointer-events-none text-left transition-all">
           <div className="flex items-center justify-between gap-1.5 mb-1">
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
+              <span
+                className="w-2.5 h-2.5 rounded-full shrink-0 animate-pulse"
+                style={{ backgroundColor: activeFactory.accentHex }}
+              />
               <h4 className="font-bold text-xs text-white truncate">{activeFactory.name}</h4>
             </div>
             <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">
@@ -564,15 +649,22 @@ export const Globe3D: React.FC<Globe3DProps> = ({ selectedFactory, onSelectFacto
         </div>
       )}
 
-      {/* 3D Canvas with High-Performance Settings */}
-      <Suspense fallback={<GlobeFallback selectedFactory={selectedFactory} onSelectFactory={onSelectFactory} />}>
+      {/* 3D Canvas */}
+      <Suspense
+        fallback={
+          <GlobeFallback
+            selectedFactory={selectedFactory}
+            onSelectFactory={onSelectFactory}
+          />
+        }
+      >
         <Canvas
           camera={{ position: [0, 0.4, 5.8], fov: 42 }}
-          dpr={[1, 2]}
+          dpr={[1, 1.5]}
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           className="w-full h-full cursor-grab active:cursor-grabbing"
         >
-          {/* Subtle Stage Lighting */}
+          {/* Stage Lighting */}
           <ambientLight intensity={1.4} />
           <directionalLight position={[6, 5, 5]} intensity={2.0} color="#e0f2fe" />
           <directionalLight position={[-6, -3, -3]} intensity={0.9} color="#0284c7" />
@@ -582,7 +674,13 @@ export const Globe3D: React.FC<Globe3DProps> = ({ selectedFactory, onSelectFacto
           <Stars radius={30} depth={20} count={600} factor={3} saturation={0} fade speed={0.6} />
 
           {/* The Globe Scene */}
-          <GlobeScene selectedFactory={selectedFactory} onSelectFactory={onSelectFactory} />
+          <GlobeScene
+            selectedFactory={selectedFactory}
+            onSelectFactory={onSelectFactory}
+            selectedDestination={selectedDestination}
+            onSelectDestination={onSelectDestination}
+            shipModeFilter={shipModeFilter}
+          />
 
           {/* Smooth Orbit Controls with Strict Bounds */}
           <OrbitControls
@@ -598,9 +696,9 @@ export const Globe3D: React.FC<Globe3DProps> = ({ selectedFactory, onSelectFacto
       {/* Bottom Telemetry Legend */}
       <div className="absolute bottom-3 left-3 bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-[10px] text-slate-300 backdrop-blur-sm shadow-lg pointer-events-none">
         <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-        <span className="font-semibold text-cyan-300">5 Production Nodes</span>
+        <span className="font-semibold text-cyan-300">5 Distinct Production Hubs</span>
         <span className="text-slate-600">•</span>
-        <span className="text-slate-400">Drag to rotate</span>
+        <span className="text-slate-400">Click node to inspect</span>
       </div>
     </div>
   );
