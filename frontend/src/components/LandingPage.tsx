@@ -556,40 +556,39 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
 
-            {/* Floating HUD Card 1: Shipment Activity (Top-Left of Globe) */}
-            <div className="hidden lg:block absolute top-2 left-[29%] xl:left-[27%] pointer-events-auto z-20">
-              <div className="bg-slate-900/85 border border-slate-700/60 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl text-left min-w-[220px] hover:border-cyan-500/40 transition-colors">
+            {/* Top-Right Floating HUD Cards: Shipment Activity & Predicted Delivery (Right-Most Part) */}
+            <div className="hidden lg:flex items-center gap-2.5 xl:gap-3 absolute top-2 right-4 xl:right-8 pointer-events-auto z-20">
+              {/* Card 1: Shipment Activity */}
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3 backdrop-blur-xl shadow-2xl text-left w-[200px] xl:w-[215px] hover:border-cyan-500/40 transition-colors">
                 <div className="flex items-center justify-between text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
                   <span className="flex items-center gap-1.5">
-                    <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
+                    <Radio className="w-3 h-3 animate-pulse text-cyan-400" />
                     Shipment Activity
                   </span>
-                  <svg className="w-7 h-3.5 text-cyan-400 stroke-current fill-none" viewBox="0 0 28 14">
+                  <svg className="w-6 h-3 text-cyan-400 stroke-current fill-none" viewBox="0 0 28 14">
                     <path d="M1 11 L7 8 L14 10 L21 3 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <div className="text-xl font-black text-white font-mono tracking-tight">10,194 Dispatches</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">48 orders/hr fleet dispatch rate</div>
+                <div className="text-lg font-black text-white font-mono tracking-tight">10,194 Dispatches</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">48 orders/hr fleet dispatch rate</div>
                 <div className="mt-2 text-[8px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
                   HISTORICAL OBSERVATION
                 </div>
               </div>
-            </div>
 
-            {/* Floating HUD Card 2: Predicted Delivery ETA (Top-Right of Globe) */}
-            <div className="hidden lg:block absolute top-2 right-4 xl:right-8 pointer-events-auto z-20">
-              <div className="bg-slate-900/85 border border-slate-700/60 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl text-left min-w-[220px] hover:border-sky-500/40 transition-colors">
+              {/* Card 2: Predicted Delivery ETA */}
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3 backdrop-blur-xl shadow-2xl text-left w-[200px] xl:w-[215px] hover:border-sky-500/40 transition-colors">
                 <div className="flex items-center justify-between text-sky-400 text-[10px] font-mono font-bold uppercase mb-1">
                   <span className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-sky-400" />
-                    Predicted Delivery (ETA)
+                    <Clock className="w-3 h-3 text-sky-400" />
+                    Predicted Delivery
                   </span>
-                  <svg className="w-7 h-3.5 text-sky-400 stroke-current fill-none" viewBox="0 0 28 14">
+                  <svg className="w-6 h-3 text-sky-400 stroke-current fill-none" viewBox="0 0 28 14">
                     <path d="M1 12 L7 9 L14 11 L21 5 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <div className="text-xl font-black text-white font-mono tracking-tight">4.12 Days (GBM)</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">95% CI: ±0.35d • 94.2% R²</div>
+                <div className="text-lg font-black text-white font-mono tracking-tight">4.12 Days (GBM)</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">95% CI: ±0.35d • 94.2% R²</div>
                 <div className="mt-2 text-[8px] text-sky-300 font-mono bg-sky-950/70 px-2 py-0.5 rounded-full border border-sky-800/50 inline-block font-semibold">
                   ML PREDICTION ENGINE
                 </div>
@@ -598,8 +597,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             {/* Floating Contextual Inspection Panel (Right side over Atlantic Ocean) */}
             {selectedEntity && (
-              <div className="hidden lg:block absolute top-32 right-4 xl:right-8 w-72 pointer-events-auto z-20">
-                <div className="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-left space-y-3">
+              <div className="hidden lg:block absolute top-28 xl:top-32 right-4 xl:right-8 w-72 pointer-events-auto z-20">
+                <div className="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-left space-y-3 max-h-[calc(100vh-290px)] overflow-y-auto">
                   {/* Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2.5">
@@ -707,17 +706,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             )}
           </div>
 
-          {/* Lower Floating HUD Cards: Route Efficiency (Bottom-Left) & SLA Delay (Bottom-Right) */}
+          {/* Bottom-Right Floating HUD Cards: Route Efficiency & SLA Delay (Right-Most Part) */}
           <div className="w-full relative pointer-events-none mt-auto pb-14">
-            {/* Card 3: Route Efficiency (Bottom-Left of Globe) */}
-            <div className="hidden lg:block absolute bottom-0 left-[26%] xl:left-[24%] pointer-events-auto z-20">
-              <div className="bg-slate-900/85 border border-slate-700/60 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl text-left min-w-[220px] hover:border-cyan-500/40 transition-colors">
+            <div className="hidden lg:flex items-center gap-2.5 xl:gap-3 absolute bottom-0 right-4 xl:right-8 pointer-events-auto z-20">
+              {/* Card 3: Route Efficiency */}
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3 backdrop-blur-xl shadow-2xl text-left w-[200px] xl:w-[215px] hover:border-cyan-500/40 transition-colors">
                 <div className="flex items-center gap-1.5 text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
+                  <TrendingUp className="w-3 h-3 text-cyan-400" />
                   <span>Route Efficiency</span>
                 </div>
-                <div className="text-xl font-black text-cyan-300 font-mono tracking-tight">87.4% Efficiency Score</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Top: Casa Grande → TX (94.8%)</div>
+                <div className="text-lg font-black text-cyan-300 font-mono tracking-tight">87.4% Efficiency</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">Top: Casa Grande → TX (94.8%)</div>
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-[8px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
                     CORRIDOR BENCHMARK
@@ -729,22 +728,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Card 4: SLA Delay & Thermal Risk (Bottom-Right of Globe) */}
-            <div className="hidden lg:block absolute bottom-0 right-4 xl:right-8 pointer-events-auto z-20">
-              <div className="bg-slate-900/85 border border-slate-700/60 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl text-left min-w-[220px] hover:border-amber-500/40 transition-colors">
+              {/* Card 4: SLA Delay & Thermal Risk */}
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3 backdrop-blur-xl shadow-2xl text-left w-[200px] xl:w-[215px] hover:border-amber-500/40 transition-colors">
                 <div className="flex items-center gap-1.5 text-amber-400 text-[10px] font-mono font-bold uppercase mb-1">
-                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-                  <span>SLA Delay & Thermal Risk</span>
+                  <ShieldAlert className="w-3 h-3 text-amber-400" />
+                  <span>SLA Delay & Risk</span>
                 </div>
-                <div className="text-xl font-black text-amber-300 font-mono tracking-tight">11.8% Network Delay</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Reefer mandate: AZ/TX ambient &gt;78°F</div>
+                <div className="text-lg font-black text-amber-300 font-mono tracking-tight">11.8% Network Delay</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">Reefer mandate: AZ/TX &gt;78°F</div>
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-[8px] text-amber-300 font-mono bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-800/50 inline-block font-semibold">
                     COLD-CHAIN SENTRY
                   </span>
-                  <AlertTriangle className="w-4 h-4 text-amber-400 opacity-80" />
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 opacity-80" />
                 </div>
               </div>
             </div>
