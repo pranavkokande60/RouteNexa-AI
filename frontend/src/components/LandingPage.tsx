@@ -187,7 +187,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </div>
 
       {/* 1. STICKY GLASSMORPHIC HEADER */}
-      <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md px-6 lg:px-12 h-18 flex items-center justify-between transition-all">
+      <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md px-6 lg:px-12 h-16 md:h-20 flex items-center justify-between transition-all">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-sky-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 text-white">
             <Truck className="w-5 h-5" />
@@ -241,7 +241,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           <button
             onClick={onOpenLogin}
-            className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 via-sky-500 to-indigo-600 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-extrabold text-xs px-4.5 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 via-sky-500 to-indigo-600 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-extrabold text-xs px-4 sm:px-5 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <Lock className="w-3.5 h-3.5" />
             <span>Sign In / Launch App</span>
@@ -249,9 +249,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </header>
 
-      {/* 2. SECTION A: 3D HERO EXPERIENCE WITH FLOATING INFORMATION PANELS */}
-      <section id="hero" className="relative z-10 pt-8 pb-16 px-6 lg:px-12 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      {/* 2. SECTION A: 3D HERO EXPERIENCE WITH BALANCED ANALYTICS CARDS */}
+      <section id="hero" className="relative z-10 pt-10 pb-20 px-6 lg:px-12 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-center">
           {/* Left Column: Hero Content */}
           <div className="lg:col-span-6 space-y-6 text-left">
             <div className="inline-flex items-center gap-2.5 bg-slate-900/90 border border-cyan-500/30 rounded-full px-3.5 py-1.5 shadow-lg shadow-cyan-500/5">
@@ -307,80 +307,137 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
-          {/* Right Column: 3D Interactive Hero Globe with 4 Floating Information Panels */}
+          {/* Right Column: 3D Interactive Hero Globe with Rebalanced Perimeter Cards */}
           <div className="lg:col-span-6 relative flex flex-col items-center justify-center">
-            {/* Floating Information Panel 1: Shipment Activity (Top Left) */}
-            <div className="hidden sm:block absolute -top-4 -left-4 z-20 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left w-52 pointer-events-none transition-transform hover:scale-105">
-              <div className="flex items-center gap-1.5 text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
-                <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
-                <span>Shipment Activity</span>
-              </div>
-              <div className="text-sm font-black text-white font-mono">10,194 Dispatches</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">48 orders/hr fleet dispatch rate</div>
-              <div className="mt-1.5 text-[9px] text-cyan-300 font-mono bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-800/50 inline-block">
-                HISTORICAL OBSERVATION
-              </div>
-            </div>
+            {/* Dedicated Globe Framing Wrapper */}
+            <div className="relative w-full max-w-[580px] mx-auto">
+              {/* Desktop Floating Cards (Perimeter-anchored outside continent center, zero blocking) */}
+              <div className="hidden lg:block">
+                {/* Floating Information Panel 1: Shipment Activity (Top Left) */}
+                <div className="absolute top-3 -left-3 xl:-left-6 z-20 w-48 xl:w-52 bg-slate-900/85 hover:bg-slate-900/95 border border-slate-700/60 hover:border-cyan-500/40 rounded-2xl p-3 shadow-xl shadow-black/40 backdrop-blur-md transition-all text-left pointer-events-auto">
+                  <div className="flex items-center gap-1.5 text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
+                    <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400 shrink-0" />
+                    <span>Shipment Activity</span>
+                  </div>
+                  <div className="text-sm xl:text-base font-black text-white font-mono">10,194 Dispatches</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">48 orders/hr fleet dispatch rate</div>
+                  <div className="mt-2 text-[8px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
+                    AUDITED OBSERVATION
+                  </div>
+                </div>
 
-            {/* Floating Information Panel 2: Predicted Delivery Time (Top Right) */}
-            <div className="hidden sm:block absolute -top-4 -right-4 z-20 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left w-52 pointer-events-none transition-transform hover:scale-105">
-              <div className="flex items-center gap-1.5 text-sky-400 text-[10px] font-mono font-bold uppercase mb-1">
-                <Clock className="w-3.5 h-3.5 text-sky-400" />
-                <span>Predicted Delivery (ETA)</span>
-              </div>
-              <div className="text-sm font-black text-white font-mono">4.12 Days (GBM)</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">95% CI: ±0.35d • 94.2% accuracy</div>
-              <div className="mt-1.5 text-[9px] text-sky-300 font-mono bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-800/50 inline-block">
-                ML PREDICTION ENGINE
-              </div>
-            </div>
+                {/* Floating Information Panel 2: Predicted Delivery Time (Top Right) */}
+                <div className="absolute top-3 -right-3 xl:-right-6 z-20 w-48 xl:w-52 bg-slate-900/85 hover:bg-slate-900/95 border border-slate-700/60 hover:border-sky-500/40 rounded-2xl p-3 shadow-xl shadow-black/40 backdrop-blur-md transition-all text-left pointer-events-auto">
+                  <div className="flex items-center gap-1.5 text-sky-400 text-[10px] font-mono font-bold uppercase mb-1">
+                    <Clock className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    <span>Predicted ETA</span>
+                  </div>
+                  <div className="text-sm xl:text-base font-black text-white font-mono">4.12 Days (GBM)</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">95% CI: ±0.35d • 94.2% R²</div>
+                  <div className="mt-2 text-[8px] text-sky-300 font-mono bg-sky-950/70 px-2 py-0.5 rounded-full border border-sky-800/50 inline-block font-semibold">
+                    ML PREDICTION ENGINE
+                  </div>
+                </div>
 
-            {/* 3D Scene Viewport */}
-            <div className="w-full relative">
-              <Suspense
-                fallback={
-                  <GlobeFallback
+                {/* Floating Information Panel 3: Route Efficiency (Bottom Left) */}
+                <div className="absolute bottom-3 -left-3 xl:-left-6 z-20 w-48 xl:w-52 bg-slate-900/85 hover:bg-slate-900/95 border border-slate-700/60 hover:border-emerald-500/40 rounded-2xl p-3 shadow-xl shadow-black/40 backdrop-blur-md transition-all text-left pointer-events-auto">
+                  <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-mono font-bold uppercase mb-1">
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Route Efficiency</span>
+                  </div>
+                  <div className="text-sm xl:text-base font-black text-emerald-300 font-mono">87.4% Efficiency</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">Top: Casa Grande → TX (94.8%)</div>
+                  <div className="mt-2 text-[8px] text-emerald-300 font-mono bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-800/50 inline-block font-semibold">
+                    CORRIDOR BENCHMARK
+                  </div>
+                </div>
+
+                {/* Floating Information Panel 4: Delay & Thermal Risk (Bottom Right) */}
+                <div className="absolute bottom-3 -right-3 xl:-right-6 z-20 w-48 xl:w-52 bg-slate-900/85 hover:bg-slate-900/95 border border-slate-700/60 hover:border-amber-500/40 rounded-2xl p-3 shadow-xl shadow-black/40 backdrop-blur-md transition-all text-left pointer-events-auto">
+                  <div className="flex items-center gap-1.5 text-amber-400 text-[10px] font-mono font-bold uppercase mb-1">
+                    <ShieldAlert className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span>Delay & Thermal Risk</span>
+                  </div>
+                  <div className="text-sm xl:text-base font-black text-amber-300 font-mono">11.8% Network Delay</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">Reefer alert: AZ/TX ambient &gt;78°F</div>
+                  <div className="mt-2 text-[8px] text-amber-300 font-mono bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-800/50 inline-block font-semibold">
+                    COLD-CHAIN SENTRY
+                  </div>
+                </div>
+              </div>
+
+              {/* 3D Scene Viewport */}
+              <div className="w-full relative">
+                <Suspense
+                  fallback={
+                    <GlobeFallback
+                      selectedFactory={selectedFactory}
+                      onSelectFactory={(f) => setSelectedFactory(f)}
+                      selectedDestination={selectedDestination}
+                      onSelectDestination={setSelectedDestination}
+                      shipModeFilter={shipModeFilter}
+                    />
+                  }
+                >
+                  <Globe3D
                     selectedFactory={selectedFactory}
                     onSelectFactory={(f) => setSelectedFactory(f)}
                     selectedDestination={selectedDestination}
                     onSelectDestination={setSelectedDestination}
                     shipModeFilter={shipModeFilter}
                   />
-                }
-              >
-                <Globe3D
-                  selectedFactory={selectedFactory}
-                  onSelectFactory={(f) => setSelectedFactory(f)}
-                  selectedDestination={selectedDestination}
-                  onSelectDestination={setSelectedDestination}
-                  shipModeFilter={shipModeFilter}
-                />
-              </Suspense>
-            </div>
-
-            {/* Floating Information Panel 3: Route Efficiency (Bottom Left) */}
-            <div className="hidden sm:block absolute -bottom-4 -left-4 z-20 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left w-52 pointer-events-none transition-transform hover:scale-105">
-              <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-mono font-bold uppercase mb-1">
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Route Efficiency</span>
-              </div>
-              <div className="text-sm font-black text-emerald-300 font-mono">87.4% Efficiency Score</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Top: Casa Grande → TX (94.8%)</div>
-              <div className="mt-1.5 text-[9px] text-emerald-300 font-mono bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50 inline-block">
-                CORRIDOR BENCHMARK
+                </Suspense>
               </div>
             </div>
 
-            {/* Floating Information Panel 4: Delay & Thermal Risk (Bottom Right) */}
-            <div className="hidden sm:block absolute -bottom-4 -right-4 z-20 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left w-52 pointer-events-none transition-transform hover:scale-105">
-              <div className="flex items-center gap-1.5 text-amber-400 text-[10px] font-mono font-bold uppercase mb-1">
-                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-                <span>SLA Delay & Thermal Risk</span>
+            {/* Mobile & Tablet Intentional 2x2 Analytics Grid (Zero Overlap, Clean Touch UX) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-6 w-full max-w-[580px] lg:hidden">
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-lg text-left">
+                <div className="flex items-center gap-1.5 text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
+                  <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400 shrink-0" />
+                  <span>Shipment Activity</span>
+                </div>
+                <div className="text-base font-black text-white font-mono">10,194 Dispatches</div>
+                <div className="text-xs text-slate-400 mt-0.5">48 orders/hr fleet dispatch rate</div>
+                <div className="mt-2 text-[8px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
+                  AUDITED OBSERVATION
+                </div>
               </div>
-              <div className="text-sm font-black text-amber-300 font-mono">11.8% Network Delay</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Reefer mandate: AZ/TX ambient &gt;78°F</div>
-              <div className="mt-1.5 text-[9px] text-amber-300 font-mono bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/50 inline-block">
-                COLD-CHAIN SENTRY
+
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-lg text-left">
+                <div className="flex items-center gap-1.5 text-sky-400 text-[10px] font-mono font-bold uppercase mb-1">
+                  <Clock className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                  <span>Predicted ETA</span>
+                </div>
+                <div className="text-base font-black text-white font-mono">4.12 Days (GBM)</div>
+                <div className="text-xs text-slate-400 mt-0.5">95% CI: ±0.35d • 94.2% R²</div>
+                <div className="mt-2 text-[8px] text-sky-300 font-mono bg-sky-950/70 px-2 py-0.5 rounded-full border border-sky-800/50 inline-block font-semibold">
+                  ML PREDICTION ENGINE
+                </div>
+              </div>
+
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-lg text-left">
+                <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-mono font-bold uppercase mb-1">
+                  <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Route Efficiency</span>
+                </div>
+                <div className="text-base font-black text-emerald-300 font-mono">87.4% Efficiency</div>
+                <div className="text-xs text-slate-400 mt-0.5">Top: Casa Grande → TX (94.8%)</div>
+                <div className="mt-2 text-[8px] text-emerald-300 font-mono bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-800/50 inline-block font-semibold">
+                  CORRIDOR BENCHMARK
+                </div>
+              </div>
+
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-lg text-left">
+                <div className="flex items-center gap-1.5 text-amber-400 text-[10px] font-mono font-bold uppercase mb-1">
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>Delay & Thermal Risk</span>
+                </div>
+                <div className="text-base font-black text-amber-300 font-mono">11.8% Network Delay</div>
+                <div className="text-xs text-slate-400 mt-0.5">Reefer alert: AZ/TX ambient &gt;78°F</div>
+                <div className="mt-2 text-[8px] text-amber-300 font-mono bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-800/50 inline-block font-semibold">
+                  COLD-CHAIN SENTRY
+                </div>
               </div>
             </div>
           </div>
