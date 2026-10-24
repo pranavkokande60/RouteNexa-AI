@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Stars, useTexture } from '@react-three/drei';
+import { OrbitControls, Stars, useTexture, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { GlobeFallback } from './GlobeFallback';
 import {
@@ -88,6 +88,7 @@ const FreightTruck: React.FC<FreightTruckProps> = ({
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const progressRef = useRef<number>(phaseOffset);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
 
   useFrame((_, delta) => {
     if (!isPaused) {
@@ -127,17 +128,35 @@ const FreightTruck: React.FC<FreightTruckProps> = ({
       }}
       onPointerOver={(e) => {
         e.stopPropagation();
+        setIsHovered(true);
         document.body.style.cursor = 'pointer';
       }}
       onPointerOut={() => {
+        setIsHovered(false);
         document.body.style.cursor = 'auto';
       }}
     >
-      {/* Invisible Clickable Hitbox Collider for responsive clicks */}
+      {/* Invisible Clickable Hitbox Collider */}
       <mesh position={[0, 0.015, 0]}>
         <boxGeometry args={[0.045, 0.045, 0.085]} />
         <meshBasicMaterial visible={false} />
       </mesh>
+
+      {/* Floating 3D Label when Selected or Hovered */}
+      {(isSelected || isHovered) && (
+        <Html
+          position={[0, 0.042, 0]}
+          center
+          distanceFactor={12}
+          zIndexRange={[95, 0]}
+          className="pointer-events-none select-none"
+        >
+          <div className="px-2 py-0.5 rounded-md bg-slate-900/95 text-sky-200 border border-cyan-400 text-[9px] font-mono font-bold whitespace-nowrap shadow-xl backdrop-blur-md flex items-center gap-1.5 ring-1 ring-cyan-400/40">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shrink-0" />
+            <span>{truckData.fleetName} ({truckData.trackingId})</span>
+          </div>
+        </Html>
+      )}
 
       {/* Selection Halo Ring when this truck is clicked */}
       {isSelected && (
@@ -148,7 +167,6 @@ const FreightTruck: React.FC<FreightTruckProps> = ({
       )}
 
       {/* 1. TRACTOR CAB */}
-      {/* Main Cab Body */}
       <mesh position={[0, 0.012, -0.024]}>
         <boxGeometry args={[0.020, 0.020, 0.022]} />
         <meshStandardMaterial color={isSelected ? '#38bdf8' : '#0ea5e9'} roughness={0.3} metalness={0.8} />
@@ -183,7 +201,6 @@ const FreightTruck: React.FC<FreightTruckProps> = ({
       </mesh>
 
       {/* 2. FREIGHT TRAILER CONTAINER */}
-      {/* Main Container Body */}
       <mesh position={[0, 0.016, 0.012]}>
         <boxGeometry args={[0.022, 0.026, 0.046]} />
         <meshStandardMaterial color="#1e293b" roughness={0.5} metalness={0.5} />
@@ -330,6 +347,7 @@ const FactoryModel3D: React.FC<FactoryModel3DProps> = ({
   }, [normal]);
 
   const beaconRef = useRef<THREE.Mesh>(null);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
 
   useFrame((state) => {
     if (beaconRef.current) {
@@ -348,12 +366,41 @@ const FactoryModel3D: React.FC<FactoryModel3DProps> = ({
       }}
       onPointerOver={(e) => {
         e.stopPropagation();
+        setIsHovered(true);
         document.body.style.cursor = 'pointer';
       }}
       onPointerOut={() => {
+        setIsHovered(false);
         document.body.style.cursor = 'auto';
       }}
     >
+      {/* Floating Interactive 3D Billboard Label */}
+      <Html
+        position={[0, 0.058, 0]}
+        center
+        distanceFactor={11}
+        zIndexRange={[100, 0]}
+        className="pointer-events-none select-none"
+      >
+        <div
+          className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold whitespace-nowrap transition-all border pointer-events-auto cursor-pointer shadow-xl backdrop-blur-md flex items-center gap-1.5 ${
+            isSelected || isHovered
+              ? 'bg-slate-900/95 text-white border-cyan-400 ring-2 ring-cyan-400/40 scale-105'
+              : 'bg-slate-950/85 text-slate-200 border-slate-700/80 hover:border-cyan-400 hover:text-white'
+          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
+        >
+          <span
+            className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse"
+            style={{ backgroundColor: factory.accentHex }}
+          />
+          <span>{factory.name}</span>
+        </div>
+      </Html>
+
       {/* 1. Foundation Base Slab (Ground Platform flush with Earth) */}
       <mesh position={[0, 0.002, 0]}>
         <cylinderGeometry args={[0.026, 0.028, 0.004, 16]} />
@@ -470,6 +517,7 @@ const DestinationHubMarker: React.FC<DestinationHubMarkerProps> = ({
   }, [normal]);
 
   const tipRef = useRef<THREE.Mesh>(null);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
 
   useFrame((state) => {
     if (tipRef.current) {
@@ -488,12 +536,30 @@ const DestinationHubMarker: React.FC<DestinationHubMarkerProps> = ({
       }}
       onPointerOver={(e) => {
         e.stopPropagation();
+        setIsHovered(true);
         document.body.style.cursor = 'pointer';
       }}
       onPointerOut={() => {
+        setIsHovered(false);
         document.body.style.cursor = 'auto';
       }}
     >
+      {/* Floating 3D Label on Selection or Hover */}
+      {(isSelected || isHovered) && (
+        <Html
+          position={[0, 0.038, 0]}
+          center
+          distanceFactor={12}
+          zIndexRange={[90, 0]}
+          className="pointer-events-none select-none"
+        >
+          <div className="px-2 py-0.5 rounded-md bg-slate-900/95 text-cyan-300 border border-cyan-400 text-[9px] font-mono font-bold whitespace-nowrap shadow-xl backdrop-blur-md flex items-center gap-1 ring-1 ring-cyan-400/40">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shrink-0" />
+            <span>{dest.city}</span>
+          </div>
+        </Html>
+      )}
+
       {/* 1. Terminal Base Ring */}
       <mesh position={[0, 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.012, 0.020, 16]} />
@@ -552,6 +618,8 @@ interface PhotorealisticGlobeProps {
   riskFilter: string;
   showRoutes: boolean;
   showTrucks: boolean;
+  showFactories: boolean;
+  showDestinations: boolean;
   isPaused: boolean;
   resetKey?: number;
 }
@@ -569,6 +637,8 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
   riskFilter,
   showRoutes,
   showTrucks,
+  showFactories,
+  showDestinations,
   isPaused,
   resetKey
 }) => {
@@ -767,31 +837,33 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
         })}
 
       {/* 6. CUSTOMER DESTINATION TERMINAL MARKERS */}
-      {destinationVectors.map((dest) => {
-        const isSelected = selectedDestination === dest.name;
-        return (
-          <DestinationHubMarker
-            key={dest.id}
-            dest={dest}
-            isSelected={isSelected}
-            onSelect={() => onSelectDestination(isSelected ? null : dest.name)}
-          />
-        );
-      })}
+      {showDestinations &&
+        destinationVectors.map((dest) => {
+          const isSelected = selectedDestination === dest.name;
+          return (
+            <DestinationHubMarker
+              key={dest.id}
+              dest={dest}
+              isSelected={isSelected}
+              onSelect={() => onSelectDestination(isSelected ? null : dest.name)}
+            />
+          );
+        })}
 
       {/* 7. FIVE PROFESSIONAL 3D FACTORY MODELS AT GEOGRAPHIC COORDINATES */}
-      {factoryVectors.map((fac) => {
-        const isSelected = selectedFactory === fac.name;
+      {showFactories &&
+        factoryVectors.map((fac) => {
+          const isSelected = selectedFactory === fac.name;
 
-        return (
-          <FactoryModel3D
-            key={fac.id}
-            factory={fac}
-            isSelected={isSelected}
-            onSelect={() => onSelectFactory(fac.name)}
-          />
-        );
-      })}
+          return (
+            <FactoryModel3D
+              key={fac.id}
+              factory={fac}
+              isSelected={isSelected}
+              onSelect={() => onSelectFactory(fac.name)}
+            />
+          );
+        })}
     </group>
   );
 };
@@ -845,6 +917,8 @@ export interface Globe3DProps {
   riskFilter?: string;
   showRoutes?: boolean;
   showTrucks?: boolean;
+  showFactories?: boolean;
+  showDestinations?: boolean;
   isPaused?: boolean;
   resetKey?: number;
 }
@@ -862,6 +936,8 @@ export const Globe3D: React.FC<Globe3DProps> = ({
   riskFilter = 'ALL',
   showRoutes = true,
   showTrucks = true,
+  showFactories = true,
+  showDestinations = true,
   isPaused = false,
   resetKey = 0
 }) => {
@@ -925,6 +1001,8 @@ export const Globe3D: React.FC<Globe3DProps> = ({
             riskFilter={riskFilter}
             showRoutes={showRoutes}
             showTrucks={showTrucks}
+            showFactories={showFactories}
+            showDestinations={showDestinations}
             isPaused={isPaused}
             resetKey={resetKey}
           />
