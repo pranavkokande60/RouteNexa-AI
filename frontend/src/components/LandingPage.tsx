@@ -555,11 +555,90 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Floating Contextual Inspection Panel (Right side over Atlantic Ocean) */}
+
+          {/* Bottom Area: 4 Telemetry Boxes in 2 Rows + Contextual Inspection Panel on the right */}
+          <div className="w-full pt-8 pb-4 pointer-events-auto z-10 flex flex-col lg:flex-row lg:items-end gap-3.5 xl:gap-5">
+            {/* 4 Telemetry Boxes in 2 Rows */}
+            <div className="w-full lg:max-w-[500px] xl:max-w-[520px] grid grid-cols-1 sm:grid-cols-2 gap-2.5 xl:gap-3 text-left flex-shrink-0">
+              {/* Row 1, Box 1: Shipment Activity */}
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3 backdrop-blur-xl shadow-xl hover:border-cyan-500/40 transition-colors">
+                <div className="flex items-center justify-between text-cyan-400 text-xs font-mono font-bold uppercase mb-1">
+                  <span className="flex items-center gap-1.5">
+                    <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
+                    Shipment Activity
+                  </span>
+                  <svg className="w-6 h-3 text-cyan-400 stroke-current fill-none" viewBox="0 0 28 14">
+                    <path d="M1 11 L7 8 L14 10 L21 3 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="text-lg font-black text-white font-mono tracking-tight">10,194 Dispatches</div>
+                <div className="text-[10px] text-slate-400 mt-0.5 truncate">48 orders/hr dispatch rate</div>
+                <div className="mt-2 text-[8px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
+                  HISTORICAL OBSERVATION
+                </div>
+              </div>
+
+              {/* Row 1, Box 2: Predicted Delivery ETA */}
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3 backdrop-blur-xl shadow-xl hover:border-sky-500/40 transition-colors">
+                <div className="flex items-center justify-between text-sky-400 text-xs font-mono font-bold uppercase mb-1">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-sky-400" />
+                    Predicted Delivery
+                  </span>
+                  <svg className="w-6 h-3 text-sky-400 stroke-current fill-none" viewBox="0 0 28 14">
+                    <path d="M1 12 L7 9 L14 11 L21 5 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="text-lg font-black text-white font-mono tracking-tight">4.12 Days (GBM)</div>
+                <div className="text-[10px] text-slate-400 mt-0.5 truncate">95% CI: ±0.35d • 94.2% R²</div>
+                <div className="mt-2 text-[8px] text-sky-300 font-mono bg-sky-950/70 px-2 py-0.5 rounded-full border border-sky-800/50 inline-block font-semibold">
+                  ML PREDICTION ENGINE
+                </div>
+              </div>
+
+              {/* Row 2, Box 3: Route Efficiency */}
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3 backdrop-blur-xl shadow-xl hover:border-cyan-500/40 transition-colors">
+                <div className="flex items-center gap-1.5 text-cyan-400 text-xs font-mono font-bold uppercase mb-1">
+                  <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Route Efficiency</span>
+                </div>
+                <div className="text-lg font-black text-cyan-300 font-mono tracking-tight">87.4% Efficiency</div>
+                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Top: Casa Grande → TX</div>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[8px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
+                    CORRIDOR BENCHMARK
+                  </span>
+                  <div className="flex items-end gap-1 h-3">
+                    <span className="w-1 bg-cyan-500/50 rounded-sm h-1.5" />
+                    <span className="w-1 bg-cyan-500/80 rounded-sm h-2" />
+                    <span className="w-1 bg-cyan-400 rounded-sm h-3" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2, Box 4: SLA Delay & Thermal Risk */}
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3 backdrop-blur-xl shadow-xl hover:border-amber-500/40 transition-colors">
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-mono font-bold uppercase mb-1">
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                  <span>SLA Delay & Risk</span>
+                </div>
+                <div className="text-lg font-black text-amber-300 font-mono tracking-tight">11.8% Network Delay</div>
+                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Reefer mandate: AZ/TX &gt;78°F</div>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[8px] text-amber-300 font-mono bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-800/50 inline-block font-semibold">
+                    COLD-CHAIN SENTRY
+                  </span>
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 opacity-80" />
+                </div>
+              </div>
+            </div>
+
+            {/* Contextual Inspection Panel on the Right Side of the 4 Boxes */}
             {selectedEntity && (
-              <div className="hidden lg:block absolute top-28 xl:top-32 right-4 xl:right-8 w-72 pointer-events-auto z-20">
-                <div className="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-left space-y-3 max-h-[calc(100vh-290px)] overflow-y-auto">
+              <div className="w-full sm:w-[320px] xl:w-[340px] text-left pointer-events-auto flex-shrink-0">
+                <div className="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-3.5 shadow-2xl backdrop-blur-xl text-left space-y-2.5">
                   {/* Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2.5">
@@ -586,7 +665,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
                   {/* Products */}
                   <div>
-                    <div className="text-[10px] font-semibold text-slate-400 mb-1.5 uppercase font-mono">Products</div>
+                    <div className="text-[9px] font-semibold text-slate-400 mb-1 uppercase font-mono">Products</div>
                     <div className="flex flex-wrap gap-1">
                       {(currentFactoryObj.name === 'Sugar Shack'
                         ? ['Laffy Taffy', 'SweeTARTS', 'Nerds', 'Fun Dip', 'Fizzy Lifting Drinks']
@@ -605,22 +684,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   {/* Volume and Lead Time */}
                   <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
                     <div>
-                      <div className="text-[10px] text-slate-400 font-mono">Dispatch Volume</div>
-                      <div className="text-sm font-bold text-cyan-300 font-mono flex items-center gap-1">
+                      <div className="text-[9px] text-slate-400 font-mono">Dispatch Volume</div>
+                      <div className="text-xs sm:text-sm font-bold text-cyan-300 font-mono flex items-center gap-1">
                         <span>1,248 / day</span>
                         <span className="text-[9px] text-emerald-400 font-bold">↑ 12%</span>
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-slate-400 font-mono">Avg. Lead Time</div>
-                      <div className="text-sm font-bold text-white font-mono">{currentFactoryObj.leadTime}</div>
+                      <div className="text-[9px] text-slate-400 font-mono">Avg. Lead Time</div>
+                      <div className="text-xs sm:text-sm font-bold text-white font-mono">{currentFactoryObj.leadTime}</div>
                     </div>
                   </div>
 
                   {/* Connected Destinations */}
-                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                  <div className="pt-1.5 border-t border-slate-800/80 flex items-center justify-between">
                     <div>
-                      <div className="text-[10px] text-slate-400 font-mono">Connected Destinations</div>
+                      <div className="text-[9px] text-slate-400 font-mono">Connected Destinations</div>
                       <div className="text-xs font-bold text-white">12 cities</div>
                     </div>
                     <button
@@ -633,8 +712,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
 
                   {/* Recent Shipments */}
-                  <div className="pt-2 border-t border-slate-800/80 space-y-1">
-                    <div className="text-[10px] font-semibold text-slate-400 uppercase font-mono">Recent Shipments</div>
+                  <div className="pt-1.5 border-t border-slate-800/80 space-y-1">
+                    <div className="text-[9px] font-semibold text-slate-400 uppercase font-mono">Recent Shipments</div>
                     <div className="space-y-1 text-[10px] font-mono">
                       <div className="flex items-center justify-between text-slate-300">
                         <span className="flex items-center gap-1.5">
@@ -665,84 +744,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
               </div>
             )}
-          </div>
-
-
-          {/* Bottom Area: 4 Telemetry Boxes in 2 Rows (In this place shown by user screenshot) */}
-          <div className="w-full pt-8 pb-4 pointer-events-auto z-10">
-            <div className="max-w-[520px] grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-              {/* Row 1, Box 1: Shipment Activity */}
-              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3.5 backdrop-blur-xl shadow-xl hover:border-cyan-500/40 transition-colors">
-                <div className="flex items-center justify-between text-cyan-400 text-xs font-mono font-bold uppercase mb-1">
-                  <span className="flex items-center gap-1.5">
-                    <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
-                    Shipment Activity
-                  </span>
-                  <svg className="w-6 h-3 text-cyan-400 stroke-current fill-none" viewBox="0 0 28 14">
-                    <path d="M1 11 L7 8 L14 10 L21 3 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <div className="text-lg font-black text-white font-mono tracking-tight">10,194 Dispatches</div>
-                <div className="text-[11px] text-slate-400 mt-0.5 truncate">48 orders/hr dispatch rate</div>
-                <div className="mt-2 text-[9px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
-                  HISTORICAL OBSERVATION
-                </div>
-              </div>
-
-              {/* Row 1, Box 2: Predicted Delivery ETA */}
-              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3.5 backdrop-blur-xl shadow-xl hover:border-sky-500/40 transition-colors">
-                <div className="flex items-center justify-between text-sky-400 text-xs font-mono font-bold uppercase mb-1">
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-sky-400" />
-                    Predicted Delivery
-                  </span>
-                  <svg className="w-6 h-3 text-sky-400 stroke-current fill-none" viewBox="0 0 28 14">
-                    <path d="M1 12 L7 9 L14 11 L21 5 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <div className="text-lg font-black text-white font-mono tracking-tight">4.12 Days (GBM)</div>
-                <div className="text-[11px] text-slate-400 mt-0.5 truncate">95% CI: ±0.35d • 94.2% R²</div>
-                <div className="mt-2 text-[9px] text-sky-300 font-mono bg-sky-950/70 px-2 py-0.5 rounded-full border border-sky-800/50 inline-block font-semibold">
-                  ML PREDICTION ENGINE
-                </div>
-              </div>
-
-              {/* Row 2, Box 3: Route Efficiency */}
-              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3.5 backdrop-blur-xl shadow-xl hover:border-cyan-500/40 transition-colors">
-                <div className="flex items-center gap-1.5 text-cyan-400 text-xs font-mono font-bold uppercase mb-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Route Efficiency</span>
-                </div>
-                <div className="text-lg font-black text-cyan-300 font-mono tracking-tight">87.4% Efficiency</div>
-                <div className="text-[11px] text-slate-400 mt-0.5 truncate">Top: Casa Grande → TX</div>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-[9px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
-                    CORRIDOR BENCHMARK
-                  </span>
-                  <div className="flex items-end gap-1 h-3">
-                    <span className="w-1 bg-cyan-500/50 rounded-sm h-1.5" />
-                    <span className="w-1 bg-cyan-500/80 rounded-sm h-2" />
-                    <span className="w-1 bg-cyan-400 rounded-sm h-3" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2, Box 4: SLA Delay & Thermal Risk */}
-              <div className="bg-slate-900/85 border border-slate-700/60 rounded-xl p-3.5 backdrop-blur-xl shadow-xl hover:border-amber-500/40 transition-colors">
-                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-mono font-bold uppercase mb-1">
-                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-                  <span>SLA Delay & Risk</span>
-                </div>
-                <div className="text-lg font-black text-amber-300 font-mono tracking-tight">11.8% Network Delay</div>
-                <div className="text-[11px] text-slate-400 mt-0.5 truncate">Reefer mandate: AZ/TX &gt;78°F</div>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-[9px] text-amber-300 font-mono bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-800/50 inline-block font-semibold">
-                    COLD-CHAIN SENTRY
-                  </span>
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 opacity-80" />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
