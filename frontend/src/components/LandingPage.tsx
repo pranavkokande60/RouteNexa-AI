@@ -557,7 +557,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Floating HUD Card 1: Shipment Activity (Top-Left of Globe) */}
-            <div className="hidden lg:block absolute top-2 left-[36%] xl:left-[34%] pointer-events-auto z-20">
+            <div className="hidden lg:block absolute top-2 left-[29%] xl:left-[27%] pointer-events-auto z-20">
               <div className="bg-slate-900/85 border border-slate-700/60 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl text-left min-w-[220px] hover:border-cyan-500/40 transition-colors">
                 <div className="flex items-center justify-between text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
                   <span className="flex items-center gap-1.5">

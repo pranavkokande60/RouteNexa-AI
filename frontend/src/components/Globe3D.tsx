@@ -814,13 +814,13 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
 
   return (
     <group ref={earthGroupRef} rotation={[0.22, 0.05, 0]}>
-      {/* 1. PHOTOREALISTIC EARTH CORE SURFACE (Calibrated for Vivid Sunlight) */}
+      {/* 1. PHOTOREALISTIC EARTH CORE SURFACE (Calibrated for Vivid Sunlight & Smooth Curvature) */}
       <mesh>
-        <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
+        <sphereGeometry args={[GLOBE_RADIUS, 128, 128]} />
         <meshStandardMaterial
           map={dayMap}
           normalMap={normalMap}
-          normalScale={new THREE.Vector2(0.85, 0.85)}
+          normalScale={new THREE.Vector2(0.25, 0.25)}
           roughness={0.42}
           metalness={0.06}
           emissiveMap={lightsMap}
@@ -829,23 +829,23 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
         />
       </mesh>
 
-      {/* 2. SEPARATE ROTATING REALISTIC CLOUD SPHERE */}
+      {/* 2. SEPARATE ROTATING REALISTIC CLOUD SPHERE (Smooth Alpha Blending) */}
       <mesh ref={cloudsRef}>
-        <sphereGeometry args={[GLOBE_RADIUS * 1.012, 64, 64]} />
+        <sphereGeometry args={[GLOBE_RADIUS * 1.01, 128, 128]} />
         <meshStandardMaterial
           map={cloudsMap}
           transparent
-          opacity={0.46}
-          blending={THREE.AdditiveBlending}
+          opacity={0.42}
+          blending={THREE.NormalBlending}
           depthWrite={false}
-          roughness={1}
+          roughness={0.8}
           metalness={0}
         />
       </mesh>
 
-      {/* 3. ATMOSPHERIC LIMB SCATTERING GLOW */}
+      {/* 3. ATMOSPHERIC LIMB SCATTERING GLOW (High-Resolution Rim) */}
       <mesh>
-        <sphereGeometry args={[GLOBE_RADIUS * 1.036, 48, 48]} />
+        <sphereGeometry args={[GLOBE_RADIUS * 1.036, 96, 96]} />
         <shaderMaterial
           vertexShader={atmosphereShader.vertexShader}
           fragmentShader={atmosphereShader.fragmentShader}
