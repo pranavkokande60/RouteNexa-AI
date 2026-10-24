@@ -3,11 +3,12 @@
 [![Live Demo](https://img.shields.io/badge/Live_Website-Render-2ea44f?style=for-the-badge&logo=render)](https://routenexa-ai.onrender.com/)
 [![FastAPI](https://img.shields.io/badge/REST_API-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://routenexa-ai.onrender.com/docs)
 [![React](https://img.shields.io/badge/Frontend-React_18-61DAFB?style=for-the-badge&logo=react)](https://routenexa-ai.onrender.com/)
+[![Three.js](https://img.shields.io/badge/3D_Engine-Three.js-black?style=for-the-badge&logo=three.js)](https://threejs.org/)
 
 > 🌐 **Live Website Application:** [https://routenexa-ai.onrender.com/](https://routenexa-ai.onrender.com/)  
 > 📖 **Interactive Swagger API Docs:** [https://routenexa-ai.onrender.com/docs](https://routenexa-ai.onrender.com/docs)  
 > 🏢 **Enterprise Supply Chain Intelligence for Nassau Candy Distributor**  
-> Built with **React**, **FastAPI**, **SQLite / PostgreSQL**, **Scikit-Learn**, **Tailwind CSS**, and **Leaflet**.
+> Built with **React 18**, **Three.js / React Three Fiber**, **FastAPI**, **SQLite / PostgreSQL**, **Scikit-Learn**, **Tailwind CSS**, and **Leaflet**.
 
 ---
 
@@ -16,6 +17,7 @@
 **RouteNexa AI** is an enterprise-grade logistics analytics, prediction, and decision-support platform designed for **Nassau Candy Distributor**. The system transforms raw historical order records into actionable supply chain intelligence across 5 major manufacturing facilities and 196 factory-to-customer state shipping corridors.
 
 ### Key Capabilities:
+- **🌍 Interactive 3D Logistics Digital Twin Command Center:** Photorealistic rotating Earth with specular ocean shaders, dynamic cloud layers, 5 geographic factory hubs, curved great-circle shipping trajectories, animated 3D freight trucks, and an integrated bottom telemetry dock.
 - **Command Center Dashboard:** High-level executive KPI telemetry, delay rates, and network performance.
 - **🆕 New Order Management:** End-to-end customer order intake, automated factory assignment, and ML ETA/delay risk scoring.
 - **📊 Prediction vs Actual Performance:** Continuous model evaluation (MAE, RMSE, Error Tolerance Accuracy, Confusion Matrix, Precision, Recall, F1).
@@ -51,13 +53,19 @@ flowchart TD
         H[ML Model Manager] --> F
     end
 
-    subgraph Frontend Application [React + Vite @ :5173]
+    subgraph Frontend Application [React 18 + Vite @ :5173]
         F --> I[API Client]
         G --> J[WebSocket Stream]
-        I --> K[Command Center & Route Explorer]
-        I --> L[Leaflet US Map]
-        I --> M[ML Prediction & Simulator]
-        J --> N[Live Operations Feed]
+        I --> K[Interactive 3D Digital Twin Engine]
+        K --> K1[Three.js / React Three Fiber Canvas]
+        K --> K2[5 Geographic Factory Hubs]
+        K --> K3[Curved Great-Circle Corridors]
+        K --> K4[Procedural 3D Freight Trucks]
+        K --> K5[Bottom Telemetry & Inspection Dock]
+        I --> L[Command Center Dashboard & Route Explorer]
+        I --> M[Leaflet 2D Geospatial Map]
+        I --> N[ML Prediction & Simulator]
+        J --> O[Live Operations Feed]
     end
 ```
 
@@ -68,6 +76,7 @@ flowchart TD
 | Layer | Technology | Purpose |
 |---|---|---|
 | **Frontend** | React 18, Vite, TypeScript | Fast, responsive single-page logistics SaaS dashboard |
+| **3D Digital Twin** | Three.js, @react-three/fiber, @react-three/drei | Photorealistic interactive 3D Earth, animated freight trucks, and great-circle routes |
 | **Styling & UI** | Tailwind CSS, Lucide Icons | Modern dark-slate dashboard theme with responsive cards |
 | **Mapping** | Leaflet, CartoDB Dark Matter | Interactive US geospatial rendering of factories and states |
 | **Backend API** | FastAPI, Uvicorn, Pydantic | High-performance asynchronous REST API + automatic Swagger docs |
@@ -97,6 +106,78 @@ This restores real-world shipping durations:
 3. `flag_canadian_fsa_postal_code`: 200 records (1.96%)
 4. `flag_product_division_inconsistency`: 6 records (0.06%)
 5. `flag_extreme_product_volume_imbalance`: 230 records (2.26%)
+
+---
+
+## 🌍 Interactive 3D Logistics Digital Twin Command Center
+
+RouteNexa AI features a production-grade 3D Digital Twin Command Center rendered directly on the landing page, built using **Three.js**, **@react-three/fiber**, and **@react-three/drei**. It provides real-time geospatial telemetry and operational observability across North American freight operations.
+
+```text
+┌────────────────────────────────────────────────────────┐
+│ Photorealistic 3D Earth (Atmosphere & Cloud Shaders)   │
+│  • 5 Geographic Manufacturing Hubs                     │
+│  • Great-Circle Geodesic Arc Trajectories (SLERP)      │
+│  • Moving Procedural 3D Freight Trucks (Heading/Normal)│
+└────────────────────────────────────────────────────────┘
+                          │
+       ┌──────────────────┴──────────────────┐
+       ▼                                     ▼
+┌──────────────────────────────┐  ┌──────────────────────────────┐
+│ 4-Box Telemetry Grid (2x2)   │  │ Contextual Inspection Box    │
+│ [Shipment Activity] [Pred ETA]│  │ [🏭] Sugar Shack (Factory)  │
+│ [Route Efficiency]  [SLA Risk]│  │ Products, Volumes, Shipments│
+└──────────────────────────────┘  └──────────────────────────────┘
+```
+
+### 1. Photorealistic Planet Earth Shaders
+- **High-Definition Surface:** 128x128 segment geometry with 8K Earth daymaps, ocean specular reflectivity, normal bump relief, and dynamic night lights.
+- **Dynamic Atmosphere:** Custom Rayleigh/Fresnel rim atmosphere glow ($R = 1.75$) with dual ambient-directional sun lighting.
+- **Moving Cloud Layer:** Independent cloud sphere ($R = 1.758$) with NormalBlending and subtle counter-rotational drift ($+0.0003\text{ rad/frame}$).
+
+### 2. Precise Geographic Coordinate Pinning
+All 5 manufacturing facilities are accurately attached to the Earth's surface using standard spherical-to-Cartesian geodesic conversion:
+```math
+\begin{aligned}
+x &= R \cdot \cos(\phi) \cdot \sin(\lambda) \\
+y &= R \cdot \sin(\phi) \\
+z &= R \cdot \cos(\phi) \cdot \cos(\lambda)
+\end{aligned}
+```
+*(where $\phi$ is latitude, $\lambda$ is longitude, and $R = 1.75$)*
+
+- Each factory features an interactive 3D hub beacon, pulsing energy rings, and an interactive tooltip indicating daily capacity and lead times.
+
+### 3. Curved Great-Circle Geodesic Routes (SLERP)
+- Routes connecting factory origins to major destination gateways (Los Angeles, Dallas, Chicago, New York, Miami, Seattle) are calculated using **Spherical Linear Interpolation (SLERP)**.
+- Parabolic arc elevation hovers safely above the cloud layer with smooth Catmull-Rom spline curves.
+- Glowing energy pulses travel continuously along route tubes, dynamically color-coded by corridor risk:
+  - **Cyan (`#06b6d4`):** Optimal corridor (low delay variance).
+  - **Amber (`#f59e0b`):** Elevated risk (congested corridor).
+  - **Rose (`#f43f5e`):** High risk / thermal cold-chain alert (ambient temperature $>78^\circ\text{F}$ or winter freeze).
+
+### 4. Procedural 3D Freight Trucks
+- Procedural GL-compliant 3D freight truck models featuring industrial cabs, shipping trailers, wheels, and dual front headlights.
+- Each truck traverses curved geodesic routes with continuous tangent tracking:
+  - Aligns forward vector along route curve velocity tangent.
+  - Aligns up vector radially outward from the globe's center normal.
+- **Interactive Inspection:** Clicking any moving truck pauses animation and surfaces the live shipment tracking telemetry.
+
+### 5. Unified Command Telemetry & Inspection Dock
+Directly integrated into the hero visualization area sits a unified dual-column operational telemetry dock:
+- **Left Column: 4-Box Telemetry Grid (2 Rows of 2 Cards):**
+  1. *Shipment Activity:* 10,194 Dispatches (48 orders/hr dispatch rate • Historical Observation).
+  2. *Predicted Delivery (ETA):* 4.12 Days (GBM) (95% CI: $\pm 0.35$ • $94.2\% \text{ } R^2$ • ML Prediction Engine).
+  3. *Route Efficiency:* 87.4% Efficiency (Top Corridor: Casa Grande $\to$ TX • Corridor Benchmark).
+  4. *SLA Delay & Risk:* 11.8% Network Delay (Reefer mandate: AZ/TX $>78^\circ\text{F}$ • Cold-Chain Sentry).
+- **Right Column: Contextual Inspection Box:**
+  - Docked directly to the right side of the 4 telemetry cards.
+  - Automatically updates when any factory, destination, or truck is selected.
+  - Displays factory coordinates, product lines, daily volume (e.g. 1,248 / day ↑ 12%), average lead times, connected destination cities, and recent dispatch statuses (In Transit, On Time, Delayed) with quick dismissal (`✕`).
+
+### 6. Accessibility & WebGL Fallback
+- Automatic fallback to high-contrast 2D Canvas (`GlobeFallback.tsx`) if WebGL is unavailable or fails context initialization.
+- Respects `prefers-reduced-motion` to disable auto-rotation and truck traversal animations for accessibility compliance.
 
 ---
 
