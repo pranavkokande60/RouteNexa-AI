@@ -147,11 +147,10 @@ const FreightTruck: React.FC<FreightTruckProps> = ({
         <Html
           position={[0, 0.042, 0]}
           center
-          distanceFactor={12}
           zIndexRange={[95, 0]}
           className="pointer-events-none select-none"
         >
-          <div className="px-2 py-0.5 rounded-md bg-slate-900/95 text-sky-200 border border-cyan-400 text-[9px] font-mono font-bold whitespace-nowrap shadow-xl backdrop-blur-md flex items-center gap-1.5 ring-1 ring-cyan-400/40">
+          <div className="px-2 py-0.5 rounded-md bg-slate-950/95 text-sky-200 border border-cyan-400 text-[10px] font-mono font-bold whitespace-nowrap shadow-xl backdrop-blur-md flex items-center gap-1.5 ring-1 ring-cyan-400/40">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shrink-0" />
             <span>{truckData.fleetName} ({truckData.trackingId})</span>
           </div>
@@ -374,32 +373,30 @@ const FactoryModel3D: React.FC<FactoryModel3DProps> = ({
         document.body.style.cursor = 'auto';
       }}
     >
-      {/* Floating Interactive 3D Billboard Label */}
-      <Html
-        position={[0, 0.058, 0]}
-        center
-        distanceFactor={11}
-        zIndexRange={[100, 0]}
-        className="pointer-events-none select-none"
-      >
-        <div
-          className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold whitespace-nowrap transition-all border pointer-events-auto cursor-pointer shadow-xl backdrop-blur-md flex items-center gap-1.5 ${
-            isSelected || isHovered
-              ? 'bg-slate-900/95 text-white border-cyan-400 ring-2 ring-cyan-400/40 scale-105'
-              : 'bg-slate-950/85 text-slate-200 border-slate-700/80 hover:border-cyan-400 hover:text-white'
-          }`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect();
-          }}
+      {/* Floating Interactive 3D Callout (Only rendered when Hovered or Selected to prevent clutter and overlapping) */}
+      {(isSelected || isHovered) && (
+        <Html
+          position={[0, 0.065, 0]}
+          center
+          zIndexRange={[100, 0]}
+          className="pointer-events-none select-none"
         >
-          <span
-            className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse"
-            style={{ backgroundColor: factory.accentHex }}
-          />
-          <span>{factory.name}</span>
-        </div>
-      </Html>
+          <div
+            className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold whitespace-nowrap border pointer-events-auto cursor-pointer shadow-2xl backdrop-blur-md flex items-center gap-2 bg-slate-950/95 text-white border-cyan-400/90 ring-2 ring-cyan-400/30 transition-all transform scale-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+          >
+            <span
+              className="w-2 h-2 rounded-full shrink-0 animate-pulse"
+              style={{ backgroundColor: factory.accentHex }}
+            />
+            <span>{factory.name}</span>
+            <span className="text-[10px] text-cyan-300 font-mono">({factory.stateCode})</span>
+          </div>
+        </Html>
+      )}
 
       {/* 1. Foundation Base Slab (Ground Platform flush with Earth) */}
       <mesh position={[0, 0.002, 0]}>
@@ -549,11 +546,10 @@ const DestinationHubMarker: React.FC<DestinationHubMarkerProps> = ({
         <Html
           position={[0, 0.038, 0]}
           center
-          distanceFactor={12}
           zIndexRange={[90, 0]}
           className="pointer-events-none select-none"
         >
-          <div className="px-2 py-0.5 rounded-md bg-slate-900/95 text-cyan-300 border border-cyan-400 text-[9px] font-mono font-bold whitespace-nowrap shadow-xl backdrop-blur-md flex items-center gap-1 ring-1 ring-cyan-400/40">
+          <div className="px-2 py-0.5 rounded-md bg-slate-950/95 text-cyan-300 border border-cyan-400 text-[10px] font-mono font-bold whitespace-nowrap shadow-xl backdrop-blur-md flex items-center gap-1 ring-1 ring-cyan-400/40">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shrink-0" />
             <span>{dest.city}</span>
           </div>
@@ -960,7 +956,7 @@ export const Globe3D: React.FC<Globe3DProps> = ({
   }
 
   return (
-    <div className="relative w-full aspect-square max-w-[580px] mx-auto select-none overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-cyan-950/20">
+    <div className="relative w-full h-[420px] sm:h-[460px] md:h-[490px] max-w-[580px] mx-auto select-none overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-cyan-950/20">
       {/* Background Radial Glow */}
       <div className="absolute inset-0 bg-radial from-cyan-500/10 via-slate-950/70 to-slate-950 blur-3xl -z-10 pointer-events-none" />
 

@@ -451,8 +451,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* 2. SECTION A: 3D HERO EXPERIENCE WITH DIGITAL TWIN COMMAND CENTER */}
       <section id="hero" className="relative z-10 pt-6 pb-16 px-4 sm:px-6 lg:px-8 xl:px-12 max-w-[1680px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-6 xl:gap-8 items-start">
-          {/* Column 1: Marketing Content (Left, 3.5 cols on xl, 4 cols on lg) */}
-          <div className="lg:col-span-4 xl:col-span-3.5 space-y-6 text-left py-2">
+          {/* Column 1: Marketing Content (Left, 3 cols on xl, 4 cols on lg) */}
+          <div className="lg:col-span-4 xl:col-span-3 space-y-6 text-left py-2">
             <div className="inline-flex items-center gap-2.5 bg-slate-900/90 border border-cyan-500/30 rounded-full px-3.5 py-1.5 shadow-lg shadow-cyan-500/5">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
               <span className="text-xs font-semibold text-cyan-300 tracking-wide uppercase">
@@ -506,8 +506,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
-          {/* Column 2: 3D Earth Workspace (Center, 5.5 cols on xl, 8 cols on lg) */}
-          <div className="lg:col-span-8 xl:col-span-5.5 flex flex-col items-center">
+          {/* Column 2: 3D Earth Workspace (Center, 6 cols on xl, 8 cols on lg) */}
+          <div className="lg:col-span-8 xl:col-span-6 flex flex-col items-center">
             {/* Upper Globe Analytics Cards Row */}
             <div className="w-full max-w-[580px] grid grid-cols-2 gap-3 mb-3">
               {/* Card 1: Upper-Left */}
@@ -704,6 +704,39 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <RotateCcw className="w-3.5 h-3.5" />
                   </button>
                 </div>
+              </div>
+
+              {/* Factory Hub Quick-Selector Chips */}
+              <div className="pt-2 border-t border-slate-800/80 flex items-center gap-1.5 overflow-x-auto pb-0.5 text-[10px] font-mono">
+                <span className="text-slate-500 font-bold uppercase text-[9px] shrink-0">Hub:</span>
+                <button
+                  onClick={() => handleSelectFactory(null)}
+                  className={`px-2 py-0.5 rounded-md transition-all shrink-0 ${
+                    !selectedFactory
+                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-semibold'
+                      : 'bg-slate-800/60 text-slate-400 hover:text-white border border-transparent'
+                  }`}
+                >
+                  All
+                </button>
+                {FACTORIES.map((fac) => {
+                  const isCurrent = selectedFactory === fac.name;
+                  return (
+                    <button
+                      key={fac.id}
+                      onClick={() => handleSelectFactory(isCurrent ? null : fac.name)}
+                      className={`px-2 py-0.5 rounded-md transition-all shrink-0 flex items-center gap-1 border ${
+                        isCurrent
+                          ? 'bg-slate-800 text-white border-cyan-400 shadow-sm ring-1 ring-cyan-400/30 font-semibold'
+                          : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 border-slate-800'
+                      }`}
+                      title={`${fac.name} (${fac.location})`}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: fac.accentHex }} />
+                      <span>{fac.name}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Legend Row */}
