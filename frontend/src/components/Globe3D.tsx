@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect, Suspense } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Stars, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { GlobeFallback } from './GlobeFallback';
 
@@ -100,10 +100,9 @@ export const DESTINATION_HUBS = [
   { id: 'HUB-MIA', name: 'Miami Gateway', lat: 25.762, lon: -80.192, city: 'Miami, FL', region: 'Atlantic' },
   { id: 'HUB-DEN', name: 'Denver Intermodal', lat: 39.739, lon: -104.990, city: 'Denver, CO', region: 'Interior' },
   { id: 'HUB-CHI', name: 'Chicago Central Depot', lat: 41.878, lon: -87.630, city: 'Chicago, IL', region: 'Interior' },
-  { id: 'HUB-ATL', name: 'Atlanta Distribution', lat: 33.749, lon: -84.388, city: 'Atlanta, GA', region: 'Atlantic' },
 ];
 
-const GLOBE_RADIUS = 1.95;
+const GLOBE_RADIUS = 2.05;
 
 // Convert Lat/Lon to 3D Cartesian coordinates on sphere
 export function latLonToVector3(lat: number, lon: number, radius: number): THREE.Vector3 {
@@ -115,158 +114,7 @@ export function latLonToVector3(lat: number, lon: number, radius: number): THREE
   return new THREE.Vector3(x, y, z);
 }
 
-// Generate high-resolution procedural cybernetic Earth map
-function createProceduralEarthTexture(): THREE.CanvasTexture {
-  const width = 2048;
-  const height = 1024;
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-
-  if (!ctx) return new THREE.CanvasTexture(canvas);
-
-  // 1. Deep Midnight Ocean Base
-  ctx.fillStyle = '#030816';
-  ctx.fillRect(0, 0, width, height);
-
-  // Subtle ocean wave gradients
-  const oceanGrad = ctx.createLinearGradient(0, 0, 0, height);
-  oceanGrad.addColorStop(0, 'rgba(2, 6, 23, 0.98)');
-  oceanGrad.addColorStop(0.5, 'rgba(8, 25, 55, 0.65)');
-  oceanGrad.addColorStop(1, 'rgba(2, 6, 23, 0.98)');
-  ctx.fillStyle = oceanGrad;
-  ctx.fillRect(0, 0, width, height);
-
-  // Helper to map lat/lon to canvas x/y
-  const mapPoint = (lat: number, lon: number): [number, number] => {
-    const x = ((lon + 180) / 360) * width;
-    const y = ((90 - lat) / 180) * height;
-    return [x, y];
-  };
-
-  // Helper to draw a filled & glowing continent polygon
-  const drawContinent = (points: [number, number][]) => {
-    if (points.length === 0) return;
-    ctx.beginPath();
-    const [startX, startY] = mapPoint(points[0][0], points[0][1]);
-    ctx.moveTo(startX, startY);
-    for (let i = 1; i < points.length; i++) {
-      const [px, py] = mapPoint(points[i][0], points[i][1]);
-      ctx.lineTo(px, py);
-    }
-    ctx.closePath();
-
-    // Fill continent with rich navy-slate
-    ctx.fillStyle = '#0c1e3d';
-    ctx.fill();
-
-    // Glowing cyan coastline
-    ctx.strokeStyle = '#0284c7';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    // Inner subtle glow
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  };
-
-  // Stylized Continental Polygons (lat, lon)
-  // 1. North America
-  drawContinent([
-    [70, -165], [72, -135], [68, -100], [60, -65], [48, -55],
-    [44, -66], [32, -80], [25, -80], [28, -90], [22, -97],
-    [15, -92], [18, -104], [28, -114], [34, -120], [48, -125],
-    [58, -140], [62, -165]
-  ]);
-
-  // 2. South America
-  drawContinent([
-    [12, -75], [8, -60], [-5, -35], [-20, -40], [-35, -55],
-    [-55, -68], [-52, -75], [-30, -72], [-15, -76], [0, -80]
-  ]);
-
-  // 3. Europe
-  drawContinent([
-    [71, 25], [68, 45], [55, 38], [42, 28], [36, -5],
-    [44, -9], [50, 2], [58, 8], [62, 5]
-  ]);
-
-  // 4. Africa
-  drawContinent([
-    [36, -5], [37, 10], [31, 32], [12, 51], [-5, 40],
-    [-34, 26], [-34, 18], [-10, 12], [5, 2], [15, -17], [25, -15]
-  ]);
-
-  // 5. Asia
-  drawContinent([
-    [75, 100], [70, 170], [60, 160], [40, 140], [30, 122],
-    [20, 108], [10, 105], [10, 80], [25, 65], [30, 48],
-    [40, 50], [55, 60], [65, 80]
-  ]);
-
-  // 6. Australia
-  drawContinent([
-    [-12, 130], [-15, 145], [-25, 152], [-38, 145],
-    [-35, 118], [-22, 114]
-  ]);
-
-  // 2. Cybernetic Continental Data Dots
-  ctx.fillStyle = '#38bdf8';
-  for (let lat = -65; lat <= 65; lat += 2.5) {
-    for (let lon = -175; lon <= 175; lon += 2.5) {
-      let isLand = false;
-      if (lat >= 15 && lat <= 70 && lon >= -160 && lon <= -55) isLand = true;
-      else if (lat >= -55 && lat <= 12 && lon >= -80 && lon <= -35) isLand = true;
-      else if (lat >= 36 && lat <= 70 && lon >= -10 && lon <= 45) isLand = true;
-      else if (lat >= -35 && lat <= 36 && lon >= -18 && lon <= 50) isLand = true;
-      else if (lat >= 10 && lat <= 72 && lon >= 50 && lon <= 150) isLand = true;
-      else if (lat >= -40 && lat <= -12 && lon >= 114 && lon <= 152) isLand = true;
-
-      if (isLand) {
-        const [x, y] = mapPoint(lat, lon);
-        ctx.beginPath();
-        ctx.arc(x, y, 1.8, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-  }
-
-  // 3. Crisp Coordinate Grid Lines
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
-  ctx.lineWidth = 1;
-  for (let lat = -80; lat <= 80; lat += 20) {
-    const [, y] = mapPoint(lat, 0);
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
-  }
-  for (let lon = -180; lon <= 180; lon += 30) {
-    const [x] = mapPoint(0, lon);
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
-  }
-
-  // Equator & Prime Meridian
-  ctx.strokeStyle = 'rgba(14, 165, 233, 0.35)';
-  ctx.lineWidth = 2;
-  const [, eqY] = mapPoint(0, 0);
-  ctx.beginPath();
-  ctx.moveTo(0, eqY);
-  ctx.lineTo(width, eqY);
-  ctx.stroke();
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.ClampToEdgeWrapping;
-  return texture;
-}
-
-// 3D Curved Great-Circle Arc with Volumetric Neon Tube & Traveling Packet
+// 3D Curved Great-Circle Arc with Volumetric Tube & Traveling Shipment Marker
 interface RouteArcProps {
   startPos: THREE.Vector3;
   endPos: THREE.Vector3;
@@ -289,15 +137,16 @@ const RouteArc: React.FC<RouteArcProps> = ({
   const particleRef = useRef<THREE.Mesh>(null);
   const pulseRef = useRef<number>(phaseOffset);
 
-  // Generate 3D curved arc geometry
+  // Generate elevated 3D curved arc geometry
   const { curve, tubeGeometry } = useMemo(() => {
     const distance = startPos.distanceTo(endPos);
     const mid = new THREE.Vector3().addVectors(startPos, endPos).multiplyScalar(0.5);
-    const elevation = 1 + distance * 0.16;
+    // Arc elevation clearing cloud layer
+    const elevation = 1 + distance * 0.15;
     const controlPoint = mid.clone().normalize().multiplyScalar(GLOBE_RADIUS * elevation);
 
     const quadCurve = new THREE.QuadraticBezierCurve3(startPos, controlPoint, endPos);
-    const tube = new THREE.TubeGeometry(quadCurve, 32, isHighlighted ? 0.016 : 0.011, 8, false);
+    const tube = new THREE.TubeGeometry(quadCurve, 36, isHighlighted ? 0.015 : 0.01, 8, false);
 
     return { curve: quadCurve, tubeGeometry: tube };
   }, [startPos, endPos, isHighlighted]);
@@ -317,19 +166,19 @@ const RouteArc: React.FC<RouteArcProps> = ({
 
   return (
     <group>
-      {/* 3D Glowing Arc Tube */}
+      {/* 3D Curved Route Tube */}
       <mesh geometry={tubeGeometry}>
         <meshBasicMaterial
-          color={colorHex}
+          color={isHighlighted ? colorHex : '#0284c7'}
           transparent
-          opacity={isHighlighted ? 0.85 : 0.18}
+          opacity={isHighlighted ? 0.9 : 0.22}
         />
       </mesh>
 
-      {/* Traveling Shipment Pulse */}
+      {/* Traveling Shipment Indicator */}
       {isHighlighted && (
         <mesh ref={particleRef}>
-          <sphereGeometry args={[0.044, 12, 12]} />
+          <sphereGeometry args={[0.042, 12, 12]} />
           <meshBasicMaterial color="#ffffff" />
         </mesh>
       )}
@@ -337,7 +186,7 @@ const RouteArc: React.FC<RouteArcProps> = ({
   );
 };
 
-// Concentric radar wave around factory nodes
+// Pulsing Concentric Radar Wave around Factory Nodes
 interface PulseRingProps {
   position: THREE.Vector3;
   color: string;
@@ -351,14 +200,14 @@ const PulseRing: React.FC<PulseRingProps> = ({ position, color, isHighlighted })
 
   useFrame((_, delta) => {
     scaleRef.current += delta * (isHighlighted ? 1.8 : 1.2);
-    if (scaleRef.current > (isHighlighted ? 3.6 : 2.8)) {
+    if (scaleRef.current > (isHighlighted ? 3.5 : 2.5)) {
       scaleRef.current = 1.0;
     }
     if (ringRef.current) {
       ringRef.current.scale.set(scaleRef.current, scaleRef.current, scaleRef.current);
     }
     if (matRef.current) {
-      const alpha = 1.0 - (scaleRef.current - 1.0) / (isHighlighted ? 2.6 : 1.8);
+      const alpha = 1.0 - (scaleRef.current - 1.0) / (isHighlighted ? 2.5 : 1.5);
       matRef.current.opacity = Math.max(0, alpha * (isHighlighted ? 0.85 : 0.45));
     }
   });
@@ -378,8 +227,8 @@ const PulseRing: React.FC<PulseRingProps> = ({ position, color, isHighlighted })
   );
 };
 
-// Interactive 3D Scene Container
-interface GlobeSceneProps {
+// Photorealistic Earth Sphere with NASA Day/Night Textures & Separate Rotating Cloud Sphere
+interface PhotorealisticGlobeProps {
   selectedFactory: string | null;
   onSelectFactory: (name: string) => void;
   selectedDestination: string | null;
@@ -387,17 +236,56 @@ interface GlobeSceneProps {
   shipModeFilter: string;
 }
 
-const GlobeScene: React.FC<GlobeSceneProps> = ({
+const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
   selectedFactory,
   onSelectFactory,
   selectedDestination,
   onSelectDestination,
   shipModeFilter
 }) => {
-  const globeGroupRef = useRef<THREE.Group>(null);
-  const earthTexture = useMemo(() => createProceduralEarthTexture(), []);
+  const earthGroupRef = useRef<THREE.Group>(null);
+  const cloudsRef = useRef<THREE.Mesh>(null);
 
-  // Compute 3D vectors
+  // Load NASA Textures locally from /textures/...
+  const [dayMap, lightsMap, cloudsMap, specMap, normalMap] = useTexture([
+    '/textures/earth_day_2048.jpg',
+    '/textures/earth_lights_2048.png',
+    '/textures/earth_clouds_1024.png',
+    '/textures/earth_specular_2048.jpg',
+    '/textures/earth_normal_2048.jpg',
+  ]);
+
+  // Ensure color space calibration
+  useEffect(() => {
+    dayMap.colorSpace = THREE.SRGBColorSpace;
+    lightsMap.colorSpace = THREE.SRGBColorSpace;
+    cloudsMap.colorSpace = THREE.SRGBColorSpace;
+    dayMap.needsUpdate = true;
+    lightsMap.needsUpdate = true;
+    cloudsMap.needsUpdate = true;
+  }, [dayMap, lightsMap, cloudsMap]);
+
+  // Atmosphere Rayleigh Limb Glow Shader
+  const atmosphereShader = useMemo(() => {
+    return {
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        void main() {
+          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.4);
+          gl_FragColor = vec4(0.18, 0.65, 1.0, 1.0) * intensity;
+        }
+      `,
+    };
+  }, []);
+
+  // Compute 3D vectors for factories and destination hubs
   const factoryVectors = useMemo(() => {
     return FACTORY_NODES.map((f) => ({
       ...f,
@@ -412,7 +300,7 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({
     }));
   }, []);
 
-  // Shipping routes connecting factories to destination hubs
+  // Connected freight routes
   const shippingRoutes = useMemo(() => {
     const MODES = ['Same Day', 'First Class', 'Second Class', 'Standard Class'];
     const routes: Array<{
@@ -429,7 +317,6 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({
 
     factoryVectors.forEach((fac, facIdx) => {
       destinationVectors.forEach((dest, destIdx) => {
-        // Connect each factory to specific hubs
         if ((facIdx + destIdx) % 2 === 0 || (facIdx * 2 + destIdx) % 3 === 0) {
           const mode = MODES[(facIdx + destIdx) % MODES.length];
           routes.push({
@@ -450,41 +337,62 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({
     return routes;
   }, [factoryVectors, destinationVectors]);
 
-  // Gentle auto-rotation
+  // Smooth rotation: Clouds rotate slightly faster than the Earth surface
   useFrame((_, delta) => {
-    if (globeGroupRef.current) {
-      globeGroupRef.current.rotation.y += delta * 0.04;
+    if (earthGroupRef.current) {
+      earthGroupRef.current.rotation.y += delta * 0.024;
+    }
+    if (cloudsRef.current) {
+      cloudsRef.current.rotation.y += delta * 0.036;
     }
   });
 
   return (
-    <group ref={globeGroupRef} rotation={[0.35, -Math.PI * 0.42, 0]}>
-      {/* 1. Base Earth Core Sphere */}
+    // Rotated initially to show North America and the 5 factory nodes prominently
+    <group ref={earthGroupRef} rotation={[0.36, -Math.PI * 0.44, 0]}>
+      {/* 1. PHOTOREALISTIC EARTH CORE SURFACE */}
       <mesh>
         <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
         <meshStandardMaterial
-          map={earthTexture}
-          roughness={0.45}
-          metalness={0.15}
-          color="#ffffff"
-          emissive="#061226"
-          emissiveIntensity={0.65}
+          map={dayMap}
+          normalMap={normalMap}
+          normalScale={new THREE.Vector2(0.85, 0.85)}
+          roughnessMap={specMap}
+          roughness={0.7}
+          metalness={0.05}
+          emissiveMap={lightsMap}
+          emissive="#ffeedd"
+          emissiveIntensity={0.45}
         />
       </mesh>
 
-      {/* 2. Atmospheric Outer Glow Sphere */}
-      <mesh>
-        <sphereGeometry args={[GLOBE_RADIUS * 1.035, 48, 48]} />
-        <meshBasicMaterial
-          color="#00f0ff"
+      {/* 2. SEPARATE ROTATING REALISTIC CLOUD SPHERE */}
+      <mesh ref={cloudsRef}>
+        <sphereGeometry args={[GLOBE_RADIUS * 1.012, 64, 64]} />
+        <meshStandardMaterial
+          map={cloudsMap}
           transparent
-          opacity={0.09}
-          side={THREE.BackSide}
+          opacity={0.44}
           blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          roughness={1}
+          metalness={0}
         />
       </mesh>
 
-      {/* 3. Shipping Route 3D Arcs */}
+      {/* 3. ATMOSPHERIC LIMB SCATTERING GLOW */}
+      <mesh>
+        <sphereGeometry args={[GLOBE_RADIUS * 1.036, 48, 48]} />
+        <shaderMaterial
+          vertexShader={atmosphereShader.vertexShader}
+          fragmentShader={atmosphereShader.fragmentShader}
+          blending={THREE.AdditiveBlending}
+          side={THREE.BackSide}
+          transparent
+        />
+      </mesh>
+
+      {/* 4. RESTRAINED GEODESIC LOGISTICS ARCS */}
       {shippingRoutes.map((route) => {
         const matchesFactory = !selectedFactory || route.factoryName === selectedFactory;
         const matchesDest = !selectedDestination || route.destName === selectedDestination;
@@ -506,7 +414,7 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({
         );
       })}
 
-      {/* 4. Customer Destination Hub Markers */}
+      {/* 5. CUSTOMER DESTINATION TERMINAL MARKERS */}
       {destinationVectors.map((dest) => {
         const isSelected = selectedDestination === dest.name;
         return (
@@ -524,14 +432,14 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({
                 document.body.style.cursor = 'auto';
               }}
             >
-              <sphereGeometry args={[isSelected ? 0.045 : 0.026, 12, 12]} />
-              <meshBasicMaterial color={isSelected ? '#38bdf8' : '#94a3b8'} />
+              <sphereGeometry args={[isSelected ? 0.042 : 0.024, 12, 12]} />
+              <meshBasicMaterial color={isSelected ? '#38bdf8' : '#e2e8f0'} />
             </mesh>
           </group>
         );
       })}
 
-      {/* 5. 5 Primary Manufacturing Hub Nodes */}
+      {/* 6. 5 PRIMARY MANUFACTURING HUB BEACONS */}
       {factoryVectors.map((fac) => {
         const isSelected = selectedFactory === fac.name;
 
@@ -553,7 +461,7 @@ const GlobeScene: React.FC<GlobeSceneProps> = ({
                 document.body.style.cursor = 'auto';
               }}
             >
-              <sphereGeometry args={[isSelected ? 0.07 : 0.05, 16, 16]} />
+              <sphereGeometry args={[isSelected ? 0.068 : 0.048, 16, 16]} />
               <meshBasicMaterial color={fac.accentHex} />
             </mesh>
           </group>
@@ -614,9 +522,9 @@ export const Globe3D: React.FC<Globe3DProps> = ({
   }
 
   return (
-    <div className="relative w-full aspect-square max-w-[560px] mx-auto select-none overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-900/40 backdrop-blur-xl shadow-2xl shadow-cyan-950/20">
+    <div className="relative w-full aspect-square max-w-[580px] mx-auto select-none overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-cyan-950/20">
       {/* Background Radial Glow */}
-      <div className="absolute inset-0 bg-radial from-cyan-500/10 via-slate-950/60 to-slate-950 blur-2xl -z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-radial from-cyan-500/10 via-slate-950/70 to-slate-950 blur-3xl -z-10 pointer-events-none" />
 
       {/* Floating 2D Telemetry HUD Card (Clean, perfectly positioned, never clipped) */}
       {activeFactory && (
@@ -649,7 +557,7 @@ export const Globe3D: React.FC<Globe3DProps> = ({
         </div>
       )}
 
-      {/* 3D Canvas */}
+      {/* 3D Canvas with High-Performance Settings & Suspense */}
       <Suspense
         fallback={
           <GlobeFallback
@@ -659,22 +567,21 @@ export const Globe3D: React.FC<Globe3DProps> = ({
         }
       >
         <Canvas
-          camera={{ position: [0, 0.4, 5.8], fov: 42 }}
+          camera={{ position: [0, 0.35, 5.8], fov: 42 }}
           dpr={[1, 1.5]}
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           className="w-full h-full cursor-grab active:cursor-grabbing"
         >
-          {/* Stage Lighting */}
-          <ambientLight intensity={1.4} />
-          <directionalLight position={[6, 5, 5]} intensity={2.0} color="#e0f2fe" />
-          <directionalLight position={[-6, -3, -3]} intensity={0.9} color="#0284c7" />
-          <pointLight position={[0, 4, 3]} intensity={1.2} color="#38bdf8" />
+          {/* Convincing Directional Sunlight Source & Gradual Day/Night Terminator */}
+          <directionalLight position={[7, 3, 5]} intensity={2.4} color="#fffcf5" />
+          <directionalLight position={[-6, -2, -4]} intensity={0.2} color="#0c2044" />
+          <ambientLight intensity={0.4} />
 
-          {/* Space Dust Particles */}
-          <Stars radius={30} depth={20} count={600} factor={3} saturation={0} fade speed={0.6} />
+          {/* Deep Space Background Stars */}
+          <Stars radius={30} depth={20} count={500} factor={3} saturation={0} fade speed={0.5} />
 
-          {/* The Globe Scene */}
-          <GlobeScene
+          {/* Photorealistic Earth with Clouds & Logistics Overlays */}
+          <PhotorealisticGlobe
             selectedFactory={selectedFactory}
             onSelectFactory={onSelectFactory}
             selectedDestination={selectedDestination}
@@ -682,7 +589,7 @@ export const Globe3D: React.FC<Globe3DProps> = ({
             shipModeFilter={shipModeFilter}
           />
 
-          {/* Smooth Orbit Controls with Strict Bounds */}
+          {/* Restrained Orbit Controls */}
           <OrbitControls
             enableZoom={false}
             enablePan={false}
@@ -696,7 +603,7 @@ export const Globe3D: React.FC<Globe3DProps> = ({
       {/* Bottom Telemetry Legend */}
       <div className="absolute bottom-3 left-3 bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-[10px] text-slate-300 backdrop-blur-sm shadow-lg pointer-events-none">
         <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-        <span className="font-semibold text-cyan-300">5 Distinct Production Hubs</span>
+        <span className="font-semibold text-cyan-300">Photorealistic NASA Blue Marble</span>
         <span className="text-slate-600">•</span>
         <span className="text-slate-400">Click node to inspect</span>
       </div>
