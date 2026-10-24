@@ -373,30 +373,44 @@ const FactoryModel3D: React.FC<FactoryModel3DProps> = ({
         document.body.style.cursor = 'auto';
       }}
     >
-      {/* Floating Interactive 3D Callout (Only rendered when Hovered or Selected to prevent clutter and overlapping) */}
-      {(isSelected || isHovered) && (
-        <Html
-          position={[0, 0.065, 0]}
-          center
-          zIndexRange={[100, 0]}
-          className="pointer-events-none select-none"
+      {/* Floating Tactical Factory Badge (Matches Reference Design) */}
+      <Html
+        position={[0, 0.052, 0]}
+        center={false}
+        style={{
+          transform: 'translate(-50%, -100%)',
+          pointerEvents: 'auto',
+        }}
+        className="select-none"
+      >
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
+          className={`px-2 py-1 rounded-lg border backdrop-blur-md transition-all cursor-pointer text-left shadow-2xl ${
+            isSelected
+              ? 'bg-slate-950/95 border-cyan-400 ring-2 ring-cyan-400/40 text-white shadow-cyan-500/25 scale-105'
+              : isHovered
+              ? 'bg-slate-950/90 border-cyan-400 text-white scale-102'
+              : 'bg-slate-950/80 border-cyan-500/40 text-slate-200 hover:border-cyan-300'
+          }`}
+          style={{ minWidth: '110px' }}
         >
-          <div
-            className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold whitespace-nowrap border pointer-events-auto cursor-pointer shadow-2xl backdrop-blur-md flex items-center gap-2 bg-slate-950/95 text-white border-cyan-400/90 ring-2 ring-cyan-400/30 transition-all transform scale-100"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect();
-            }}
-          >
+          <div className="flex items-center gap-1.5">
             <span
-              className="w-2 h-2 rounded-full shrink-0 animate-pulse"
+              className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse"
               style={{ backgroundColor: factory.accentHex }}
             />
-            <span>{factory.name}</span>
-            <span className="text-[10px] text-cyan-300 font-mono">({factory.stateCode})</span>
+            <span className="text-[10px] font-bold tracking-tight text-white whitespace-nowrap">
+              {factory.name}
+            </span>
           </div>
-        </Html>
-      )}
+          <div className="text-[8px] font-mono text-cyan-300/80 mt-0.5 whitespace-nowrap">
+            ({factory.lat.toFixed(3)}, {factory.lon.toFixed(3)})
+          </div>
+        </div>
+      </Html>
 
       {/* 1. Foundation Base Slab (Ground Platform flush with Earth) */}
       <mesh position={[0, 0.002, 0]}>
@@ -595,6 +609,73 @@ const DestinationHubMarker: React.FC<DestinationHubMarkerProps> = ({
       <mesh position={[0, 0.015, 0]}>
         <sphereGeometry args={[0.035, 10, 10]} />
         <meshBasicMaterial visible={false} />
+      </mesh>
+    </group>
+  );
+};
+
+// 4b. PROCEDURAL OCEAN FREIGHT CONTAINER SHIPS (Matches Reference Image)
+interface CargoShipProps {
+  lat: number;
+  lon: number;
+  heading: number;
+  name: string;
+}
+
+const CargoShip3D: React.FC<CargoShipProps> = ({ lat, lon, heading, name }) => {
+  const pos = useMemo(() => latLonToVector3(lat, lon, GLOBE_RADIUS + 0.0015), [lat, lon]);
+  const normal = useMemo(() => pos.clone().normalize(), [pos]);
+  const groupRef = useRef<THREE.Group>(null);
+
+  const orientation = useMemo(() => {
+    const q = new THREE.Quaternion();
+    q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+    const headingQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), heading);
+    q.multiply(headingQuat);
+    return q;
+  }, [normal, heading]);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      const bob = Math.sin(state.clock.elapsedTime * 1.6 + lat) * 0.0006;
+      groupRef.current.position.copy(pos).addScaledVector(normal, bob);
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={pos} quaternion={orientation}>
+      {/* Ship Hull */}
+      <mesh position={[0, 0.003, 0]}>
+        <boxGeometry args={[0.015, 0.007, 0.048]} />
+        <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.3} />
+      </mesh>
+      {/* Pointed Bow */}
+      <mesh position={[0, 0.003, -0.026]} rotation={[0, Math.PI / 4, 0]}>
+        <boxGeometry args={[0.011, 0.007, 0.011]} />
+        <meshStandardMaterial color="#0f172a" metalness={0.8} roughness={0.3} />
+      </mesh>
+      {/* Colorful Cargo Containers */}
+      <mesh position={[-0.0035, 0.009, -0.006]}>
+        <boxGeometry args={[0.005, 0.005, 0.024]} />
+        <meshStandardMaterial color="#00f0ff" roughness={0.4} />
+      </mesh>
+      <mesh position={[0.0035, 0.009, -0.006]}>
+        <boxGeometry args={[0.005, 0.005, 0.024]} />
+        <meshStandardMaterial color="#f43f5e" roughness={0.4} />
+      </mesh>
+      <mesh position={[0, 0.0135, -0.006]}>
+        <boxGeometry args={[0.009, 0.004, 0.020]} />
+        <meshStandardMaterial color="#f59e0b" roughness={0.4} />
+      </mesh>
+      {/* Bridge Tower Superstructure */}
+      <mesh position={[0, 0.012, 0.016]}>
+        <boxGeometry args={[0.013, 0.011, 0.009]} />
+        <meshStandardMaterial color="#f8fafc" metalness={0.5} roughness={0.2} />
+      </mesh>
+      {/* Luminous Wake Trail */}
+      <mesh position={[0, 0.0005, 0.042]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.012, 0.038]} />
+        <meshBasicMaterial color="#38bdf8" transparent opacity={0.55} depthWrite={false} side={THREE.DoubleSide} />
       </mesh>
     </group>
   );
@@ -860,6 +941,20 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
             />
           );
         })}
+
+      {/* 8. OCEAN FREIGHT CONTAINER CARGO SHIPS (Pacific & Atlantic) */}
+      <CargoShip3D
+        lat={18.2}
+        lon={-125.4}
+        heading={0.72}
+        name="MV Pacific Express (MX-LAX)"
+      />
+      <CargoShip3D
+        lat={13.8}
+        lon={-67.2}
+        heading={-0.48}
+        name="MV Caribbean Leader (CAR-MIA)"
+      />
     </group>
   );
 };
@@ -956,10 +1051,7 @@ export const Globe3D: React.FC<Globe3DProps> = ({
   }
 
   return (
-    <div className="relative w-full h-[420px] sm:h-[460px] md:h-[490px] max-w-[580px] mx-auto select-none overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-cyan-950/20">
-      {/* Background Radial Glow */}
-      <div className="absolute inset-0 bg-radial from-cyan-500/10 via-slate-950/70 to-slate-950 blur-3xl -z-10 pointer-events-none" />
-
+    <div className="relative w-full h-full select-none overflow-hidden">
       {/* 3D Canvas with High-Performance Settings & Suspense */}
       <Suspense
         fallback={
@@ -970,18 +1062,18 @@ export const Globe3D: React.FC<Globe3DProps> = ({
         }
       >
         <Canvas
-          camera={{ position: [0, 0.32, 5.7], fov: 42 }}
+          camera={{ position: [0.65, 0.15, 4.85], fov: 40 }}
           dpr={[1, 1.5]}
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           className="w-full h-full cursor-grab active:cursor-grabbing"
         >
           {/* Natural Sunlight Illuminating North America in Full Daylight */}
-          <directionalLight position={[3, 5, 7]} intensity={2.8} color="#fffdf6" />
+          <directionalLight position={[3.5, 4.5, 6]} intensity={3.0} color="#fffdf6" />
           <directionalLight position={[-6, -2, -3]} intensity={0.4} color="#0c2044" />
-          <ambientLight intensity={0.75} />
+          <ambientLight intensity={0.7} />
 
           {/* Deep Space Background Stars */}
-          <Stars radius={30} depth={20} count={500} factor={3} saturation={0} fade speed={0.5} />
+          <Stars radius={30} depth={20} count={650} factor={3.5} saturation={0} fade speed={0.4} />
 
           {/* Realistic 3D Globe with Atmosphere, 3D Trucks, and Corridors */}
           <PhotorealisticGlobe

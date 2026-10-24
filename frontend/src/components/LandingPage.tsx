@@ -61,7 +61,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   isAuthenticated = false,
   currentUser
 }) => {
-  const [selectedFactory, setSelectedFactory] = useState<string | null>("Wicked Choccy's");
+  const [selectedFactory, setSelectedFactory] = useState<string | null>("Sugar Shack");
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
   const [selectedTruck, setSelectedTruck] = useState<string | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
@@ -77,26 +77,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const [intelligenceTab, setIntelligenceTab] = useState<'models' | 'regional' | 'anomalies' | 'forecast'>('models');
   const [resetKey, setResetKey] = useState<number>(0);
 
-  // Initialize inspection panel with Wicked Choccy's
+  // Initialize inspection panel with Sugar Shack (matches reference design)
   useEffect(() => {
-    const fac = FACTORY_NODES.find(f => f.name === "Wicked Choccy's");
+    const fac = FACTORY_NODES.find(f => f.name === "Sugar Shack");
     if (fac) {
       setSelectedEntity({
         type: 'factory',
         id: fac.id,
         name: fac.name,
-        title: fac.name,
+        title: `${fac.name} (Factory)`,
         subtitle: `${fac.city}, ${fac.state} (${fac.stateCode}) • Industrial Production Hub`,
         badge: `${fac.specialization}`,
-        badgeClass: 'text-amber-300 bg-amber-950/70 border-amber-800/50',
+        badgeClass: 'text-emerald-300 bg-emerald-950/70 border-emerald-800/50',
         origin: `${fac.city}, ${fac.state}`,
-        products: fac.products,
+        products: ['Laffy Taffy', 'SweeTARTS', 'Nerds', 'Fun Dip', 'Fizzy Lifting Drinks'],
         shipmentCount: `${fac.dispatches.toLocaleString()} Orders Audited`,
-        leadTime: fac.leadTime,
-        efficiency: fac.efficiency,
-        predictedEta: `${fac.leadTime} Avg Transit`,
-        delayRisk: '14.2% (Reefer Monitored)',
-        riskLevel: 'ELEVATED',
+        leadTime: '3.6 days',
+        efficiency: '85.2%',
+        predictedEta: '3.6 days Avg Transit',
+        delayRisk: '18.4% (Winter Freezing Monitored)',
+        riskLevel: 'LOW',
         status: `Active Facility • ${fac.capacity}`
       });
     }
@@ -448,540 +448,450 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </header>
 
-      {/* 2. SECTION A: 3D HERO EXPERIENCE WITH DIGITAL TWIN COMMAND CENTER */}
-      <section id="hero" className="relative z-10 pt-6 pb-16 px-4 sm:px-6 lg:px-8 xl:px-12 max-w-[1680px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-6 xl:gap-8 items-start">
-          {/* Column 1: Marketing Content (Left, 3 cols on xl, 4 cols on lg) */}
-          <div className="lg:col-span-4 xl:col-span-3 space-y-6 text-left py-2">
-            <div className="inline-flex items-center gap-2.5 bg-slate-900/90 border border-cyan-500/30 rounded-full px-3.5 py-1.5 shadow-lg shadow-cyan-500/5">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              <span className="text-xs font-semibold text-cyan-300 tracking-wide uppercase">
-                RouteNexa AI • Enterprise 3D Logistics Intelligence
-              </span>
-            </div>
+      {/* 2. SECTION A: CINEMATIC 3D HERO DIGITAL TWIN COMMAND CENTER (Matches Reference Image) */}
+      <section
+        id="hero"
+        className="relative w-full min-h-[880px] lg:h-[920px] xl:h-[960px] overflow-hidden bg-slate-950 flex flex-col justify-between"
+      >
+        {/* Layer 1: Seamless 3D Earth Digital Twin Background Canvas */}
+        <div className="absolute inset-0 z-0 pointer-events-auto">
+          <Suspense
+            fallback={
+              <GlobeFallback
+                selectedFactory={selectedFactory}
+                onSelectFactory={(f) => handleSelectFactory(f)}
+                selectedDestination={selectedDestination}
+                onSelectDestination={handleSelectDestination}
+                shipModeFilter={shipModeFilter}
+              />
+            }
+          >
+            <Globe3D
+              selectedFactory={selectedFactory}
+              onSelectFactory={handleSelectFactory}
+              selectedDestination={selectedDestination}
+              onSelectDestination={handleSelectDestination}
+              selectedTruck={selectedTruck}
+              onSelectTruck={handleSelectTruck}
+              selectedRoute={selectedRoute}
+              onSelectRoute={handleSelectRoute}
+              shipModeFilter={shipModeFilter}
+              riskFilter={riskFilter}
+              showRoutes={showRoutes}
+              showTrucks={showTrucks}
+              showFactories={showFactories}
+              showDestinations={showDestinations}
+              isPaused={isPaused}
+              resetKey={resetKey}
+            />
+          </Suspense>
+        </div>
 
-            <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black tracking-tight leading-[1.12] text-white">
-              Intelligence That Moves{' '}
-              <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
-                Logistics Forward.
-              </span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
-              Turn shipment data into predictive insights, smarter routes, and measurable logistics intelligence across 196 factory-to-customer freight corridors.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3.5 pt-1">
-              <button
-                onClick={handlePrimaryCTA}
-                className="flex items-center gap-2.5 bg-gradient-to-r from-cyan-400 to-sky-500 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-black text-sm px-6 py-3.5 rounded-xl shadow-xl shadow-cyan-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] group"
-              >
-                <span>Explore Platform</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </button>
-
-              <button
-                onClick={() => scrollToSection('digital-twin')}
-                className="flex items-center gap-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/40 text-slate-200 font-bold text-sm px-5 py-3.5 rounded-xl transition-all"
-              >
-                <span>Discover Capabilities</span>
-                <ChevronRight className="w-4 h-4 text-cyan-400" />
-              </button>
-            </div>
-
-            {/* Quick Proof Highlights */}
-            <div className="pt-6 border-t border-slate-800/80 grid grid-cols-3 gap-3">
-              <div>
-                <div className="text-xl sm:text-2xl font-black text-cyan-400 font-mono">10,194</div>
-                <div className="text-xs text-slate-400 mt-0.5">Audited Shipments</div>
+        {/* Layer 2: Main Foreground UI Layer (pointer-events-none so mouse drags pass to 3D canvas) */}
+        <div className="relative z-10 w-full h-full max-w-[1720px] mx-auto px-6 lg:px-12 pt-8 pb-4 flex flex-col justify-between pointer-events-none flex-1">
+          {/* Top Row: Left Column Copy + Top Floating HUD Cards */}
+          <div className="w-full flex items-start justify-between relative">
+            {/* Left Column: Brand, Headline, Subtitle, Buttons, Proof Counters */}
+            <div className="w-full lg:max-w-[430px] xl:max-w-[470px] space-y-6 text-left py-2 pointer-events-auto z-10">
+              {/* Badge Pill */}
+              <div className="inline-flex items-center gap-2 bg-slate-900/90 border border-cyan-500/40 rounded-full px-3.5 py-1.5 shadow-lg shadow-cyan-500/5">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                <span className="text-[11px] font-bold text-cyan-300 tracking-wider uppercase font-mono">
+                  RouteNexa AI • Enterprise 3D Logistics Intelligence
+                </span>
               </div>
-              <div>
-                <div className="text-xl sm:text-2xl font-black text-sky-400 font-mono">94.2%</div>
-                <div className="text-xs text-slate-400 mt-0.5">ML ETA Accuracy</div>
-              </div>
-              <div>
-                <div className="text-xl sm:text-2xl font-black text-indigo-400 font-mono">5 Hubs</div>
-                <div className="text-xs text-slate-400 mt-0.5">Connected Factories</div>
-              </div>
-            </div>
-          </div>
 
-          {/* Column 2: 3D Earth Workspace (Center, 6 cols on xl, 8 cols on lg) */}
-          <div className="lg:col-span-8 xl:col-span-6 flex flex-col items-center">
-            {/* Upper Globe Analytics Cards Row */}
-            <div className="w-full max-w-[580px] grid grid-cols-2 gap-3 mb-3">
-              {/* Card 1: Upper-Left */}
-              <div className="bg-slate-900/90 border border-slate-700/60 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left">
-                <div className="flex items-center gap-1.5 text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
-                  <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400 shrink-0" />
-                  <span>Shipment Activity</span>
+              {/* Main Headline */}
+              <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black tracking-tight leading-[1.08] text-white">
+                Intelligence That<br />
+                Moves{' '}
+                <span className="bg-gradient-to-r from-cyan-400 to-sky-300 bg-clip-text text-transparent">
+                  Logistics
+                </span><br />
+                <span className="bg-gradient-to-r from-cyan-400 to-sky-300 bg-clip-text text-transparent">
+                  Forward.
+                </span>
+              </h1>
+
+              {/* Narrative Subtitle */}
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-lg">
+                Turn shipment data into predictive insights, smarter routes, and measurable logistics intelligence across 196 factory-to-customer freight corridors.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap items-center gap-3.5 pt-1">
+                <button
+                  onClick={handlePrimaryCTA}
+                  className="flex items-center gap-2.5 bg-gradient-to-r from-cyan-400 via-sky-400 to-cyan-500 hover:from-cyan-300 hover:to-sky-300 text-slate-950 font-black text-sm px-6 py-3.5 rounded-xl shadow-xl shadow-cyan-500/30 transition-all hover:scale-[1.02] active:scale-[0.98] group"
+                >
+                  <span>Explore Platform</span>
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </button>
+
+                <button
+                  onClick={() => scrollToSection('digital-twin')}
+                  className="flex items-center gap-2 bg-slate-900/85 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/40 text-slate-200 font-bold text-sm px-5 py-3.5 rounded-xl transition-all shadow-lg"
+                >
+                  <span>Explore the Intelligence</span>
+                  <ArrowRight className="w-4 h-4 text-cyan-400" />
+                </button>
+              </div>
+
+              {/* Empirical Proof Metrics */}
+              <div className="pt-6 border-t border-slate-800/80 flex items-center gap-8">
+                <div>
+                  <div className="text-2xl font-black text-white font-mono">10,194</div>
+                  <div className="text-xs text-slate-400 mt-0.5">Audited Shipments</div>
                 </div>
-                <div className="text-base font-black text-white font-mono">10,194 Dispatches</div>
+                <div>
+                  <div className="text-2xl font-black text-cyan-400 font-mono">94.2%</div>
+                  <div className="text-xs text-slate-400 mt-0.5">ML ETA Accuracy</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-black text-white font-mono">
+                    5 <span className="text-purple-400">Hubs</span>
+                  </div>
+                  <div className="text-xs text-slate-400 mt-0.5">Connected Factories</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating HUD Card 1: Shipment Activity (Top-Left of Globe) */}
+            <div className="hidden lg:block absolute top-2 left-[36%] xl:left-[34%] pointer-events-auto z-20">
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl text-left min-w-[220px] hover:border-cyan-500/40 transition-colors">
+                <div className="flex items-center justify-between text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
+                  <span className="flex items-center gap-1.5">
+                    <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
+                    Shipment Activity
+                  </span>
+                  <svg className="w-7 h-3.5 text-cyan-400 stroke-current fill-none" viewBox="0 0 28 14">
+                    <path d="M1 11 L7 8 L14 10 L21 3 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="text-xl font-black text-white font-mono tracking-tight">10,194 Dispatches</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">48 orders/hr fleet dispatch rate</div>
                 <div className="mt-2 text-[8px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
                   HISTORICAL OBSERVATION
                 </div>
               </div>
+            </div>
 
-              {/* Card 2: Upper-Right */}
-              <div className="bg-slate-900/90 border border-slate-700/60 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left">
-                <div className="flex items-center gap-1.5 text-sky-400 text-[10px] font-mono font-bold uppercase mb-1">
-                  <Clock className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                  <span>Predicted Delivery (ETA)</span>
+            {/* Floating HUD Card 2: Predicted Delivery ETA (Top-Right of Globe) */}
+            <div className="hidden lg:block absolute top-2 right-4 xl:right-8 pointer-events-auto z-20">
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl text-left min-w-[220px] hover:border-sky-500/40 transition-colors">
+                <div className="flex items-center justify-between text-sky-400 text-[10px] font-mono font-bold uppercase mb-1">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-sky-400" />
+                    Predicted Delivery (ETA)
+                  </span>
+                  <svg className="w-7 h-3.5 text-sky-400 stroke-current fill-none" viewBox="0 0 28 14">
+                    <path d="M1 12 L7 9 L14 11 L21 5 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </div>
-                <div className="text-base font-black text-white font-mono">4.12 Days (GBM)</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">95% CI: ±0.35d • 94.2% accuracy</div>
+                <div className="text-xl font-black text-white font-mono tracking-tight">4.12 Days (GBM)</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">95% CI: ±0.35d • 94.2% R²</div>
                 <div className="mt-2 text-[8px] text-sky-300 font-mono bg-sky-950/70 px-2 py-0.5 rounded-full border border-sky-800/50 inline-block font-semibold">
                   ML PREDICTION ENGINE
                 </div>
               </div>
             </div>
 
-            {/* 3D Scene Viewport with Globe3D */}
-            <div className="w-full relative max-w-[580px]">
-              <Suspense
-                fallback={
-                  <GlobeFallback
-                    selectedFactory={selectedFactory}
-                    onSelectFactory={(f) => handleSelectFactory(f)}
-                    selectedDestination={selectedDestination}
-                    onSelectDestination={handleSelectDestination}
-                    shipModeFilter={shipModeFilter}
-                  />
-                }
-              >
-                <Globe3D
-                  selectedFactory={selectedFactory}
-                  onSelectFactory={handleSelectFactory}
-                  selectedDestination={selectedDestination}
-                  onSelectDestination={handleSelectDestination}
-                  selectedTruck={selectedTruck}
-                  onSelectTruck={handleSelectTruck}
-                  selectedRoute={selectedRoute}
-                  onSelectRoute={handleSelectRoute}
-                  shipModeFilter={shipModeFilter}
-                  riskFilter={riskFilter}
-                  showRoutes={showRoutes}
-                  showTrucks={showTrucks}
-                  showFactories={showFactories}
-                  showDestinations={showDestinations}
-                  isPaused={isPaused}
-                  resetKey={resetKey}
-                />
-              </Suspense>
-            </div>
+            {/* Floating Contextual Inspection Panel (Right side over Atlantic Ocean) */}
+            {selectedEntity && (
+              <div className="hidden lg:block absolute top-32 right-4 xl:right-8 w-72 pointer-events-auto z-20">
+                <div className="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-left space-y-3">
+                  {/* Header */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/50 flex items-center justify-center text-cyan-400">
+                        <Factory className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-white tracking-tight leading-tight">
+                          {selectedEntity.name} (Factory)
+                        </h4>
+                        <div className="text-[9px] font-mono text-slate-400">
+                          {currentFactoryObj.lat.toFixed(6)}, {currentFactoryObj.lon.toFixed(6)}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setSelectedEntity(null)}
+                      className="text-slate-400 hover:text-white transition-colors p-1"
+                      title="Dismiss Panel"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
 
-            {/* Lower Globe Analytics Cards Row */}
-            <div className="w-full max-w-[580px] grid grid-cols-2 gap-3 mt-3">
-              {/* Card 3: Lower-Left */}
-              <div className="bg-slate-900/90 border border-slate-700/60 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left">
-                <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-mono font-bold uppercase mb-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  {/* Products */}
+                  <div>
+                    <div className="text-[10px] font-semibold text-slate-400 mb-1.5 uppercase font-mono">Products</div>
+                    <div className="flex flex-wrap gap-1">
+                      {(currentFactoryObj.name === 'Sugar Shack'
+                        ? ['Laffy Taffy', 'SweeTARTS', 'Nerds', 'Fun Dip', 'Fizzy Lifting Drinks']
+                        : selectedEntity.products || ['Wonka Bars', 'Artisan Chocolate', 'Sugar-Free Truffles']
+                      ).map((product, idx) => (
+                        <span
+                          key={idx}
+                          className="text-[9px] bg-slate-800/90 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700/60"
+                        >
+                          {product}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Volume and Lead Time */}
+                  <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
+                    <div>
+                      <div className="text-[10px] text-slate-400 font-mono">Dispatch Volume</div>
+                      <div className="text-sm font-bold text-cyan-300 font-mono flex items-center gap-1">
+                        <span>1,248 / day</span>
+                        <span className="text-[9px] text-emerald-400 font-bold">↑ 12%</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-400 font-mono">Avg. Lead Time</div>
+                      <div className="text-sm font-bold text-white font-mono">{currentFactoryObj.leadTime}</div>
+                    </div>
+                  </div>
+
+                  {/* Connected Destinations */}
+                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] text-slate-400 font-mono">Connected Destinations</div>
+                      <div className="text-xs font-bold text-white">12 cities</div>
+                    </div>
+                    <button
+                      onClick={() => scrollToSection('intelligence')}
+                      className="text-[10px] text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
+                    >
+                      <span>View Routes</span>
+                      <ChevronRight className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  {/* Recent Shipments */}
+                  <div className="pt-2 border-t border-slate-800/80 space-y-1">
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase font-mono">Recent Shipments</div>
+                    <div className="space-y-1 text-[10px] font-mono">
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                          <span>NX-7842</span>
+                        </span>
+                        <span className="text-cyan-400">In Transit</span>
+                        <span className="text-slate-400">ETA 2.3d</span>
+                      </div>
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          <span>NX-7710</span>
+                        </span>
+                        <span className="text-emerald-400">On Time</span>
+                        <span className="text-slate-400">ETA 4.1d</span>
+                      </div>
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                          <span>NX-7608</span>
+                        </span>
+                        <span className="text-rose-400">Delayed</span>
+                        <span className="text-slate-400">ETA 6.7d</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Lower Floating HUD Cards: Route Efficiency (Bottom-Left) & SLA Delay (Bottom-Right) */}
+          <div className="w-full relative pointer-events-none mt-auto pb-14">
+            {/* Card 3: Route Efficiency (Bottom-Left of Globe) */}
+            <div className="hidden lg:block absolute bottom-0 left-[26%] xl:left-[24%] pointer-events-auto z-20">
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl text-left min-w-[220px] hover:border-cyan-500/40 transition-colors">
+                <div className="flex items-center gap-1.5 text-cyan-400 text-[10px] font-mono font-bold uppercase mb-1">
+                  <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Route Efficiency</span>
                 </div>
-                <div className="text-base font-black text-emerald-300 font-mono">87.4% Efficiency Score</div>
+                <div className="text-xl font-black text-cyan-300 font-mono tracking-tight">87.4% Efficiency Score</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Top: Casa Grande → TX (94.8%)</div>
-                <div className="mt-2 text-[8px] text-emerald-300 font-mono bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-800/50 inline-block font-semibold">
-                  CORRIDOR BENCHMARK
-                </div>
-              </div>
-
-              {/* Card 4: Lower-Right */}
-              <div className="bg-slate-900/90 border border-slate-700/60 rounded-2xl p-3 shadow-xl backdrop-blur-md text-left">
-                <div className="flex items-center gap-1.5 text-amber-400 text-[10px] font-mono font-bold uppercase mb-1">
-                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                  <span>SLA Delay & Thermal Risk</span>
-                </div>
-                <div className="text-base font-black text-amber-300 font-mono">11.8% Network Delay</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Reefer mandate: AZ/TX ambient &gt;78°F</div>
-                <div className="mt-2 text-[8px] text-amber-300 font-mono bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-800/50 inline-block font-semibold">
-                  COLD-CHAIN SENTRY
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[8px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
+                    CORRIDOR BENCHMARK
+                  </span>
+                  <div className="flex items-end gap-1 h-3.5">
+                    <span className="w-1 bg-cyan-500/50 rounded-sm h-1.5" />
+                    <span className="w-1 bg-cyan-500/80 rounded-sm h-2.5" />
+                    <span className="w-1 bg-cyan-400 rounded-sm h-3.5" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Bottom Digital-Twin Interactive Toolbar */}
-            <div className="w-full max-w-[580px] mt-4 bg-slate-900/95 border border-slate-800/90 rounded-2xl p-3 shadow-2xl backdrop-blur-xl space-y-2.5">
-              {/* Controls Row */}
-              <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
-                {/* Toggles */}
-                <div className="flex items-center gap-1">
-                  {/* Routes */}
-                  <button
-                    onClick={() => setShowRoutes(!showRoutes)}
-                    className={`px-2 py-1 rounded-lg text-[11px] font-mono font-semibold transition-all flex items-center gap-1 ${
-                      showRoutes ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-slate-800/70 text-slate-400 border border-transparent'
-                    }`}
-                    title="Toggle 3D Route Arcs"
-                  >
-                    <Compass className="w-3 h-3" />
-                    <span>Routes</span>
-                  </button>
-
-                  {/* Trucks */}
-                  <button
-                    onClick={() => setShowTrucks(!showTrucks)}
-                    className={`px-2 py-1 rounded-lg text-[11px] font-mono font-semibold transition-all flex items-center gap-1 ${
-                      showTrucks ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40' : 'bg-slate-800/70 text-slate-400 border border-transparent'
-                    }`}
-                    title="Toggle 3D Freight Trucks"
-                  >
-                    <Truck className="w-3 h-3" />
-                    <span>Trucks</span>
-                  </button>
-
-                  {/* Factories */}
-                  <button
-                    onClick={() => setShowFactories(!showFactories)}
-                    className={`px-2 py-1 rounded-lg text-[11px] font-mono font-semibold transition-all flex items-center gap-1 ${
-                      showFactories ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40' : 'bg-slate-800/70 text-slate-400 border border-transparent'
-                    }`}
-                    title="Toggle Factory Hubs"
-                  >
-                    <Factory className="w-3 h-3" />
-                    <span>Factories</span>
-                  </button>
-
-                  {/* Destinations */}
-                  <button
-                    onClick={() => setShowDestinations(!showDestinations)}
-                    className={`px-2 py-1 rounded-lg text-[11px] font-mono font-semibold transition-all flex items-center gap-1 ${
-                      showDestinations ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800/70 text-slate-400 border border-transparent'
-                    }`}
-                    title="Toggle Destination Terminals"
-                  >
-                    <MapPin className="w-3 h-3" />
-                    <span>Hubs</span>
-                  </button>
+            {/* Card 4: SLA Delay & Thermal Risk (Bottom-Right of Globe) */}
+            <div className="hidden lg:block absolute bottom-0 right-4 xl:right-8 pointer-events-auto z-20">
+              <div className="bg-slate-900/85 border border-slate-700/60 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl text-left min-w-[220px] hover:border-amber-500/40 transition-colors">
+                <div className="flex items-center gap-1.5 text-amber-400 text-[10px] font-mono font-bold uppercase mb-1">
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                  <span>SLA Delay & Thermal Risk</span>
                 </div>
-
-                {/* Filters & Actions */}
-                <div className="flex items-center gap-1.5">
-                  {/* Ship Mode Dropdown */}
-                  <select
-                    value={shipModeFilter}
-                    onChange={(e) => setShipModeFilter(e.target.value)}
-                    className="bg-slate-800 text-slate-300 text-[10px] font-mono rounded-lg px-2 py-1 border border-slate-700 focus:border-cyan-500 focus:outline-none cursor-pointer"
-                    title="Filter by Ship Mode"
-                  >
-                    <option value="ALL">Mode: All</option>
-                    <option value="Same Day">Same Day</option>
-                    <option value="First Class">First Class</option>
-                    <option value="Second Class">Second Class</option>
-                    <option value="Standard Class">Standard</option>
-                  </select>
-
-                  {/* Risk Filter Dropdown */}
-                  <select
-                    value={riskFilter}
-                    onChange={(e) => setRiskFilter(e.target.value)}
-                    className="bg-slate-800 text-slate-300 text-[10px] font-mono rounded-lg px-2 py-1 border border-slate-700 focus:border-cyan-500 focus:outline-none cursor-pointer"
-                    title="Filter Corridors by Delay Risk"
-                  >
-                    <option value="ALL">Risk: All</option>
-                    <option value="LOW">Low (&lt;10%)</option>
-                    <option value="ELEVATED">Elevated</option>
-                    <option value="HIGH">High (&gt;15%)</option>
-                  </select>
-
-                  {/* Pause / Resume */}
-                  <button
-                    onClick={() => setIsPaused(!isPaused)}
-                    className={`p-1.5 rounded-lg text-[11px] font-mono font-semibold transition-all ${
-                      isPaused ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-cyan-400 border border-slate-700'
-                    }`}
-                    title={isPaused ? "Resume Animation" : "Pause Animation"}
-                  >
-                    {isPaused ? <Play className="w-3.5 h-3.5 text-amber-400" /> : <Pause className="w-3.5 h-3.5 text-cyan-400" />}
-                  </button>
-
-                  {/* Reset View */}
-                  <button
-                    onClick={handleResetAll}
-                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all border border-slate-700"
-                    title="Reset Camera & Telemetry View"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Factory Hub Quick-Selector Chips */}
-              <div className="pt-2 border-t border-slate-800/80 flex items-center gap-1.5 overflow-x-auto pb-0.5 text-[10px] font-mono">
-                <span className="text-slate-500 font-bold uppercase text-[9px] shrink-0">Hub:</span>
-                <button
-                  onClick={() => handleSelectFactory(null)}
-                  className={`px-2 py-0.5 rounded-md transition-all shrink-0 ${
-                    !selectedFactory
-                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-semibold'
-                      : 'bg-slate-800/60 text-slate-400 hover:text-white border border-transparent'
-                  }`}
-                >
-                  All
-                </button>
-                {FACTORIES.map((fac) => {
-                  const isCurrent = selectedFactory === fac.name;
-                  return (
-                    <button
-                      key={fac.id}
-                      onClick={() => handleSelectFactory(isCurrent ? null : fac.name)}
-                      className={`px-2 py-0.5 rounded-md transition-all shrink-0 flex items-center gap-1 border ${
-                        isCurrent
-                          ? 'bg-slate-800 text-white border-cyan-400 shadow-sm ring-1 ring-cyan-400/30 font-semibold'
-                          : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 border-slate-800'
-                      }`}
-                      title={`${fac.name} (${fac.location})`}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: fac.accentHex }} />
-                      <span>{fac.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Legend Row */}
-              <div className="pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-[9px] font-mono text-slate-400 px-1 gap-2">
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-purple-400" />
-                    <span>5 Factory Hubs</span>
+                <div className="text-xl font-black text-amber-300 font-mono tracking-tight">11.8% Network Delay</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">Reefer mandate: AZ/TX ambient &gt;78°F</div>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[8px] text-amber-300 font-mono bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-800/50 inline-block font-semibold">
+                    COLD-CHAIN SENTRY
                   </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <span>7 Destinations</span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-sky-400" />
-                    <span>3D Convoys</span>
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-cyan-400" />
-                    <span>Low Risk</span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-amber-400" />
-                    <span>Elevated</span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-rose-500" />
-                    <span>High Risk</span>
-                  </span>
+                  <AlertTriangle className="w-4 h-4 text-amber-400 opacity-80" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Column 3: Contextual Factory & Shipment Inspection Panel (Right, 3 cols on xl, 12 cols on lg) */}
-          <div className="lg:col-span-12 xl:col-span-3 w-full sticky top-24">
-            <div className="bg-slate-900/90 border border-cyan-500/40 rounded-3xl p-5 shadow-2xl backdrop-blur-xl text-left space-y-4">
-              {/* Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-3 h-3 rounded-full animate-pulse shrink-0"
-                    style={{
-                      backgroundColor:
-                        selectedEntity?.type === 'factory' ? (FACTORY_NODES.find(f => f.id === selectedEntity?.id)?.accentHex || '#00f0ff') :
-                        selectedEntity?.riskLevel === 'HIGH' ? '#f43f5e' :
-                        selectedEntity?.riskLevel === 'ELEVATED' ? '#f59e0b' : '#00f0ff'
-                    }}
-                  />
-                  <div>
-                    <h3 className="font-black text-sm text-white">{selectedEntity?.title || "Digital Twin Inspector"}</h3>
-                    <span className="text-[10px] text-slate-400 block font-mono">{selectedEntity?.badge || "Live Network Sentry"}</span>
-                  </div>
-                </div>
+          {/* Floating Bottom Digital-Twin Command Toolbar */}
+          <div className="w-full flex justify-center pointer-events-auto z-30 pb-2">
+            <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl px-4 py-2 shadow-2xl backdrop-blur-xl flex flex-wrap items-center gap-3 sm:gap-4 text-xs">
+              {/* Toggles */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setShowRoutes(!showRoutes)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 ${
+                    showRoutes
+                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/60 shadow-lg shadow-cyan-500/20'
+                      : 'bg-slate-800/70 text-slate-400 border border-transparent hover:text-white'
+                  }`}
+                >
+                  <Compass className="w-3.5 h-3.5" />
+                  <span>Routes</span>
+                </button>
 
-                {selectedEntity && (
-                  <button
-                    onClick={() => setSelectedEntity(null)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                    title="Close Inspector"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
+                <button
+                  onClick={() => setShowTrucks(!showTrucks)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 ${
+                    showTrucks
+                      ? 'bg-sky-500/20 text-sky-300 border border-sky-400/60 shadow-lg shadow-sky-500/20'
+                      : 'bg-slate-800/70 text-slate-400 border border-transparent hover:text-white'
+                  }`}
+                >
+                  <Truck className="w-3.5 h-3.5" />
+                  <span>Trucks</span>
+                </button>
+
+                <button
+                  onClick={() => setShowFactories(!showFactories)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 ${
+                    showFactories
+                      ? 'bg-purple-500/20 text-purple-300 border border-purple-400/60 shadow-lg shadow-purple-500/20'
+                      : 'bg-slate-800/70 text-slate-400 border border-transparent hover:text-white'
+                  }`}
+                >
+                  <Factory className="w-3.5 h-3.5" />
+                  <span>Factories</span>
+                </button>
+
+                <button
+                  onClick={() => setShowDestinations(!showDestinations)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 ${
+                    showDestinations
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/60 shadow-lg shadow-emerald-500/20'
+                      : 'bg-slate-800/70 text-slate-400 border border-transparent hover:text-white'
+                  }`}
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Destinations</span>
+                </button>
+
+                {/* Ship Mode Dropdown */}
+                <select
+                  value={shipModeFilter}
+                  onChange={(e) => setShipModeFilter(e.target.value)}
+                  className="bg-slate-800/90 text-slate-300 text-xs font-mono rounded-xl px-2.5 py-1.5 border border-slate-700 focus:border-cyan-400 focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL">Ship Mode</option>
+                  <option value="Same Day">Same Day</option>
+                  <option value="First Class">First Class</option>
+                  <option value="Second Class">Second Class</option>
+                  <option value="Standard Class">Standard Class</option>
+                </select>
+
+                {/* Risk Filter Dropdown */}
+                <select
+                  value={riskFilter}
+                  onChange={(e) => setRiskFilter(e.target.value)}
+                  className="bg-slate-800/90 text-slate-300 text-xs font-mono rounded-xl px-2.5 py-1.5 border border-slate-700 focus:border-cyan-400 focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL">Risk</option>
+                  <option value="LOW">Low (&lt;10%)</option>
+                  <option value="ELEVATED">Medium Risk</option>
+                  <option value="HIGH">High Risk</option>
+                </select>
               </div>
 
-              {selectedEntity ? (
-                /* Active Entity Inspection */
-                <div className="space-y-3.5 text-xs">
-                  {/* Origin / Subtitle */}
-                  <div>
-                    <span className="text-[9px] text-slate-500 uppercase font-semibold font-mono block">Entity Telemetry</span>
-                    <span className="font-medium text-slate-200 text-[11px] leading-tight block mt-0.5">{selectedEntity.subtitle}</span>
-                  </div>
+              {/* Divider */}
+              <div className="hidden sm:block w-px h-5 bg-slate-700/80" />
 
-                  {/* 2x2 Metric Grid */}
-                  <div className="grid grid-cols-2 gap-2 p-3 bg-slate-950/70 rounded-xl border border-slate-800 text-[10px] font-mono">
-                    {selectedEntity.leadTime && (
-                      <div>
-                        <span className="text-[9px] text-slate-500 uppercase block">Transit Lead</span>
-                        <span className="text-emerald-400 font-bold">{selectedEntity.leadTime}</span>
-                      </div>
-                    )}
-                    {selectedEntity.predictedEta && (
-                      <div>
-                        <span className="text-[9px] text-slate-500 uppercase block">Predicted ETA (GBM)</span>
-                        <span className="text-sky-300 font-bold">{selectedEntity.predictedEta}</span>
-                      </div>
-                    )}
-                    {selectedEntity.delayRisk && (
-                      <div>
-                        <span className="text-[9px] text-slate-500 uppercase block">Delay Probability</span>
-                        <span className={`font-bold ${
-                          selectedEntity.riskLevel === 'HIGH' ? 'text-rose-400' :
-                          selectedEntity.riskLevel === 'ELEVATED' ? 'text-amber-400' : 'text-emerald-400'
-                        }`}>
-                          {selectedEntity.delayRisk}
-                        </span>
-                      </div>
-                    )}
-                    {selectedEntity.efficiency && (
-                      <div>
-                        <span className="text-[9px] text-slate-500 uppercase block">Efficiency Tier</span>
-                        <span className="text-cyan-300 font-bold">{selectedEntity.efficiency}</span>
-                      </div>
-                    )}
-                    {selectedEntity.shipmentCount && (
-                      <div>
-                        <span className="text-[9px] text-slate-500 uppercase block">Historical Audits</span>
-                        <span className="text-slate-300 font-bold">{selectedEntity.shipmentCount}</span>
-                      </div>
-                    )}
-                    {selectedEntity.cargoTemp && (
-                      <div>
-                        <span className="text-[9px] text-slate-500 uppercase block">Reefer Sensor</span>
-                        <span className="text-amber-300 font-bold">{selectedEntity.cargoTemp}</span>
-                      </div>
-                    )}
-                  </div>
+              {/* Legend matching reference image */}
+              <div className="hidden md:flex items-center gap-3.5 text-[11px] font-mono text-slate-400">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                  <span>Low Risk</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span>Medium Risk</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-rose-500" />
+                  <span>High Risk</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Factory className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Factory</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Destination</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Truck className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Truck</span>
+                </span>
+              </div>
 
-                  {/* Allocated Products / SKUs */}
-                  {selectedEntity.products && selectedEntity.products.length > 0 && (
-                    <div>
-                      <span className="text-[9px] text-slate-500 uppercase font-semibold font-mono block mb-1">
-                        Allocated Product Lines / Cargo SKU
-                      </span>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedEntity.products.map((prod, idx) => (
-                          <span
-                            key={idx}
-                            className="text-[9px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700"
-                          >
-                            {prod}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+              {/* Divider */}
+              <div className="hidden sm:block w-px h-5 bg-slate-700/80" />
 
-                  {/* Connected Outbound Corridors (if factory selected) */}
-                  {selectedEntity.type === 'factory' && (
-                    <div>
-                      <span className="text-[9px] text-slate-500 uppercase font-semibold font-mono block mb-1.5">
-                        Connected Freight Corridors
-                      </span>
-                      <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                        {LOGISTICS_CORRIDORS.filter(c => c.factoryId === selectedEntity.id).map(corridor => {
-                          const dest = DESTINATION_HUBS.find(d => d.id === corridor.destId);
-                          return (
-                            <div
-                              key={corridor.id}
-                              onClick={() => handleSelectRoute(corridor.id)}
-                              className="p-2 rounded-lg bg-slate-950/60 hover:bg-slate-800 border border-slate-800/80 hover:border-cyan-500/50 cursor-pointer transition-all flex items-center justify-between text-[10px] font-mono"
-                            >
-                              <div>
-                                <span className="font-bold text-white">→ {dest?.name.replace(' Terminal', '').replace(' Regional Hub', '').replace(' Cross-Dock', '')}</span>
-                                <span className="text-slate-500 block text-[9px]">{corridor.distance} mi • {corridor.mode}</span>
-                              </div>
-                              <div className="text-right">
-                                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${
-                                  corridor.risk === 'HIGH' ? 'bg-rose-500/20 text-rose-300' :
-                                  corridor.risk === 'ELEVATED' ? 'bg-amber-500/20 text-amber-300' :
-                                  'bg-cyan-500/20 text-cyan-300'
-                                }`}>
-                                  {corridor.delayRisk}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Status Indicator */}
-                  <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between text-[10px]">
-                    <span className="text-slate-400 flex items-center gap-1.5 font-mono">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>{selectedEntity.status || 'Active Telemetry Stream'}</span>
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                /* Default Network Overview when no specific item selected */
-                <div className="space-y-3.5 text-xs">
-                  <div>
-                    <span className="text-[9px] text-slate-500 uppercase font-semibold font-mono block">Network Sentry</span>
-                    <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
-                      Continuous real-time telemetry across 5 production hubs, 7 gateway terminals, and 16 freight corridors.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 p-3 bg-slate-950/70 rounded-xl border border-slate-800 text-[10px] font-mono">
-                    <div>
-                      <span className="text-[9px] text-slate-500 uppercase block">Active Hubs</span>
-                      <span className="text-cyan-300 font-bold">5 Facilities (100%)</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] text-slate-500 uppercase block">Gateways</span>
-                      <span className="text-emerald-400 font-bold">7 Terminals</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] text-slate-500 uppercase block">Corridors</span>
-                      <span className="text-sky-300 font-bold">16 Lanes (17.5k mi)</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] text-slate-500 uppercase block">Convoys</span>
-                      <span className="text-purple-300 font-bold">5 Active Fleets</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-[9px] text-slate-500 uppercase font-semibold font-mono block mb-1">
-                      Quick Factory Inspection
-                    </span>
-                    <div className="grid grid-cols-1 gap-1.5">
-                      {FACTORIES.map(fac => (
-                        <button
-                          key={fac.id}
-                          onClick={() => handleSelectFactory(fac.name)}
-                          className="p-2 rounded-lg bg-slate-950/60 hover:bg-slate-800 border border-slate-800/80 hover:border-cyan-500/50 text-left transition-all flex items-center justify-between text-[11px]"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: fac.accentHex }} />
-                            <span className="font-semibold text-slate-200">{fac.name}</span>
-                          </div>
-                          <span className="text-[10px] text-slate-500 font-mono">{fac.dailyCapacity}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Action Button */}
-              <div className="pt-2 border-t border-slate-800">
+              {/* Controls on right */}
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={handlePrimaryCTA}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-cyan-500/20"
+                  onClick={() => setIsPaused(!isPaused)}
+                  className={`p-2 rounded-xl text-xs font-mono transition-all border ${
+                    isPaused
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      : 'bg-slate-800/80 text-cyan-400 border-slate-700 hover:text-white'
+                  }`}
+                  title={isPaused ? "Resume Animation" : "Pause Animation"}
                 >
-                  <span>Open Full Network Telemetry</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  {isPaused ? <Play className="w-3.5 h-3.5 text-amber-400" /> : <Pause className="w-3.5 h-3.5 text-cyan-400" />}
+                </button>
+
+                <button
+                  onClick={() => setResetKey(k => k + 1)}
+                  className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-all border border-slate-700"
+                  title="Recenter Globe"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  onClick={handleResetAll}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-mono font-semibold transition-all border border-slate-700"
+                  title="Reset Camera & Telemetry View"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset View</span>
                 </button>
               </div>
             </div>
