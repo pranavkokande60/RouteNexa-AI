@@ -21,11 +21,12 @@ import { PredictionPlaygroundTab } from './components/PredictionPlaygroundTab';
 import { AIAssistantTab } from './components/AIAssistantTab';
 import { NotificationCenterDrawer } from './components/NotificationCenterDrawer';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
+import { LandingPage } from './components/LandingPage';
 import { api, getCurrentUser, clearAuthToken } from './api';
 
 export const App: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<TabKey>('dashboard');
   const [currentUser, setCurrentUser] = useState<any>(getCurrentUser());
+  const [currentTab, setCurrentTab] = useState<TabKey>(getCurrentUser() ? 'dashboard' : 'landing');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -66,66 +67,88 @@ export const App: React.FC = () => {
   const handleLogout = () => {
     clearAuthToken();
     setCurrentUser(null);
+    setCurrentTab('landing');
   };
 
+  const handleLoginSuccess = (user: any) => {
+    setCurrentUser(user);
+    setCurrentTab('dashboard');
+    setIsLoginOpen(false);
+  };
+
+  // If user is not logged in or explicitly selected the landing tab, show the 3D Landing Page
+  const showLanding = !currentUser || currentTab === 'landing';
+
   return (
-    <div className="flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
-      {/* Top Navbar */}
-      <Navbar
-        onOpenLogin={() => setIsLoginOpen(true)}
-        currentUser={currentUser}
-        onLogout={handleLogout}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        activeAlertsCount={unreadNotifCount}
-        onOpenAlerts={() => setIsNotificationOpen(true)}
-        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-      />
-
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar */}
-        <Sidebar
-          currentTab={currentTab}
-          onSelectTab={setCurrentTab}
-          activeAlertsCount={alerts.length}
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-['Plus_Jakarta_Sans',sans-serif]">
+      {showLanding ? (
+        <LandingPage
+          onOpenLogin={() => setIsLoginOpen(true)}
+          onEnterDashboard={() => setCurrentTab('dashboard')}
+          isAuthenticated={!!currentUser}
+          currentUser={currentUser}
         />
+      ) : (
+        <div className="flex flex-col h-screen overflow-hidden">
+          {/* Top Navbar */}
+          <Navbar
+            onOpenLogin={() => setIsLoginOpen(true)}
+            currentUser={currentUser}
+            onLogout={handleLogout}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            activeAlertsCount={unreadNotifCount}
+            onOpenAlerts={() => setIsNotificationOpen(true)}
+            onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+            onNavigateLanding={() => setCurrentTab('landing')}
+          />
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-6 bg-slate-950/40">
-          <div className="max-w-7xl mx-auto pb-12">
-            {currentTab === 'dashboard' && (
-              <DashboardTab
-                summary={summary}
-                charts={charts}
-                aiSummary={aiSummary}
-                onNavigate={setCurrentTab}
-              />
-            )}
-            {currentTab === 'data-comparison' && <DataComparisonTab />}
-            {currentTab === 'new-orders' && <NewOrdersTab />}
-            {currentTab === 'routes' && <RoutesTab routes={routes} />}
-            {currentTab === 'route-comparison' && <RouteComparisonTab />}
-            {currentTab === 'map' && <MapTab mapData={mapData} />}
-            {currentTab === 'predict' && <PredictionTab />}
-            {currentTab === 'prediction-performance' && <PredictionPerformanceTab />}
-            {currentTab === 'playground' && <PredictionPlaygroundTab />}
-            {currentTab === 'anomalies' && <AnomaliesTab />}
-            {currentTab === 'forecast' && <ForecastTab />}
-            {currentTab === 'simulation' && <SimulationTab />}
-            {currentTab === 'assistant' && <AIAssistantTab />}
-            {currentTab === 'factories' && <FactoriesTab />}
-            {currentTab === 'live' && <LiveOperationsTab />}
-            {currentTab === 'alerts' && <AlertsTab />}
-            {currentTab === 'dataset' && <QualityTab />}
+          <div className="flex flex-1 overflow-hidden">
+            {/* Left Sidebar */}
+            <Sidebar
+              currentTab={currentTab}
+              onSelectTab={setCurrentTab}
+              activeAlertsCount={alerts.length}
+            />
+
+            {/* Main Content Area */}
+            <main className="flex-1 overflow-y-auto p-6 bg-slate-950/40">
+              <div className="max-w-7xl mx-auto pb-12">
+                {currentTab === 'dashboard' && (
+                  <DashboardTab
+                    summary={summary}
+                    charts={charts}
+                    aiSummary={aiSummary}
+                    onNavigate={setCurrentTab}
+                  />
+                )}
+                {currentTab === 'data-comparison' && <DataComparisonTab />}
+                {currentTab === 'new-orders' && <NewOrdersTab />}
+                {currentTab === 'routes' && <RoutesTab routes={routes} />}
+                {currentTab === 'route-comparison' && <RouteComparisonTab />}
+                {currentTab === 'map' && <MapTab mapData={mapData} />}
+                {currentTab === 'predict' && <PredictionTab />}
+                {currentTab === 'prediction-performance' && <PredictionPerformanceTab />}
+                {currentTab === 'playground' && <PredictionPlaygroundTab />}
+                {currentTab === 'anomalies' && <AnomaliesTab />}
+                {currentTab === 'forecast' && <ForecastTab />}
+                {currentTab === 'simulation' && <SimulationTab />}
+                {currentTab === 'assistant' && <AIAssistantTab />}
+                {currentTab === 'factories' && <FactoriesTab />}
+                {currentTab === 'live' && <LiveOperationsTab />}
+                {currentTab === 'alerts' && <AlertsTab />}
+                {currentTab === 'dataset' && <QualityTab />}
+              </div>
+            </main>
           </div>
-        </main>
-      </div>
+        </div>
+      )}
 
       {/* Login Modal */}
       <LoginModal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
-        onLoginSuccess={(user) => setCurrentUser(user)}
+        onLoginSuccess={handleLoginSuccess}
       />
 
       {/* Notification Center Slide-over Drawer */}
@@ -147,3 +170,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+

@@ -11,6 +11,7 @@ interface NavbarProps {
   activeAlertsCount: number;
   onOpenAlerts: () => void;
   onOpenCommandPalette?: () => void;
+  onNavigateLanding?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -21,18 +22,23 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSearchChange,
   activeAlertsCount,
   onOpenAlerts,
-  onOpenCommandPalette
+  onOpenCommandPalette,
+  onNavigateLanding
 }) => {
   return (
     <header className="h-16 border-b border-slate-800 bg-slate-900/90 backdrop-blur px-6 flex items-center justify-between sticky top-0 z-30">
       {/* Brand & Logo */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white font-bold">
+      <div
+        onClick={onNavigateLanding}
+        className="flex items-center gap-3 cursor-pointer group select-none"
+        title="Go to 3D Landing Page"
+      >
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white font-bold group-hover:scale-105 transition-transform">
           <Truck className="w-5 h-5" />
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-base font-bold tracking-tight text-white">RouteNexa AI</h1>
+            <h1 className="text-base font-bold tracking-tight text-white group-hover:text-sky-400 transition-colors">RouteNexa AI</h1>
             <span className="text-[10px] font-semibold bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded-full border border-sky-500/30">
               v1.0 • Nassau Candy
             </span>
@@ -67,6 +73,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
+        {/* 3D Overview Pill Button */}
+        {onNavigateLanding && (
+          <button
+            onClick={onNavigateLanding}
+            className="hidden sm:flex items-center gap-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-500/50 px-3 py-1 rounded-full text-xs text-cyan-300 transition-colors"
+            title="Switch to 3D Landing Page"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+            <span>3D Overview</span>
+          </button>
+        )}
+
         {/* Live Simulator Status Pill */}
         <div className="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full text-xs text-emerald-400">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>

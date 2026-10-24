@@ -388,7 +388,7 @@ export const MapTab: React.FC<MapTabProps> = ({ mapData: initialMapData }) => {
           strokeColor = '#10b981';
           customClass = 'leaflet-flow-fast';
         } else {
-          strokeColor = basemap === 'voyager' ? '#0284c7' : '#38bdf8';
+          strokeColor = basemap === 'google_streets' ? '#0284c7' : '#38bdf8';
         }
 
         if (isHighlighted) {
@@ -396,7 +396,7 @@ export const MapTab: React.FC<MapTabProps> = ({ mapData: initialMapData }) => {
           customClass = 'leaflet-flow-highlighted';
         }
 
-        const opacity = isHighlighted ? 0.95 : (isCorridorSelected ? 1.0 : (basemap === 'voyager' ? 0.25 : 0.28));
+        const opacity = isHighlighted ? 0.95 : (isCorridorSelected ? 1.0 : (basemap === 'google_streets' ? 0.25 : 0.28));
         const weight = isHighlighted ? 3.8 : (r.is_bottleneck ? 2.4 : 1.5);
 
         let pathCoords: [number, number][];

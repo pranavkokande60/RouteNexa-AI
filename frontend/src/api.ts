@@ -86,12 +86,13 @@ export const api = {
   },
 
   // Routes
-  getRoutes: (params?: { factory?: string; state?: string; tier?: string; bottlenecks_only?: boolean }) => {
+  getRoutes: (params?: { factory?: string; state?: string; tier?: string; bottlenecks_only?: boolean; limit?: number }) => {
     const q = new URLSearchParams();
     if (params?.factory) q.append('factory', params.factory);
     if (params?.state) q.append('state', params.state);
     if (params?.tier) q.append('tier', params.tier);
     if (params?.bottlenecks_only) q.append('bottlenecks_only', 'true');
+    if (params?.limit) q.append('limit', String(params.limit));
     return request<any[]>(`/routes?${q.toString()}`);
   },
   getTopBottomRoutes: () =>
