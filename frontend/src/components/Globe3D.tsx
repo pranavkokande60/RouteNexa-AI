@@ -348,8 +348,8 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
   });
 
   return (
-    // Rotated initially to show North America and the 5 factory nodes prominently
-    <group ref={earthGroupRef} rotation={[0.36, -Math.PI * 0.44, 0]}>
+    // Rotated to center North America (Savannah, Casa Grande, Memphis, Rock Island, Thief River Falls) facing the camera
+    <group ref={earthGroupRef} rotation={[0.26, 0.05, 0]}>
       {/* 1. PHOTOREALISTIC EARTH CORE SURFACE */}
       <mesh>
         <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
@@ -358,11 +358,11 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
           normalMap={normalMap}
           normalScale={new THREE.Vector2(0.85, 0.85)}
           roughnessMap={specMap}
-          roughness={0.7}
+          roughness={0.65}
           metalness={0.05}
           emissiveMap={lightsMap}
           emissive="#ffeedd"
-          emissiveIntensity={0.45}
+          emissiveIntensity={0.35}
         />
       </mesh>
 
@@ -508,9 +508,6 @@ export const Globe3D: React.FC<Globe3DProps> = ({
     }
   }, []);
 
-  const activeFactory = useMemo(() => {
-    return FACTORY_NODES.find((f) => f.name === selectedFactory) || FACTORY_NODES[0];
-  }, [selectedFactory]);
 
   if (!hasWebGL) {
     return (
@@ -525,37 +522,6 @@ export const Globe3D: React.FC<Globe3DProps> = ({
     <div className="relative w-full aspect-square max-w-[580px] mx-auto select-none overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-cyan-950/20">
       {/* Background Radial Glow */}
       <div className="absolute inset-0 bg-radial from-cyan-500/10 via-slate-950/70 to-slate-950 blur-3xl -z-10 pointer-events-none" />
-
-      {/* Floating 2D Telemetry HUD Card (Clean, perfectly positioned, never clipped) */}
-      {activeFactory && (
-        <div className="absolute top-3 left-3 z-20 max-w-[270px] bg-slate-900/95 border border-cyan-500/40 rounded-xl p-3 shadow-2xl backdrop-blur-md pointer-events-none text-left transition-all">
-          <div className="flex items-center justify-between gap-1.5 mb-1">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span
-                className="w-2.5 h-2.5 rounded-full shrink-0 animate-pulse"
-                style={{ backgroundColor: activeFactory.accentHex }}
-              />
-              <h4 className="font-bold text-xs text-white truncate">{activeFactory.name}</h4>
-            </div>
-            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">
-              {activeFactory.efficiency}
-            </span>
-          </div>
-          <div className="text-[11px] text-slate-300 font-medium">{activeFactory.city}, {activeFactory.state}</div>
-          <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{activeFactory.specialization}</div>
-
-          <div className="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono">
-            <div>
-              <span className="text-slate-500 text-[9px] block">Capacity</span>
-              <span className="text-cyan-300 font-bold">{activeFactory.capacity.split(" ")[0]} u/d</span>
-            </div>
-            <div className="text-right">
-              <span className="text-slate-500 text-[9px] block">Avg Lead Time</span>
-              <span className="text-emerald-400 font-bold">{activeFactory.leadTime}</span>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 3D Canvas with High-Performance Settings & Suspense */}
       <Suspense
@@ -572,10 +538,10 @@ export const Globe3D: React.FC<Globe3DProps> = ({
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           className="w-full h-full cursor-grab active:cursor-grabbing"
         >
-          {/* Convincing Directional Sunlight Source & Gradual Day/Night Terminator */}
-          <directionalLight position={[7, 3, 5]} intensity={2.4} color="#fffcf5" />
-          <directionalLight position={[-6, -2, -4]} intensity={0.2} color="#0c2044" />
-          <ambientLight intensity={0.4} />
+          {/* Natural Sunlight Illuminating North America in Full Daylight */}
+          <directionalLight position={[3, 5, 7]} intensity={2.8} color="#fffdf6" />
+          <directionalLight position={[-6, -2, -3]} intensity={0.4} color="#0c2044" />
+          <ambientLight intensity={0.75} />
 
           {/* Deep Space Background Stars */}
           <Stars radius={30} depth={20} count={500} factor={3} saturation={0} fade speed={0.5} />
@@ -599,14 +565,6 @@ export const Globe3D: React.FC<Globe3DProps> = ({
           />
         </Canvas>
       </Suspense>
-
-      {/* Bottom Telemetry Legend */}
-      <div className="absolute bottom-3 left-3 bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-[10px] text-slate-300 backdrop-blur-sm shadow-lg pointer-events-none">
-        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-        <span className="font-semibold text-cyan-300">Photorealistic NASA Blue Marble</span>
-        <span className="text-slate-600">•</span>
-        <span className="text-slate-400">Click node to inspect</span>
-      </div>
     </div>
   );
 };
