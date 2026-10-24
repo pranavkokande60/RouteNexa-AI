@@ -25,8 +25,14 @@ import { LandingPage } from './components/LandingPage';
 import { api, getCurrentUser, clearAuthToken } from './api';
 
 export const App: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<any>(getCurrentUser());
-  const [currentTab, setCurrentTab] = useState<TabKey>(getCurrentUser() ? 'dashboard' : 'landing');
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    // Only restore user if session is explicitly active
+    if (sessionStorage.getItem('routenexa_session_active') === 'true') {
+      return getCurrentUser();
+    }
+    return null;
+  });
+  const [currentTab, setCurrentTab] = useState<TabKey>('dashboard');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -65,19 +71,20 @@ export const App: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
+    sessionStorage.removeItem('routenexa_session_active');
     clearAuthToken();
     setCurrentUser(null);
-    setCurrentTab('landing');
   };
 
   const handleLoginSuccess = (user: any) => {
+    sessionStorage.setItem('routenexa_session_active', 'true');
     setCurrentUser(user);
     setCurrentTab('dashboard');
     setIsLoginOpen(false);
   };
 
-  // If user is not logged in or explicitly selected the landing tab, show the 3D Landing Page
-  const showLanding = !currentUser || currentTab === 'landing';
+  // If user is not logged in, show the 3D Landing Page
+  const showLanding = !currentUser;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-['Plus_Jakarta_Sans',sans-serif]">
@@ -85,8 +92,8 @@ export const App: React.FC = () => {
         <LandingPage
           onOpenLogin={() => setIsLoginOpen(true)}
           onEnterDashboard={() => setCurrentTab('dashboard')}
-          isAuthenticated={!!currentUser}
-          currentUser={currentUser}
+          isAuthenticated={false}
+          currentUser={null}
         />
       ) : (
         <div className="flex flex-col h-screen overflow-hidden">
@@ -100,7 +107,6 @@ export const App: React.FC = () => {
             activeAlertsCount={unreadNotifCount}
             onOpenAlerts={() => setIsNotificationOpen(true)}
             onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-            onNavigateLanding={() => setCurrentTab('landing')}
           />
 
           <div className="flex flex-1 overflow-hidden">

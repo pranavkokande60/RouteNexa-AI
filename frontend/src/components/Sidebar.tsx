@@ -15,12 +15,10 @@ import {
   BarChart3,
   FlaskConical,
   GitCompare,
-  Bot,
-  Globe2
+  Bot
 } from 'lucide-react';
 
 export type TabKey =
-  | 'landing'
   | 'dashboard'
   | 'data-comparison'
   | 'new-orders'
@@ -47,7 +45,6 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, activeAlertsCount }) => {
   const navItems = [
-    { key: 'landing', label: '🌐 3D Product Landing', icon: Globe2, category: 'Overview' },
     { key: 'dashboard', label: 'Command Center', icon: LayoutDashboard, category: 'Core Analytics' },
     { key: 'data-comparison', label: 'Data Visualizer', icon: BarChart3, category: 'Core Analytics' },
     { key: 'new-orders', label: '🆕 New Order Management', icon: PackagePlus, category: 'Order Management' },
