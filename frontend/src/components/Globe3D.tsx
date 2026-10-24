@@ -4,130 +4,19 @@ import { OrbitControls, Stars, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { GlobeFallback } from './GlobeFallback';
 
-export interface FactoryNodeData {
-  id: string;
-  name: string;
-  lat: number;
-  lon: number;
-  city: string;
-  state: string;
-  specialization: string;
-  capacity: string;
-  leadTime: string;
-  efficiency: string;
-  color: string;
-  accentHex: string;
-}
+import {
+  FactoryNodeData,
+  FACTORY_NODES,
+  DESTINATION_HUBS,
+  RiskLevel,
+  LOGISTICS_CORRIDORS,
+  ACTIVE_TRUCKS,
+  SelectedEntity
+} from '../data/logisticsData';
 
-export const FACTORY_NODES: FactoryNodeData[] = [
-  {
-    id: 'FAC-WCK-02',
-    name: "Wicked Choccy's",
-    lat: 32.076,
-    lon: -81.088,
-    city: 'Savannah',
-    state: 'Georgia',
-    specialization: 'Premium Milk & Caramel Chocolate',
-    capacity: '75,000 units/day',
-    leadTime: '4.1 days',
-    efficiency: '92.4%',
-    color: 'amber',
-    accentHex: '#f59e0b'
-  },
-  {
-    id: 'FAC-LON-01',
-    name: "Lot's O' Nuts",
-    lat: 32.882,
-    lon: -111.768,
-    city: 'Casa Grande',
-    state: 'Arizona',
-    specialization: 'Nut & Marshmallow Chocolate Bars',
-    capacity: '50,000 units/day',
-    leadTime: '3.9 days',
-    efficiency: '94.8%',
-    color: 'cyan',
-    accentHex: '#00f0ff'
-  },
-  {
-    id: 'FAC-OTH-05',
-    name: "The Other Factory",
-    lat: 35.118,
-    lon: -89.971,
-    city: 'Memphis',
-    state: 'Tennessee',
-    specialization: 'Chewy Candies & Specialty Toffee',
-    capacity: '40,000 units/day',
-    leadTime: '4.3 days',
-    efficiency: '88.6%',
-    color: 'violet',
-    accentHex: '#a855f7'
-  },
-  {
-    id: 'FAC-SSK-03',
-    name: "Sugar Shack",
-    lat: 48.119,
-    lon: -96.181,
-    city: 'Thief River Falls',
-    state: 'Minnesota',
-    specialization: 'Sugar Candies & Specialty Beverages',
-    capacity: '35,000 units/day',
-    leadTime: '4.8 days',
-    efficiency: '85.2%',
-    color: 'emerald',
-    accentHex: '#10b981'
-  },
-  {
-    id: 'FAC-SEC-04',
-    name: "Secret Factory",
-    lat: 41.446,
-    lon: -90.565,
-    city: 'Rock Island',
-    state: 'Illinois',
-    specialization: 'Experimental Confections & Novelties',
-    capacity: '25,000 units/day',
-    leadTime: '4.4 days',
-    efficiency: '87.1%',
-    color: 'rose',
-    accentHex: '#f43f5e'
-  },
-];
+export type { FactoryNodeData, SelectedEntity, RiskLevel };
+export { FACTORY_NODES, DESTINATION_HUBS, LOGISTICS_CORRIDORS, ACTIVE_TRUCKS };
 
-export const DESTINATION_HUBS = [
-  { id: 'HUB-LAX', name: 'Los Angeles Terminal', lat: 34.052, lon: -118.244, city: 'Los Angeles, CA', region: 'Pacific' },
-  { id: 'HUB-SEA', name: 'Seattle Regional Hub', lat: 47.606, lon: -122.332, city: 'Seattle, WA', region: 'Pacific' },
-  { id: 'HUB-DFW', name: 'Dallas Cross-Dock', lat: 32.777, lon: -96.797, city: 'Dallas, TX', region: 'Gulf' },
-  { id: 'HUB-NYC', name: 'Metro New York DC', lat: 40.713, lon: -74.006, city: 'New York, NY', region: 'Atlantic' },
-  { id: 'HUB-MIA', name: 'Miami Gateway', lat: 25.762, lon: -80.192, city: 'Miami, FL', region: 'Atlantic' },
-  { id: 'HUB-DEN', name: 'Denver Intermodal', lat: 39.739, lon: -104.990, city: 'Denver, CO', region: 'Interior' },
-  { id: 'HUB-CHI', name: 'Chicago Central Depot', lat: 41.878, lon: -87.630, city: 'Chicago, IL', region: 'Interior' },
-];
-
-export const LOGISTICS_CORRIDORS = [
-  // Wicked Choccy's (Savannah, GA)
-  { id: 'SAV-LAX', factoryId: 'FAC-WCK-02', destId: 'HUB-LAX', mode: 'Second Class', isPrimary: true, speed: 0.20 },
-  { id: 'SAV-NYC', factoryId: 'FAC-WCK-02', destId: 'HUB-NYC', mode: 'First Class', isPrimary: false, speed: 0.24 },
-  { id: 'SAV-MIA', factoryId: 'FAC-WCK-02', destId: 'HUB-MIA', mode: 'Second Class', isPrimary: false, speed: 0.26 },
-
-  // Lot's O' Nuts (Casa Grande, AZ)
-  { id: 'CG-DFW', factoryId: 'FAC-LON-01', destId: 'HUB-DFW', mode: 'Same Day', isPrimary: true, speed: 0.22 },
-  { id: 'CG-LAX', factoryId: 'FAC-LON-01', destId: 'HUB-LAX', mode: 'Same Day', isPrimary: false, speed: 0.25 },
-  { id: 'CG-DEN', factoryId: 'FAC-LON-01', destId: 'HUB-DEN', mode: 'Standard Class', isPrimary: false, speed: 0.22 },
-
-  // The Other Factory (Memphis, TN)
-  { id: 'MEM-NYC', factoryId: 'FAC-OTH-05', destId: 'HUB-NYC', mode: 'First Class', isPrimary: true, speed: 0.21 },
-  { id: 'MEM-DFW', factoryId: 'FAC-OTH-05', destId: 'HUB-DFW', mode: 'Standard Class', isPrimary: false, speed: 0.24 },
-  { id: 'MEM-CHI', factoryId: 'FAC-OTH-05', destId: 'HUB-CHI', mode: 'Second Class', isPrimary: false, speed: 0.25 },
-
-  // Sugar Shack (Thief River Falls, MN)
-  { id: 'TRF-CHI', factoryId: 'FAC-SSK-03', destId: 'HUB-CHI', mode: 'Standard Class', isPrimary: true, speed: 0.20 },
-  { id: 'TRF-SEA', factoryId: 'FAC-SSK-03', destId: 'HUB-SEA', mode: 'Standard Class', isPrimary: false, speed: 0.19 },
-  { id: 'TRF-DEN', factoryId: 'FAC-SSK-03', destId: 'HUB-DEN', mode: 'First Class', isPrimary: false, speed: 0.23 },
-
-  // Secret Factory (Rock Island, IL)
-  { id: 'RI-MIA', factoryId: 'FAC-SEC-04', destId: 'HUB-MIA', mode: 'Second Class', isPrimary: true, speed: 0.22 },
-  { id: 'RI-NYC', factoryId: 'FAC-SEC-04', destId: 'HUB-NYC', mode: 'First Class', isPrimary: false, speed: 0.24 },
-  { id: 'RI-DFW', factoryId: 'FAC-SEC-04', destId: 'HUB-DFW', mode: 'Standard Class', isPrimary: false, speed: 0.23 },
-];
 
 const GLOBE_RADIUS = 2.05;
 
@@ -141,8 +30,8 @@ export function latLonToVector3(lat: number, lon: number, radius: number): THREE
   return new THREE.Vector3(x, y, z);
 }
 
-// Generate smooth, geographically accurate great-circle curved path along Earth's surface
-function createGreatCircleCurve(
+// Spherical Linear Interpolation (slerp) for great-circle geodesic curve
+export function createGreatCircleCurve(
   start: THREE.Vector3,
   end: THREE.Vector3,
   radius: number,
@@ -168,7 +57,7 @@ function createGreatCircleCurve(
         .addScaledVector(vEnd, w2)
         .normalize();
     }
-    // Smooth sinusoidal arc elevation skimming above cloud layer
+    // Parabolic arc elevation hovering just above the clouds
     const arcHeight = Math.sin(t * Math.PI) * maxArcHeight;
     points.push(vInterp.multiplyScalar(radius + arcHeight));
   }
@@ -176,100 +65,232 @@ function createGreatCircleCurve(
   return new THREE.CatmullRomCurve3(points);
 }
 
-// 3D Curved Great-Circle Arc with Volumetric Tube & Traveling Shipment Marker
-interface RouteArcProps {
-  startPos: THREE.Vector3;
-  endPos: THREE.Vector3;
+// 5. LIGHTWEIGHT PROCEDURAL 3D FREIGHT TRUCK
+interface FreightTruckProps {
+  curve: THREE.CatmullRomCurve3;
   speed: number;
-  isPrimary: boolean;
+  phaseOffset: number;
+  isPaused: boolean;
+  truckData: (typeof ACTIVE_TRUCKS)[0];
   isSelected: boolean;
-  isVisible: boolean;
-  onSelectRoute: () => void;
+  onSelect: () => void;
 }
 
-const RouteArc: React.FC<RouteArcProps> = ({
-  startPos,
-  endPos,
+const FreightTruck: React.FC<FreightTruckProps> = ({
+  curve,
   speed,
-  isPrimary,
+  phaseOffset,
+  isPaused,
+  truckData,
   isSelected,
-  isVisible,
-  onSelectRoute
+  onSelect
 }) => {
-  const particleRef = useRef<THREE.Mesh>(null);
-  const pulseRef = useRef<number>(Math.random());
+  const groupRef = useRef<THREE.Group>(null);
+  const progressRef = useRef<number>(phaseOffset);
 
-  // Generate elevated 3D great-circle arc geometry
-  const { curve, tubeGeometry, tubeRadius, routeColor, opacity } = useMemo(() => {
-    // Keep arcs close to planet curvature: 0.055 to 0.075 radius height
-    const maxAltitude = isSelected ? 0.075 : (isPrimary ? 0.065 : 0.05);
-    const greatCircleCurve = createGreatCircleCurve(startPos, endPos, GLOBE_RADIUS, maxAltitude);
-
-    const radius = isSelected ? 0.007 : (isPrimary ? 0.0055 : 0.0032);
-    const tube = new THREE.TubeGeometry(greatCircleCurve, 36, radius, 8, false);
-
-    // Primary route: brilliant cyan (#00f0ff). Secondary: deep restrained cyan (#0284c7)
-    const color = isSelected ? '#00f0ff' : (isPrimary ? '#38bdf8' : '#0284c7');
-    const op = isSelected ? 0.95 : (isPrimary ? 0.85 : 0.28);
-
-    return {
-      curve: greatCircleCurve,
-      tubeGeometry: tube,
-      tubeRadius: radius,
-      routeColor: color,
-      opacity: op
-    };
-  }, [startPos, endPos, isPrimary, isSelected]);
-
-  // Traveling shipment indicator
   useFrame((_, delta) => {
-    if (!isVisible) return;
-    pulseRef.current = (pulseRef.current + speed * delta) % 1;
-    if (particleRef.current) {
-      const pos = curve.getPoint(pulseRef.current);
-      particleRef.current.position.copy(pos);
+    if (!isPaused) {
+      progressRef.current = (progressRef.current + speed * delta) % 1;
     }
+    if (!groupRef.current) return;
+
+    const t = progressRef.current;
+    const pos = curve.getPoint(t);
+    const tangent = curve.getTangent(t).normalize();
+    const normal = pos.clone().normalize(); // Up vector radially from globe center
+    const right = new THREE.Vector3().crossVectors(tangent, normal).normalize();
+    const up = new THREE.Vector3().crossVectors(right, tangent).normalize();
+
+    // Orient forward along tangent (Three.js group forward is -Z)
+    const rotMatrix = new THREE.Matrix4().makeBasis(right, up, tangent.clone().negate());
+    groupRef.current.position.copy(pos);
+    groupRef.current.quaternion.setFromRotationMatrix(rotMatrix);
   });
 
-  if (!isVisible) return null;
+  const riskColor =
+    truckData.riskLevel === 'HIGH'
+      ? '#ef4444'
+      : truckData.riskLevel === 'ELEVATED'
+      ? '#f59e0b'
+      : '#00f0ff';
 
   return (
-    <group>
-      {/* 3D Curved Route Tube with Click Interaction */}
-      <mesh
-        geometry={tubeGeometry}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectRoute();
-        }}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={() => {
-          document.body.style.cursor = 'auto';
-        }}
-      >
-        <meshBasicMaterial
-          color={routeColor}
-          transparent
-          opacity={opacity}
-          depthWrite={false}
-        />
-      </mesh>
-
-      {/* Smooth Traveling Shipment Marker (on primary or selected route) */}
-      {(isPrimary || isSelected) && (
-        <mesh ref={particleRef}>
-          <sphereGeometry args={[isSelected ? 0.024 : 0.018, 12, 12]} />
-          <meshBasicMaterial color="#ffffff" />
+    <group
+      ref={groupRef}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect();
+      }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      {/* Selection Halo Ring when this truck is clicked */}
+      {isSelected && (
+        <mesh position={[0, -0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.035, 0.052, 24]} />
+          <meshBasicMaterial color="#00f0ff" transparent opacity={0.85} side={THREE.DoubleSide} />
         </mesh>
       )}
+
+      {/* 1. TRACTOR CAB */}
+      {/* Main Cab Body */}
+      <mesh position={[0, 0.012, -0.024]}>
+        <boxGeometry args={[0.020, 0.020, 0.022]} />
+        <meshStandardMaterial color={isSelected ? '#38bdf8' : '#0ea5e9'} roughness={0.3} metalness={0.8} />
+      </mesh>
+
+      {/* Aerodynamic Wind Deflector Roof */}
+      <mesh position={[0, 0.024, -0.021]} rotation={[-0.22, 0, 0]}>
+        <boxGeometry args={[0.018, 0.006, 0.016]} />
+        <meshStandardMaterial color="#0284c7" roughness={0.4} metalness={0.7} />
+      </mesh>
+
+      {/* Windshield & Side Glass */}
+      <mesh position={[0, 0.015, -0.0345]}>
+        <boxGeometry args={[0.018, 0.010, 0.002]} />
+        <meshStandardMaterial color="#020617" roughness={0.1} metalness={0.9} />
+      </mesh>
+
+      {/* Front Chrome Bumper & Grille */}
+      <mesh position={[0, 0.004, -0.035]}>
+        <boxGeometry args={[0.020, 0.008, 0.002]} />
+        <meshStandardMaterial color="#94a3b8" metalness={0.95} roughness={0.15} />
+      </mesh>
+
+      {/* Dual Headlights (glowing cyan / white) */}
+      <mesh position={[-0.007, 0.005, -0.036]}>
+        <sphereGeometry args={[0.0022, 8, 8]} />
+        <meshBasicMaterial color="#00f0ff" />
+      </mesh>
+      <mesh position={[0.007, 0.005, -0.036]}>
+        <sphereGeometry args={[0.0022, 8, 8]} />
+        <meshBasicMaterial color="#00f0ff" />
+      </mesh>
+
+      {/* 2. FREIGHT TRAILER CONTAINER */}
+      {/* Main Container Body */}
+      <mesh position={[0, 0.016, 0.012]}>
+        <boxGeometry args={[0.022, 0.026, 0.046]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.5} metalness={0.5} />
+      </mesh>
+
+      {/* RouteNexa Luminous Side Stripes */}
+      <mesh position={[0.0112, 0.016, 0.012]}>
+        <boxGeometry args={[0.001, 0.004, 0.042]} />
+        <meshBasicMaterial color={riskColor} />
+      </mesh>
+      <mesh position={[-0.0112, 0.016, 0.012]}>
+        <boxGeometry args={[0.001, 0.004, 0.042]} />
+        <meshBasicMaterial color={riskColor} />
+      </mesh>
+
+      {/* Rear Taillights (red emissive) */}
+      <mesh position={[-0.008, 0.006, 0.0355]}>
+        <sphereGeometry args={[0.0018, 8, 8]} />
+        <meshBasicMaterial color="#ef4444" />
+      </mesh>
+      <mesh position={[0.008, 0.006, 0.0355]}>
+        <sphereGeometry args={[0.0018, 8, 8]} />
+        <meshBasicMaterial color="#ef4444" />
+      </mesh>
+
+      {/* 3. WHEELS (6 wheels total: 2 cab steer, 4 trailer tandem) */}
+      <mesh position={[-0.011, 0.0035, -0.026]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.004, 0.004, 0.003, 10]} />
+        <meshBasicMaterial color="#020617" />
+      </mesh>
+      <mesh position={[0.011, 0.0035, -0.026]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.004, 0.004, 0.003, 10]} />
+        <meshBasicMaterial color="#020617" />
+      </mesh>
+      <mesh position={[-0.011, 0.0035, 0.022]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.004, 0.004, 0.003, 10]} />
+        <meshBasicMaterial color="#020617" />
+      </mesh>
+      <mesh position={[0.011, 0.0035, 0.022]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.004, 0.004, 0.003, 10]} />
+        <meshBasicMaterial color="#020617" />
+      </mesh>
+      <mesh position={[-0.011, 0.0035, 0.030]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.004, 0.004, 0.003, 10]} />
+        <meshBasicMaterial color="#020617" />
+      </mesh>
+      <mesh position={[0.011, 0.0035, 0.030]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.004, 0.004, 0.003, 10]} />
+        <meshBasicMaterial color="#020617" />
+      </mesh>
     </group>
   );
 };
 
-// Pulsing Concentric Radar Wave around Factory Nodes
+// 6. 3D CURVED ROUTE TUBE
+interface RouteArcProps {
+  curve: THREE.CatmullRomCurve3;
+  isPrimary: boolean;
+  isSelected: boolean;
+  isVisible: boolean;
+  risk: RiskLevel;
+  onSelectRoute: () => void;
+}
+
+const RouteArc: React.FC<RouteArcProps> = ({
+  curve,
+  isPrimary,
+  isSelected,
+  isVisible,
+  risk,
+  onSelectRoute
+}) => {
+  const { tubeGeometry, routeColor, opacity } = useMemo(() => {
+    const radius = isSelected ? 0.0075 : (isPrimary ? 0.0055 : 0.0032);
+    const tube = new THREE.TubeGeometry(curve, 36, radius, 8, false);
+
+    // Color by risk: Cyan (Low), Amber (Elevated), Red (High)
+    let color = '#0284c7';
+    if (isSelected) {
+      color = risk === 'HIGH' ? '#ef4444' : (risk === 'ELEVATED' ? '#f59e0b' : '#00f0ff');
+    } else if (isPrimary) {
+      color = risk === 'HIGH' ? '#ef4444' : (risk === 'ELEVATED' ? '#f59e0b' : '#38bdf8');
+    }
+
+    const op = isSelected ? 0.95 : (isPrimary ? 0.85 : 0.28);
+
+    return { tubeGeometry: tube, routeColor: color, opacity: op };
+  }, [curve, isPrimary, isSelected, risk]);
+
+  if (!isVisible) return null;
+
+  return (
+    <mesh
+      geometry={tubeGeometry}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelectRoute();
+      }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      <meshBasicMaterial
+        color={routeColor}
+        transparent
+        opacity={opacity}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+};
+
+// 7. PULSING CONCENTRIC RADAR WAVE
 interface PulseRingProps {
   position: THREE.Vector3;
   color: string;
@@ -310,13 +331,21 @@ const PulseRing: React.FC<PulseRingProps> = ({ position, color, isHighlighted })
   );
 };
 
-// Photorealistic Earth Sphere with NASA Day/Night Textures & Separate Rotating Cloud Sphere
+// 8. PHOTOREALISTIC EARTH & DIGITAL TWIN GRAPH
 interface PhotorealisticGlobeProps {
   selectedFactory: string | null;
   onSelectFactory: (name: string) => void;
   selectedDestination: string | null;
   onSelectDestination: (name: string | null) => void;
+  selectedTruck: string | null;
+  onSelectTruck: (truckId: string | null) => void;
+  selectedRoute: string | null;
+  onSelectRoute: (routeId: string | null) => void;
   shipModeFilter: string;
+  riskFilter: string;
+  showRoutes: boolean;
+  showTrucks: boolean;
+  isPaused: boolean;
 }
 
 const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
@@ -324,7 +353,15 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
   onSelectFactory,
   selectedDestination,
   onSelectDestination,
-  shipModeFilter
+  selectedTruck,
+  onSelectTruck,
+  selectedRoute,
+  onSelectRoute,
+  shipModeFilter,
+  riskFilter,
+  showRoutes,
+  showTrucks,
+  isPaused
 }) => {
   const earthGroupRef = useRef<THREE.Group>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
@@ -338,7 +375,7 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
     '/textures/earth_normal_2048.jpg',
   ]);
 
-  // Ensure color space calibration
+  // Calibration of texture color space
   useEffect(() => {
     dayMap.colorSpace = THREE.SRGBColorSpace;
     lightsMap.colorSpace = THREE.SRGBColorSpace;
@@ -383,39 +420,34 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
     }));
   }, []);
 
-  // Connected freight corridors mapped to real factory and hub locations
-  const shippingRoutes = useMemo(() => {
-    return LOGISTICS_CORRIDORS.map((corridor) => {
+  // Pre-calculate Great-Circle curves for each corridor
+  const corridorCurves = useMemo(() => {
+    const map = new Map<string, { curve: THREE.CatmullRomCurve3; corridor: (typeof LOGISTICS_CORRIDORS)[0] }>();
+
+    LOGISTICS_CORRIDORS.forEach((corridor) => {
       const fac = factoryVectors.find((f) => f.id === corridor.factoryId) || factoryVectors[0];
       const dest = destinationVectors.find((d) => d.id === corridor.destId) || destinationVectors[0];
-
-      return {
-        id: corridor.id,
-        start: fac.pos,
-        end: dest.pos,
-        factoryName: fac.name,
-        destName: dest.name,
-        shipMode: corridor.mode,
-        isPrimary: corridor.isPrimary,
-        speed: corridor.speed
-      };
+      const maxAltitude = corridor.isPrimary ? 0.065 : 0.052;
+      const curve = createGreatCircleCurve(fac.pos, dest.pos, GLOBE_RADIUS, maxAltitude);
+      map.set(corridor.id, { curve, corridor });
     });
+
+    return map;
   }, [factoryVectors, destinationVectors]);
 
   // Smooth orbital sway: keeps North American logistics network centered in daylight
   useFrame((state, delta) => {
-    if (earthGroupRef.current) {
-      // Gentle harmonic sway around North American logistics center (±8 degrees)
-      earthGroupRef.current.rotation.y = 0.04 + Math.sin(state.clock.elapsedTime * 0.12) * 0.14;
-    }
-    if (cloudsRef.current) {
-      // Realistic atmospheric cloud drift
-      cloudsRef.current.rotation.y += delta * 0.012;
+    if (!isPaused) {
+      if (earthGroupRef.current) {
+        earthGroupRef.current.rotation.y = 0.04 + Math.sin(state.clock.elapsedTime * 0.12) * 0.14;
+      }
+      if (cloudsRef.current) {
+        cloudsRef.current.rotation.y += delta * 0.012;
+      }
     }
   });
 
   return (
-    // Rotated to center North America (Savannah, Casa Grande, Memphis, Rock Island, Thief River Falls) facing the camera
     <group ref={earthGroupRef} rotation={[0.24, 0.04, 0]}>
       {/* 1. PHOTOREALISTIC EARTH CORE SURFACE */}
       <mesh>
@@ -460,31 +492,65 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
       </mesh>
 
       {/* 4. RESTRAINED GEODESIC LOGISTICS ARCS */}
-      {shippingRoutes.map((route) => {
-        const matchesFactory = !selectedFactory || route.factoryName === selectedFactory;
-        const matchesDest = selectedDestination === route.destName;
-        const matchesMode = shipModeFilter === 'ALL' || route.shipMode === shipModeFilter;
+      {showRoutes &&
+        Array.from(corridorCurves.entries()).map(([id, { curve, corridor }]) => {
+          const fac = factoryVectors.find((f) => f.id === corridor.factoryId);
+          const dest = destinationVectors.find((d) => d.id === corridor.destId);
+          const factoryName = fac?.name || '';
+          const destName = dest?.name || '';
 
-        // If a specific destination is chosen, only that route is highlighted
-        const isSelected = matchesFactory && matchesDest;
-        const isPrimaryActive = matchesFactory && !selectedDestination && route.isPrimary;
-        const isVisible = matchesMode && matchesFactory;
+          const matchesFactory = !selectedFactory || factoryName === selectedFactory;
+          const matchesDest = selectedDestination === destName;
+          const matchesMode = shipModeFilter === 'ALL' || corridor.mode === shipModeFilter;
+          const matchesRisk = riskFilter === 'ALL' || corridor.risk === riskFilter;
 
-        return (
-          <RouteArc
-            key={route.id}
-            startPos={route.start}
-            endPos={route.end}
-            speed={route.speed}
-            isPrimary={isPrimaryActive}
-            isSelected={isSelected}
-            isVisible={isVisible}
-            onSelectRoute={() => onSelectDestination(route.destName)}
-          />
-        );
-      })}
+          const isSelected = selectedRoute === id || (matchesFactory && matchesDest);
+          const isPrimaryActive = matchesFactory && !selectedDestination && corridor.isPrimary;
+          const isVisible = matchesMode && matchesRisk && matchesFactory;
 
-      {/* 5. CUSTOMER DESTINATION TERMINAL MARKERS */}
+          return (
+            <RouteArc
+              key={id}
+              curve={curve}
+              isPrimary={isPrimaryActive}
+              isSelected={isSelected}
+              isVisible={isVisible}
+              risk={corridor.risk}
+              onSelectRoute={() => onSelectRoute(id)}
+            />
+          );
+        })}
+
+      {/* 5. ANIMATED 3D FREIGHT TRUCKS */}
+      {showTrucks &&
+        ACTIVE_TRUCKS.map((truck) => {
+          const corridorData = corridorCurves.get(truck.corridorId);
+          if (!corridorData) return null;
+
+          const matchesFactory = !selectedFactory || truck.factoryName === selectedFactory;
+          const matchesDest = !selectedDestination || truck.destName === selectedDestination;
+          const matchesMode = shipModeFilter === 'ALL' || truck.mode === shipModeFilter;
+          const matchesRisk = riskFilter === 'ALL' || truck.riskLevel === riskFilter;
+
+          if (!matchesFactory || !matchesDest || !matchesMode || !matchesRisk) return null;
+
+          const isTruckSelected = selectedTruck === truck.id;
+
+          return (
+            <FreightTruck
+              key={truck.id}
+              curve={corridorData.curve}
+              speed={truck.speed}
+              phaseOffset={truck.phase}
+              isPaused={isPaused}
+              truckData={truck}
+              isSelected={isTruckSelected}
+              onSelect={() => onSelectTruck(truck.id)}
+            />
+          );
+        })}
+
+      {/* 6. CUSTOMER DESTINATION TERMINAL MARKERS */}
       {destinationVectors.map((dest) => {
         const isSelected = selectedDestination === dest.name;
         return (
@@ -502,14 +568,14 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
                 document.body.style.cursor = 'auto';
               }}
             >
-              <sphereGeometry args={[isSelected ? 0.022 : 0.014, 14, 14]} />
+              <sphereGeometry args={[isSelected ? 0.024 : 0.015, 14, 14]} />
               <meshBasicMaterial color={isSelected ? '#00f0ff' : '#cbd5e1'} />
             </mesh>
           </group>
         );
       })}
 
-      {/* 6. 5 PRIMARY MANUFACTURING HUB BEACONS */}
+      {/* 7. 5 PRIMARY MANUFACTURING HUB BEACONS */}
       {factoryVectors.map((fac) => {
         const isSelected = selectedFactory === fac.name;
 
@@ -531,7 +597,7 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
                 document.body.style.cursor = 'auto';
               }}
             >
-              <sphereGeometry args={[isSelected ? 0.032 : 0.022, 16, 16]} />
+              <sphereGeometry args={[isSelected ? 0.034 : 0.024, 16, 16]} />
               <meshBasicMaterial color={fac.accentHex} />
             </mesh>
           </group>
@@ -554,12 +620,20 @@ function isWebGLAvailable(): boolean {
   }
 }
 
-interface Globe3DProps {
+export interface Globe3DProps {
   selectedFactory: string | null;
   onSelectFactory: (name: string) => void;
   selectedDestination?: string | null;
   onSelectDestination?: (name: string | null) => void;
+  selectedTruck?: string | null;
+  onSelectTruck?: (truckId: string | null) => void;
+  selectedRoute?: string | null;
+  onSelectRoute?: (routeId: string | null) => void;
   shipModeFilter?: string;
+  riskFilter?: string;
+  showRoutes?: boolean;
+  showTrucks?: boolean;
+  isPaused?: boolean;
 }
 
 export const Globe3D: React.FC<Globe3DProps> = ({
@@ -567,7 +641,15 @@ export const Globe3D: React.FC<Globe3DProps> = ({
   onSelectFactory,
   selectedDestination = null,
   onSelectDestination = () => {},
-  shipModeFilter = 'ALL'
+  selectedTruck = null,
+  onSelectTruck = () => {},
+  selectedRoute = null,
+  onSelectRoute = () => {},
+  shipModeFilter = 'ALL',
+  riskFilter = 'ALL',
+  showRoutes = true,
+  showTrucks = true,
+  isPaused = false
 }) => {
   const [hasWebGL, setHasWebGL] = useState<boolean>(true);
 
@@ -615,13 +697,21 @@ export const Globe3D: React.FC<Globe3DProps> = ({
           {/* Deep Space Background Stars */}
           <Stars radius={30} depth={20} count={500} factor={3} saturation={0} fade speed={0.5} />
 
-          {/* Realistic 3D Globe with Atmosphere and Corridors */}
+          {/* Realistic 3D Globe with Atmosphere, 3D Trucks, and Corridors */}
           <PhotorealisticGlobe
             selectedFactory={selectedFactory}
             onSelectFactory={onSelectFactory}
             selectedDestination={selectedDestination}
             onSelectDestination={onSelectDestination}
+            selectedTruck={selectedTruck}
+            onSelectTruck={onSelectTruck}
+            selectedRoute={selectedRoute}
+            onSelectRoute={onSelectRoute}
             shipModeFilter={shipModeFilter}
+            riskFilter={riskFilter}
+            showRoutes={showRoutes}
+            showTrucks={showTrucks}
+            isPaused={isPaused}
           />
 
           {/* Smooth OrbitControls for Manual Exploration */}
