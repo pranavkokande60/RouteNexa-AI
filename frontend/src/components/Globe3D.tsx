@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useState, useEffect, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars, useTexture, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { GlobeFallback } from './GlobeFallback';
@@ -960,9 +960,24 @@ const PhotorealisticGlobe: React.FC<PhotorealisticGlobeProps> = ({
   );
 };
 
-// 6. CAMERA CONTROLLER THAT SUPPORTS ORBIT AND RESET VIEW
+// 6. CAMERA CONTROLLER THAT SUPPORTS ORBIT, RESET VIEW, AND VIEWPORT CENTERING
 const CameraController: React.FC<{ resetKey?: number }> = ({ resetKey }) => {
+  const { camera, size } = useThree();
   const controlsRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (camera instanceof THREE.PerspectiveCamera) {
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        // Shift camera view so globe sits comfortably in the right column and North America sits in the vertical middle of the page
+        const offsetX = -size.width * 0.18;
+        const offsetY = -size.height * 0.22;
+        camera.setViewOffset(size.width, size.height, offsetX, offsetY, size.width, size.height);
+      } else {
+        camera.clearViewOffset();
+      }
+      camera.updateProjectionMatrix();
+    }
+  }, [camera, size]);
 
   useEffect(() => {
     if (resetKey !== undefined && resetKey > 0) {
@@ -1063,7 +1078,7 @@ export const Globe3D: React.FC<Globe3DProps> = ({
         }
       >
         <Canvas
-          camera={{ position: [0.65, 0.15, 4.85], fov: 40 }}
+          camera={{ position: [0, 0, 4.85], fov: 40 }}
           dpr={[1, 1.5]}
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           className="w-full h-full cursor-grab active:cursor-grabbing"
