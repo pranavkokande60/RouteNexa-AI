@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar, TabKey } from './components/Sidebar';
 import { LoginModal } from './components/LoginModal';
@@ -59,16 +59,34 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
-  useEffect(() => {
-    // Initial fetch of dashboard and route data
+  const refreshDashboardData = useCallback(() => {
     api.getSummary().then(setSummary).catch(console.error);
     api.getCharts().then(setCharts).catch(console.error);
     api.getAiSummary().then(setAiSummary).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    // Initial fetch of dashboard and route data
+    refreshDashboardData();
     api.getRoutes().then(setRoutes).catch(console.error);
     api.getMapData().then(setMapData).catch(console.error);
     api.getAlerts().then(setAlerts).catch(console.error);
     api.getNotifications().then(r => setUnreadNotifCount(r.unread_count || 0)).catch(console.error);
-  }, []);
+
+    // Listen for live order updates across tabs
+    const handleOrderUpdate = () => {
+      refreshDashboardData();
+    };
+    window.addEventListener('routenexa:order-updated', handleOrderUpdate);
+    return () => window.removeEventListener('routenexa:order-updated', handleOrderUpdate);
+  }, [refreshDashboardData]);
+
+  // Refresh dashboard metrics when navigating to the dashboard tab
+  useEffect(() => {
+    if (currentTab === 'dashboard') {
+      refreshDashboardData();
+    }
+  }, [currentTab, refreshDashboardData]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('routenexa_session_active');

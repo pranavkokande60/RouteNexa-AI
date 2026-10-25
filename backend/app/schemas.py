@@ -53,6 +53,8 @@ class DashboardKPISummary(BaseModel):
     high_risk_routes_count: int
     bottlenecks_count: int
     total_anomalies_count: int
+    new_orders_count: Optional[int] = 0
+    historical_shipments_count: Optional[int] = 10194
 
 
 # -----------------------------

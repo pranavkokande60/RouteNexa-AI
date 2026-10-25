@@ -160,18 +160,45 @@ dashboard_router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
 @dashboard_router.get("/summary", response_model=DashboardKPISummary)
 def get_dashboard_summary(db: Session = Depends(get_db)):
-    """High-level executive metrics for Command Center."""
-    total_shipments = db.query(Shipment).count()
-    total_orders = db.query(func.count(func.distinct(Shipment.order_id))).scalar() or 0
-    total_units = db.query(func.sum(Shipment.units)).scalar() or 0
-    total_sales = db.query(func.sum(Shipment.sales)).scalar() or 0.0
-    total_profit = db.query(func.sum(Shipment.gross_profit)).scalar() or 0.0
-    
-    avg_op_lt = db.query(func.avg(Shipment.operational_lead_time_days)).scalar() or 0.0
+    """High-level executive metrics for Command Center (Historical Baseline + Live New Orders)."""
+    # 1. Historical baseline metrics
+    hist_shipments = db.query(Shipment).count()
+    hist_orders = db.query(func.count(func.distinct(Shipment.order_id))).scalar() or 0
+    hist_units = db.query(func.sum(Shipment.units)).scalar() or 0
+    hist_sales = db.query(func.sum(Shipment.sales)).scalar() or 0.0
+    hist_profit = db.query(func.sum(Shipment.gross_profit)).scalar() or 0.0
+    hist_op_lt_sum = db.query(func.sum(Shipment.operational_lead_time_days)).scalar() or 0.0
+    hist_delayed_cnt = db.query(Shipment).filter(Shipment.is_delayed == True).count()
+
+    # 2. Live new orders metrics
+    new_orders = db.query(NewOrder).all()
+    new_orders_count = len(new_orders)
+    new_orders_distinct = db.query(func.count(func.distinct(NewOrder.order_id))).scalar() or 0
+    new_units = sum(o.units for o in new_orders) if new_orders else 0
+    new_sales = sum(o.estimated_sales or (o.units * 3.50) for o in new_orders) if new_orders else 0.0
+    new_profit = new_sales * 0.6591  # Nassau Candy historical gross margin (~65.91%)
+    new_op_lt_sum = sum(
+        float(o.actual_lead_time_days) if o.actual_lead_time_days is not None
+        else float(o.predicted_lead_time_days or 4.0)
+        for o in new_orders
+    )
+    new_delayed_cnt = sum(
+        1 for o in new_orders
+        if (o.actual_is_delayed is True) or (o.actual_is_delayed is None and (o.delay_risk == "High Risk" or (o.delay_probability_pct or 0) >= 50.0))
+    )
+
+    # 3. Unified aggregated totals
+    total_shipments = hist_shipments + new_orders_count
+    total_orders = hist_orders + new_orders_distinct
+    total_units = hist_units + new_units
+    total_sales = hist_sales + new_sales
+    total_profit = hist_profit + new_profit
+
+    avg_op_lt = ((hist_op_lt_sum + new_op_lt_sum) / total_shipments) if total_shipments else 0.0
     avg_raw_lt = db.query(func.avg(Shipment.raw_lead_time_days)).scalar() or 0.0
     
-    delayed_cnt = db.query(Shipment).filter(Shipment.is_delayed == True).count()
-    delay_rate = (delayed_cnt / total_shipments * 100) if total_shipments else 0.0
+    total_delayed = hist_delayed_cnt + new_delayed_cnt
+    delay_rate = (total_delayed / total_shipments * 100) if total_shipments else 0.0
     
     avg_eff = db.query(func.avg(Route.efficiency_score)).scalar() or 0.0
     active_alerts = db.query(Alert).filter(Alert.is_active == True).count()
@@ -192,48 +219,89 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         "active_alerts_count": active_alerts,
         "high_risk_routes_count": high_risk_routes,
         "bottlenecks_count": bottlenecks,
-        "total_anomalies_count": anomalies
+        "total_anomalies_count": anomalies,
+        "new_orders_count": new_orders_count,
+        "historical_shipments_count": hist_shipments
     }
 
 @dashboard_router.get("/charts")
 def get_dashboard_charts(db: Session = Depends(get_db)):
-    """Analytical charts data for Command Center."""
+    """Analytical charts data for Command Center (Historical Baseline + Live New Orders)."""
     # 1. Ship Mode breakdown
     modes = db.query(
         Shipment.ship_mode,
         func.count(Shipment.id).label("count"),
-        func.avg(Shipment.operational_lead_time_days).label("avg_lead_time"),
+        func.sum(Shipment.operational_lead_time_days).label("sum_lead_time"),
         func.sum(Shipment.sales).label("total_sales"),
         func.sum(Shipment.gross_profit).label("total_profit")
     ).group_by(Shipment.ship_mode).all()
 
+    mode_map = {}
+    for m in modes:
+        mode_map[m.ship_mode] = {
+            "count": m.count,
+            "sum_lead_time": float(m.sum_lead_time or 0.0),
+            "sales": float(m.total_sales or 0.0),
+            "profit": float(m.total_profit or 0.0)
+        }
+
+    # Add new orders into ship modes
+    new_orders = db.query(NewOrder).all()
+    for o in new_orders:
+        sm = o.ship_mode or "Standard Class"
+        if sm not in mode_map:
+            mode_map[sm] = {"count": 0, "sum_lead_time": 0.0, "sales": 0.0, "profit": 0.0}
+        mode_map[sm]["count"] += 1
+        lt = float(o.actual_lead_time_days if o.actual_lead_time_days is not None else (o.predicted_lead_time_days or 4.0))
+        mode_map[sm]["sum_lead_time"] += lt
+        s = float(o.estimated_sales or (o.units * 3.50))
+        mode_map[sm]["sales"] += s
+        mode_map[sm]["profit"] += s * 0.6591
+
     mode_chart = [
         {
-            "ship_mode": m.ship_mode,
-            "shipments": m.count,
-            "avg_lead_time": round(float(m.avg_lead_time), 2),
-            "sales": round(float(m.total_sales), 2),
-            "profit": round(float(m.total_profit), 2)
+            "ship_mode": sm,
+            "shipments": data["count"],
+            "avg_lead_time": round(data["sum_lead_time"] / data["count"], 2) if data["count"] else 0.0,
+            "sales": round(data["sales"], 2),
+            "profit": round(data["profit"], 2)
         }
-        for m in modes
+        for sm, data in sorted(mode_map.items())
     ]
 
     # 2. Regional Distribution
     regions = db.query(
         Shipment.region,
         func.count(Shipment.id).label("count"),
-        func.avg(Shipment.operational_lead_time_days).label("avg_lead_time"),
+        func.sum(Shipment.operational_lead_time_days).label("sum_lead_time"),
         func.sum(Shipment.sales).label("total_sales")
     ).group_by(Shipment.region).all()
 
+    region_map = {}
+    for r in regions:
+        region_map[r.region] = {
+            "count": r.count,
+            "sum_lead_time": float(r.sum_lead_time or 0.0),
+            "sales": float(r.total_sales or 0.0)
+        }
+
+    for o in new_orders:
+        reg = o.region or "Other"
+        if reg not in region_map:
+            region_map[reg] = {"count": 0, "sum_lead_time": 0.0, "sales": 0.0}
+        region_map[reg]["count"] += 1
+        lt = float(o.actual_lead_time_days if o.actual_lead_time_days is not None else (o.predicted_lead_time_days or 4.0))
+        region_map[reg]["sum_lead_time"] += lt
+        region_map[reg]["sales"] += float(o.estimated_sales or (o.units * 3.50))
+
     region_chart = [
         {
-            "region": r.region,
-            "shipments": r.count,
-            "avg_lead_time": round(float(r.avg_lead_time), 2),
-            "sales": round(float(r.total_sales), 2)
+            "region": reg,
+            "shipments": data["count"],
+            "avg_lead_time": round(data["sum_lead_time"] / data["count"], 2) if data["count"] else 0.0,
+            "sales": round(data["sales"], 2)
         }
-        for r in regions
+        for reg, data in sorted(region_map.items())
     ]
 
     # 3. Efficiency Tier distribution

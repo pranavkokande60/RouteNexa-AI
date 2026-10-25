@@ -133,6 +133,7 @@ export const NewOrdersTab: React.FC = () => {
       });
       // Refresh list and auto open detail to show predictions
       await loadData();
+      window.dispatchEvent(new CustomEvent('routenexa:order-updated'));
       setSelectedOrder(created);
       setIsDetailModalOpen(true);
     } catch (err: any) {
@@ -153,6 +154,7 @@ export const NewOrdersTab: React.FC = () => {
       }
       const sumRes = await api.getNewOrdersSummary();
       setSummary(sumRes);
+      window.dispatchEvent(new CustomEvent('routenexa:order-updated'));
     } catch (err) {
       console.error('Failed to update status:', err);
     }
@@ -170,6 +172,7 @@ export const NewOrdersTab: React.FC = () => {
       }
       const sumRes = await api.getNewOrdersSummary();
       setSummary(sumRes);
+      window.dispatchEvent(new CustomEvent('routenexa:order-updated'));
     } catch (err) {
       console.error('Failed to delete order:', err);
     }

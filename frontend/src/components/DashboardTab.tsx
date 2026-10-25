@@ -43,7 +43,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             Nassau Candy Factory-to-Customer Logistics Intelligence
           </h2>
           <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-            Real-time supply chain telemetry across 5 manufacturing hubs, 196 delivery corridors, and 10,194 shipments.
+            Real-time supply chain telemetry across 5 manufacturing hubs, 196 delivery corridors, and {summary.total_shipments?.toLocaleString() || '10,194'} shipments.
           </p>
         </div>
 
@@ -73,11 +73,19 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             <span className="text-xs font-medium">Total Shipments</span>
             <Package className="w-4 h-4 text-sky-400" />
           </div>
-          <div className="text-2xl font-bold text-white">
-            {summary.total_shipments?.toLocaleString() || '10,194'}
+          <div className="text-2xl font-bold text-white flex items-baseline gap-2">
+            <span>{summary.total_shipments?.toLocaleString() || '10,194'}</span>
+            {summary.new_orders_count > 0 && (
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                +{summary.new_orders_count} live
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-1 mt-1 text-[11px] text-slate-400">
+          <div className="flex items-center gap-1.5 mt-1 text-[11px] text-slate-400">
             <span>{summary.total_orders?.toLocaleString()} unique orders</span>
+            {summary.new_orders_count > 0 && (
+              <span className="text-emerald-400 font-medium">({summary.new_orders_count} new)</span>
+            )}
           </div>
         </div>
 
