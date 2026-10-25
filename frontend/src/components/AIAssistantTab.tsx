@@ -29,13 +29,13 @@ export const AIAssistantTab: React.FC = () => {
       ),
       sourceMetric: "RouteNexa AI Safe Analytics Engine",
       suggestedFollowups: [
+        "How many orders are there?",
+        "How many new orders are in the queue?",
+        "What is the total revenue?",
         "What is the average lead time?",
         "Which factory has the highest average lead time?",
         "Show me the top 5 inefficient routes.",
-        "How many high-risk new orders are there?",
-        "Which ship mode is fastest?",
-        "How many shipments were made to California?",
-        "Which region has the most shipments?"
+        "Which ship mode is fastest?"
       ],
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
@@ -277,7 +277,7 @@ export const AIAssistantTab: React.FC = () => {
           type="text"
           value={inputQuery}
           onChange={(e) => setInputQuery(e.target.value)}
-          placeholder="Ask a question about RouteNexa logistics data (e.g., 'What is the average lead time?')..."
+          placeholder="Ask a question about RouteNexa logistics data (e.g., 'How many orders are there?')..."
           className="flex-1 bg-transparent border-0 text-xs sm:text-sm text-white placeholder-slate-500 px-3 py-2 focus:outline-none focus:ring-0 font-medium"
         />
 

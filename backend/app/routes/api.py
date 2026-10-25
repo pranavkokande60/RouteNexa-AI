@@ -1464,6 +1464,139 @@ def query_logistics_assistant(req: AssistantQueryRequest, db: Session = Depends(
     raw_query = req.query.strip()
     q = raw_query.lower()
 
+    # 0a. Specific Live New Orders Inquiry
+    if any(k in q for k in ["new order", "recent order", "latest order", "customer order", "in the queue", "active order", "pending order"]):
+        new_orders = db.query(NewOrder).order_by(desc(NewOrder.id)).all()
+        new_orders_count = len(new_orders)
+        if new_orders_count > 0:
+            high_risk_count = sum(1 for o in new_orders if o.delay_risk == "High Risk")
+            mod_risk_count = sum(1 for o in new_orders if o.delay_risk == "Moderate Risk")
+            low_risk_count = sum(1 for o in new_orders if o.delay_risk == "Low Risk")
+            pending_count = sum(1 for o in new_orders if o.status in ["NEW", "PROCESSING"])
+            shipped_count = sum(1 for o in new_orders if o.status == "SHIPPED")
+            delivered_count = sum(1 for o in new_orders if o.status == "DELIVERED")
+
+            recent_lines = []
+            for o in new_orders[:5]:
+                eta = f"{o.actual_lead_time_days}d delivered" if o.actual_lead_time_days is not None else f"{o.predicted_lead_time_days or 4.0}d predicted ETA"
+                recent_lines.append(f"• **{o.order_id}**: {o.product_name} ({o.units} units) -> {o.city}, {o.state_province} | Factory: {o.factory_name} | {eta} | Status: {o.status} ({o.delay_risk})")
+
+            answer = (
+                f"There are currently **{new_orders_count} live customer orders** registered in the system:\n\n"
+                + "\n".join(recent_lines) +
+                f"\n\n**Status Breakdown:** {pending_count} Pending/Processing, {shipped_count} In-Transit, {delivered_count} Delivered.\n"
+                f"**Risk Breakdown:** {low_risk_count} Low Risk, {mod_risk_count} Moderate Risk, {high_risk_count} High Risk."
+            )
+            return {
+                "query": raw_query,
+                "answer": answer,
+                "source_metric": "Live New Orders Management Queue (Table: new_orders)",
+                "data_points": {
+                    "total_new_orders": new_orders_count,
+                    "pending_orders": pending_count,
+                    "shipped_orders": shipped_count,
+                    "delivered_orders": delivered_count,
+                    "high_risk_orders": high_risk_count,
+                    "moderate_risk_orders": mod_risk_count,
+                    "low_risk_orders": low_risk_count
+                },
+                "suggested_followups": [
+                    "How many orders are there in total?",
+                    "What is the average lead time?",
+                    "Which ship mode is fastest?"
+                ]
+            }
+        else:
+            return {
+                "query": raw_query,
+                "answer": "There are currently 0 new customer orders in the live queue. All 10,194 baseline shipments are fully audited.",
+                "source_metric": "Live New Orders Management Queue",
+                "data_points": {"total_new_orders": 0},
+                "suggested_followups": [
+                    "How many orders are there in total?",
+                    "What is the average lead time?"
+                ]
+            }
+
+    # 0b. Total Orders / Total Shipments Count Inquiry (e.g. "how many orders are there")
+    is_order_count_query = (
+        ("order" in q or "shipment" in q or "record" in q) and
+        any(k in q for k in ["how many", "total", "count", "number of", "are there", "in total", "all orders", "all shipments", "volume"])
+    ) or any(phrase in q for phrase in [
+        "how many orders", "how many shipments", "how many order", "total orders", "total shipments",
+        "orders count", "shipment count", "number of orders", "number of shipments", "how much orders"
+    ]) or q in ["orders", "shipments", "total orders", "total shipments", "how many orders are there", "how many orders?"]
+
+    if is_order_count_query:
+        hist_shipments = db.query(Shipment).count()
+        hist_orders = db.query(func.count(func.distinct(Shipment.order_id))).scalar() or 0
+        new_orders = db.query(NewOrder).all()
+        new_orders_count = len(new_orders)
+        new_orders_distinct = db.query(func.count(func.distinct(NewOrder.order_id))).scalar() or 0
+        total_shipments = hist_shipments + new_orders_count
+        total_orders = hist_orders + new_orders_distinct
+        
+        pending_new = sum(1 for o in new_orders if o.status in ["NEW", "PROCESSING"])
+        shipped_new = sum(1 for o in new_orders if o.status == "SHIPPED")
+        delivered_new = sum(1 for o in new_orders if o.status == "DELIVERED")
+
+        answer = (
+            f"There are currently **{total_shipments:,} total shipments** across **{total_orders:,} unique orders** "
+            f"in the RouteNexa AI platform:\n\n"
+            f"• **Historical Audited Shipments:** {hist_shipments:,} verified dispatches ({hist_orders:,} unique orders) from Nassau Candy's historical baseline.\n"
+            f"• **Live Customer Orders:** {new_orders_count} newly placed orders ({pending_new} pending, {shipped_new} in-transit, {delivered_new} delivered).\n\n"
+            f"All newly entered customer orders are dynamically unified into the Command Center telemetry, predictive ETA models, and real-time route monitoring."
+        )
+        return {
+            "query": raw_query,
+            "answer": answer,
+            "source_metric": "Unified Live Logistics Database (Shipments + New Orders)",
+            "data_points": {
+                "total_shipments": total_shipments,
+                "total_orders": total_orders,
+                "historical_shipments": hist_shipments,
+                "historical_unique_orders": hist_orders,
+                "new_orders_count": new_orders_count,
+                "new_orders_pending": pending_new,
+                "new_orders_shipped": shipped_new,
+                "new_orders_delivered": delivered_new
+            },
+            "suggested_followups": [
+                "How many new orders are there?",
+                "What is the total revenue?",
+                "What is the average lead time?",
+                "Which ship mode is fastest?"
+            ]
+        }
+
+    # 0c. Financial Metrics (Revenue, Profit, Sales)
+    if any(k in q for k in ["revenue", "sales", "gross profit", "profit", "net revenue"]):
+        hist_sales = db.query(func.sum(Shipment.sales)).scalar() or 0.0
+        hist_profit = db.query(func.sum(Shipment.gross_profit)).scalar() or 0.0
+        new_orders = db.query(NewOrder).all()
+        new_sales = sum(o.estimated_sales or (o.units * 3.50) for o in new_orders) if new_orders else 0.0
+        new_profit = new_sales * 0.6591
+        tot_sales = hist_sales + new_sales
+        tot_profit = hist_profit + new_profit
+        return {
+            "query": raw_query,
+            "answer": (
+                f"Total Net Revenue is **${tot_sales:,.2f}** with a Total Gross Profit of **${tot_profit:,.2f}** "
+                f"(historical baseline: ${hist_sales:,.2f} sales, plus ${new_sales:,.2f} from live new customer orders)."
+            ),
+            "source_metric": "Financial Telemetry Aggregation (Historical Baseline + Live Ingest)",
+            "data_points": {
+                "total_revenue": round(tot_sales, 2),
+                "total_gross_profit": round(tot_profit, 2),
+                "new_orders_revenue": round(new_sales, 2)
+            },
+            "suggested_followups": [
+                "How many orders are there?",
+                "What is the average lead time?",
+                "Which region has the most shipments?"
+            ]
+        }
+
     # 1. Factory Lead Times (Highest, Lowest, or Comparison)
     if "factory" in q:
         if "lowest" in q or "fastest" in q or "least" in q:
@@ -1782,13 +1915,19 @@ def query_logistics_assistant(req: AssistantQueryRequest, db: Session = Depends(
         }
 
     # Fallback when query cannot be verified from available database tables
+    hist_cnt = db.query(Shipment).count()
+    new_cnt = db.query(NewOrder).count()
+    tot_cnt = hist_cnt + new_cnt
     return {
         "query": raw_query,
         "answer": (
             "I do not have sufficient verified data in the RouteNexa AI database to answer that specific inquiry. "
-            "To prevent hallucination, I only provide verified statistics derived from Nassau Candy's 10,194 historical "
-            "shipment records, 196 corridor benchmarks, active live order queues, and trained ML models.\n\n"
+            f"To prevent hallucination, I only provide verified statistics derived from Nassau Candy's {tot_cnt:,} total "
+            f"shipment records ({hist_cnt:,} historical + {new_cnt} live customer orders), 196 corridor benchmarks, "
+            "active live order queues, and trained ML models.\n\n"
             "Try asking about:\n"
+            "• How many orders are there in total?\n"
+            "• How many new customer orders are in the queue?\n"
             "• Average lead times across shipping modes or facilities\n"
             "• Top inefficient or efficient freight corridors\n"
             "• Current high-risk customer orders in the queue\n"
@@ -1797,13 +1936,13 @@ def query_logistics_assistant(req: AssistantQueryRequest, db: Session = Depends(
         "source_metric": "Safety Filter: Data Unavailable for Unverified Dimension",
         "data_points": None,
         "suggested_followups": [
+            "How many orders are there?",
+            "How many new orders are there?",
             "What is the average lead time?",
             "Which factory has the highest average lead time?",
             "Show me the top 5 inefficient routes.",
             "How many high-risk new orders are there?",
-            "Which ship mode is fastest?",
-            "How many shipments were made to California?",
-            "Which region has the most shipments?"
+            "Which ship mode is fastest?"
         ]
     }
 
