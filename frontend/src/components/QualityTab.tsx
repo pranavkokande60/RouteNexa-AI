@@ -41,10 +41,24 @@ export const QualityTab: React.FC = () => {
         </button>
       </div>
 
+      {/* Dataset Context Callout */}
+      <div className="px-4 py-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-400">
+        <div className="flex items-center gap-2">
+          <Database className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+          <span><strong>Target Dataset:</strong> <code className="text-slate-200">Nassau Candy Distributor.csv</code> (Static 10,194 baseline training records).</span>
+        </div>
+        <span className="text-[11px] text-emerald-400 font-mono">
+          ✓ Live customer orders are ingested separately into production database
+        </span>
+      </div>
+
       {/* Dataset Core Audit Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-          <span className="text-xs text-slate-400">Total Validated Records</span>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-slate-400">Total Validated Records</span>
+            <span className="text-[9px] font-mono font-bold bg-slate-800 text-cyan-300 px-1.5 py-0.5 rounded border border-slate-700">CSV Baseline</span>
+          </div>
           <div className="text-2xl font-bold text-white mt-1">10,194</div>
           <span className="text-[10px] text-emerald-400 font-semibold">100% Complete (0 NULLs)</span>
         </div>
