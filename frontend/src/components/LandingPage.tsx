@@ -36,6 +36,7 @@ import {
   X
 } from 'lucide-react';
 import { GlobeFallback } from './GlobeFallback';
+import { api } from '../api';
 import {
   FACTORY_NODES,
   DESTINATION_HUBS,
@@ -76,6 +77,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const [twinViewMode, setTwinViewMode] = useState<'factories' | 'corridors' | 'shipments'>('factories');
   const [intelligenceTab, setIntelligenceTab] = useState<'models' | 'regional' | 'anomalies' | 'forecast'>('models');
   const [resetKey, setResetKey] = useState<number>(0);
+  const [summary, setSummary] = useState<any>(null);
+  const [liveNewOrders, setLiveNewOrders] = useState<any[]>([]);
+
+  // Fetch live summary and new orders, and listen to updates
+  useEffect(() => {
+    const fetchLandingData = () => {
+      api.getSummary().then(setSummary).catch(console.error);
+      api.getNewOrders().then(orders => setLiveNewOrders(orders || [])).catch(console.error);
+    };
+    fetchLandingData();
+    window.addEventListener('routenexa:order-updated', fetchLandingData);
+    return () => window.removeEventListener('routenexa:order-updated', fetchLandingData);
+  }, []);
 
   // Initialize inspection panel with Sugar Shack (matches reference design)
   useEffect(() => {
@@ -435,7 +449,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full text-xs text-emerald-400 font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>10,194 Audited Records</span>
+            <span>{summary?.total_shipments ? `${summary.total_shipments.toLocaleString()} Audited Records` : '10,194 Audited Records'}</span>
+            {summary?.new_orders_count > 0 && (
+              <span className="text-[10px] text-cyan-300 font-bold bg-cyan-950/80 px-1.5 py-0.5 rounded-full border border-cyan-700/50">
+                +{summary.new_orders_count} Live
+              </span>
+            )}
           </div>
 
           <button
@@ -540,7 +559,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {/* Empirical Proof Metrics */}
               <div className="pt-4 border-t border-slate-800/80 flex items-center gap-8">
                 <div>
-                  <div className="text-2xl font-black text-white font-mono">10,194</div>
+                  <div className="text-2xl font-black text-white font-mono flex items-baseline gap-1.5">
+                    <span>{summary?.total_shipments ? summary.total_shipments.toLocaleString() : '10,194'}</span>
+                    {summary?.new_orders_count > 0 && (
+                      <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/70 px-1.5 py-0.5 rounded-full border border-emerald-800/40">
+                        +{summary.new_orders_count}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-xs text-slate-400 mt-0.5">Audited Shipments</div>
                 </div>
                 <div>
@@ -573,10 +599,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <path d="M1 11 L7 8 L14 10 L21 3 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <div className="text-lg font-black text-white font-mono tracking-tight">10,194 Dispatches</div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">48 orders/hr dispatch rate</div>
+                <div className="text-lg font-black text-white font-mono tracking-tight flex items-baseline gap-1.5">
+                  <span>{summary?.total_shipments ? `${summary.total_shipments.toLocaleString()} Dispatches` : '10,194 Dispatches'}</span>
+                  {summary?.new_orders_count > 0 && (
+                    <span className="text-[10px] text-cyan-400 font-bold bg-cyan-950/70 px-1.5 py-0.5 rounded-full border border-cyan-800/40">
+                      +{summary.new_orders_count}
+                    </span>
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-400 mt-0.5 truncate">
+                  {summary?.total_orders ? `${summary.total_orders.toLocaleString()} unique orders` : '48 orders/hr dispatch rate'}
+                </div>
                 <div className="mt-2 text-[8px] text-cyan-300 font-mono bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-800/50 inline-block font-semibold">
-                  HISTORICAL OBSERVATION
+                  {summary?.new_orders_count > 0 ? 'HISTORICAL + LIVE INGEST' : 'HISTORICAL OBSERVATION'}
                 </div>
               </div>
 
@@ -591,7 +626,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <path d="M1 12 L7 9 L14 11 L21 5 L27 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <div className="text-lg font-black text-white font-mono tracking-tight">4.12 Days (GBM)</div>
+                <div className="text-lg font-black text-white font-mono tracking-tight">
+                  {summary?.avg_operational_lead_time_days ? `${summary.avg_operational_lead_time_days} Days (GBM)` : '4.12 Days (GBM)'}
+                </div>
                 <div className="text-[10px] text-slate-400 mt-0.5 truncate">95% CI: ±0.35d • 94.2% R²</div>
                 <div className="mt-2 text-[8px] text-sky-300 font-mono bg-sky-950/70 px-2 py-0.5 rounded-full border border-sky-800/50 inline-block font-semibold">
                   ML PREDICTION ENGINE
@@ -624,7 +661,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
                   <span>SLA Delay & Risk</span>
                 </div>
-                <div className="text-lg font-black text-amber-300 font-mono tracking-tight">11.8% Network Delay</div>
+                <div className="text-lg font-black text-amber-300 font-mono tracking-tight">
+                  {summary?.delay_rate_pct ? `${summary.delay_rate_pct}% Network Delay` : '11.8% Network Delay'}
+                </div>
                 <div className="text-[10px] text-slate-400 mt-0.5 truncate">Reefer mandate: AZ/TX &gt;78°F</div>
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-[8px] text-amber-300 font-mono bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-800/50 inline-block font-semibold">
@@ -812,7 +851,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {[
-                { key: 'ALL', label: 'All Modes (10,194)' },
+                { key: 'ALL', label: summary?.total_shipments ? `All Modes (${summary.total_shipments.toLocaleString()})` : 'All Modes (10,194)' },
                 { key: 'Same Day', label: 'Same Day (0.38d avg)' },
                 { key: 'First Class', label: 'First Class (2.55d)' },
                 { key: 'Second Class', label: 'Second Class (3.57d)' },
@@ -931,12 +970,50 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {twinViewMode === 'shipments' && (
                 <div className="space-y-3 text-left">
                   <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                    <span>Live Telemetry Event Feed (WebSocket Simulation)</span>
+                    <span>Live Telemetry Event Feed (WebSocket Simulation & Live Orders)</span>
                     <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      SIMULATOR LIVE
+                      {liveNewOrders.length > 0 ? `${liveNewOrders.length} LIVE ORDERS INGESTED` : 'SIMULATOR LIVE'}
                     </span>
                   </div>
+
+                  {/* Real newly entered orders from New Order Management */}
+                  {liveNewOrders.slice(0, 5).map(o => (
+                    <div
+                      key={o.order_id}
+                      onClick={() => handleSelectFactory(o.factory_name)}
+                      className="p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-950/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs cursor-pointer shadow-lg"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-mono text-emerald-400 font-bold">{o.order_id}</span>
+                          <span className="text-[10px] text-slate-300 font-semibold">• {o.product_name} ({o.units} units)</span>
+                          <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono font-bold border border-emerald-500/30">
+                            LIVE ORDER
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-300">
+                          {o.factory_name} <span className="text-slate-500">→</span> {o.city}, {o.state_province} ({o.ship_mode})
+                        </div>
+                        <div className="text-[10px] text-cyan-300 mt-1 font-mono">
+                          Lead Time: {o.actual_lead_time_days != null ? `${o.actual_lead_time_days}d delivered` : `${o.predicted_lead_time_days || 4.0}d predicted ETA`} • Risk: {o.delay_risk || 'Low Risk'}
+                        </div>
+                      </div>
+                      <div className="text-right sm:min-w-[140px]">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                          o.status === 'DELIVERED' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                          o.status === 'SHIPPED' ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' :
+                          'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                        }`}>
+                          {o.status}
+                        </span>
+                        <div className="text-[10px] text-slate-400 mt-1 font-mono">
+                          {o.order_date || 'Active Order'}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
                   {LIVE_DISPATCHES.map(item => {
                     const matchedTruck = ACTIVE_TRUCKS.find(t => t.trackingId === item.trackingId);
                     const isTruckSelected = selectedTruck === matchedTruck?.id;
