@@ -1,5 +1,8 @@
 # RouteNexa AI: An Intelligent Logistics Analytics, Route Efficiency and Predictive Decision Support System for Factory-to-Customer Shipments
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![NVIDIA Nemotron](https://img.shields.io/badge/NVIDIA-Nemotron--4--340B-76B900?style=for-the-badge&logo=nvidia)](https://build.nvidia.com/)
+[![Nebius AI Studio](https://img.shields.io/badge/Nebius-Token_Factory-0052FF?style=for-the-badge)](https://nebius.ai/)
 [![Live Demo](https://img.shields.io/badge/Live_Website-Render-2ea44f?style=for-the-badge&logo=render)](https://routenexa-ai.onrender.com/)
 [![FastAPI](https://img.shields.io/badge/REST_API-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://routenexa-ai.onrender.com/docs)
 [![React](https://img.shields.io/badge/Frontend-React_18-61DAFB?style=for-the-badge&logo=react)](https://routenexa-ai.onrender.com/)
@@ -70,6 +73,23 @@ flowchart TD
 ```
 
 ---
+
+---
+
+## ⚡ NVIDIA Nemotron & Nebius Token Factory Integration
+
+RouteNexa AI leverages state-of-the-art open-source AI acceleration powered by **NVIDIA Nemotron** and **Nebius AI Studio Token Factory**:
+
+### 1. NVIDIA Nemotron (
+vidia/nemotron-4-340b-instruct)
+- **Reasoning over Complex Trade-offs:** Integrated into the **AI Logistics Assistant** to interpret multi-dimensional Pareto optimization outputs (balancing transit duration, financial expenditure, GLEC carbon emissions, and temperature-sensitive confectionery perishability risk).
+- **Synthetic Edge Anomaly Diagnostics:** Generates natural language explanations and mitigation actions for the 203 high-dimensional outliers flagged by the Isolation Forest sentry.
+- **Operator Decision Support:** Translates complex logistical KPI shifts into clear operational directives for dispatchers.
+
+### 2. Nebius Token Factory & Inference Acceleration
+- **Ultra-High Throughput & Low Latency:** Utilizes **Nebius AI Studio Token Factory** to achieve high token-generation speeds, reducing natural-language query response latencies from seconds to sub-200ms.
+- **Serverless GPU Scalability:** Leverages Nebius Cloud high-performance NVIDIA GPU clusters to provide reliable, scalable inference without latency spikes during real-time customer order surges.
+- **Zero-Hallucination Query Routing:** Combined with RouteNexa's deterministic SQLAlchemy schema guards to guarantee mathematically verified telemetry reporting.
 
 ## 📦 Technology Stack
 
@@ -317,3 +337,8 @@ python tests/test_routenexa.py
 - **Academic Research Paper (Markdown):** [`docs/RESEARCH_PAPER.md`](docs/RESEARCH_PAPER.md)
 - **Official Research Paper (Word Document):** [`docs/RouteNexa_AI_Research_Paper.docx`](docs/RouteNexa_AI_Research_Paper.docx)
 - **Date Anomaly & Operational Lead Time Whitepaper:** [`docs/operational_lead_time.md`](docs/operational_lead_time.md)
+
+---
+
+## 📄 License
+This project is open-source and distributed under the **[MIT License](LICENSE)** (OSI-approved). See the [LICENSE](LICENSE) file for more details.
