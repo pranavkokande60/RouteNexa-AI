@@ -2,7 +2,7 @@
 RouteNexa AI Route Intelligence and Efficiency Scoring Module
 ==============================================================
 Module: src/route_analytics.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 This module computes comprehensive route analytics (Factory -> Destination State),
 calculates the transparent 0-100 Route Efficiency Score, detects geographic bottlenecks,

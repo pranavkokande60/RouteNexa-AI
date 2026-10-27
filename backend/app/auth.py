@@ -2,7 +2,7 @@
 RouteNexa-AI JWT Authentication and Role-Based Access Control
 ==============================================================
 Module: backend/app/auth.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 Implements JWT authentication, password verification, and role-based permissions.
 Simple, secure, and easily explainable to students and evaluators.

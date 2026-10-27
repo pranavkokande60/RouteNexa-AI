@@ -2,7 +2,7 @@
 RouteNexa-AI Database Configuration
 ====================================
 Module: backend/app/database.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 Configures SQLAlchemy engine, session, and declarative base.
 Defaults to zero-configuration SQLite for effortless local demonstrations,

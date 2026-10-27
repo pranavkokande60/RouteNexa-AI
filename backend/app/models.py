@@ -2,7 +2,7 @@
 RouteNexa-AI SQLAlchemy Models
 ===============================
 Module: backend/app/models.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 Database schemas for Users, Routes, Shipments, Alerts, and Audit Logs.
 Designed with clear, student-friendly relationships and explainable table structures.

@@ -2,7 +2,7 @@
 SmartRoute-AI Main FastAPI Application Entrypoint
 =================================================
 Module: backend/app/main.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 Assembles the FastAPI application with:
 1. Versioned REST API endpoints under /api/v1/

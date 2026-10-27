@@ -2,7 +2,7 @@
 RouteNexa AI Analytics Visualizer & Comparison Router
 =====================================================
 Module: backend/app/routes/analytics_visualizer.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 Provides comprehensive, high-performance data aggregation endpoints
 for the interactive Data Comparison and Visualization module.

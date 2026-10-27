@@ -2,7 +2,7 @@
 RouteNexa-AI WebSocket Live Analytics Event Simulator
 ======================================================
 Module: backend/app/websocket_manager.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 Demonstrates real-time event streaming via WebSockets.
 Generates simulated logistics events (e.g. shipment processed, anomaly flagged,

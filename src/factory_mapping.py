@@ -2,7 +2,7 @@
 RouteNexa AI Factory and Product Mapping Module
 ===============================================
 Module: src/factory_mapping.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 This module defines the 5 primary factory facilities, their geospatial coordinates,
 the exact product-to-factory distribution assignments, and US state centroid coordinates

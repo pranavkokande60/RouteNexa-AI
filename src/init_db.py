@@ -2,7 +2,7 @@
 RouteNexa AI Database Seeder and Initialization
 ===============================================
 Module: src/init_db.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 Initializes database tables, creates demo user accounts with secure password hashing,
 and loads the processed dataset and route metrics into SQLite/PostgreSQL.

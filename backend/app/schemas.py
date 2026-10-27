@@ -2,7 +2,7 @@
 RouteNexa-AI Pydantic Schemas
 ==============================
 Module: backend/app/schemas.py
-Author: Antigravity AI Engineering Team
+Author: RouteNexa AI Engineering Team
 
 Pydantic validation schemas for API inputs, outputs, predictions, and analytics.
 """
